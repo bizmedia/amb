@@ -1,0 +1,100 @@
+{
+    "project": "agent-message-bus-local",
+    "mode": "local-dev",
+    "description": "Local-only multi-agent setup for Next.js Agent Message Bus",
+    "agents": [
+    {
+    "id": "po",
+    "name": "Product Owner",
+    "role": "po",
+    "systemPromptFile": ".cursor/agents/po.md",
+    "defaultThreads": [
+    "feature-definition",
+    "backlog-review",
+    "release-planning"
+    ]
+    },
+    {
+    "id": "architect",
+    "name": "System Architect",
+    "role": "architect",
+    "systemPromptFile": ".cursor/agents/architect.md",
+    "defaultThreads": [
+    "architecture-review",
+    "adr-discussion",
+    "scaling-path"
+    ]
+    },
+    {
+    "id": "dev",
+    "name": "Developer",
+    "role": "dev",
+    "systemPromptFile": ".cursor/agents/dev.md",
+    "defaultThreads": [
+    "implementation",
+    "bugfix",
+    "refactor"
+    ]
+    },
+    {
+    "id": "qa",
+    "name": "QA Engineer",
+    "role": "qa",
+    "systemPromptFile": ".cursor/agents/qa.md",
+    "defaultThreads": [
+    "qa-cycle",
+    "release-validation",
+    "dlq-tests"
+    ]
+    },
+    {
+    "id": "devops",
+    "name": "DevOps Engineer",
+    "role": "devops",
+    "systemPromptFile": ".cursor/agents/devops.md",
+    "defaultThreads": [
+    "local-setup",
+    "infra-fixes"
+    ]
+    },
+    {
+    "id": "sdk",
+    "name": "SDK Developer",
+    "role": "sdk",
+    "systemPromptFile": ".cursor/agents/sdk.md",
+    "defaultThreads": [
+    "sdk-dev",
+    "mcp-integration",
+    "api-contract"
+    ]
+    },
+    {
+    "id": "ux",
+    "name": "UX Designer",
+    "role": "ux",
+    "systemPromptFile": ".cursor/agents/ux.md",
+    "defaultThreads": [
+    "ux-review",
+    "interaction-design",
+    "usability-fixes"
+    ]
+    },
+    {
+    "id": "orchestrator",
+    "name": "Workflow Orchestrator",
+    "role": "orchestrator",
+    "systemPromptFile": ".cursor/agents/orchestrator.md",
+    "defaultThreads": [
+    "feature-workflow",
+    "release-orchestration",
+    "incident-response"
+    ]
+    }
+    ],
+    "defaults": {
+    "threadRetentionDays": 30,
+    "maxRetries": 5,
+    "pollIntervalSeconds": 5
+    }
+    }
+    

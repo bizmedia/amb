@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+model Agent {
+  id           String   @id @default(uuid())
+  name         String
+  role         String
+  status       String   @default("online")
+  capabilities Json?
+
+  createdAt DateTime @default(now())
+  lastSeen  DateTime?
+}
+
+model Thread {
+  id        String @id @default(uuid())
+  title     String
+  status    String @default("open")
+  createdAt DateTime @default(now())
+
+  messages Message[]
+}
+
+model Message {
+  id String @id @default(uuid())
+
+  threadId String
+  thread   Thread @relation(fields: [threadId], references: [id])
+
+  fromAgentId String
+  toAgentId   String?
+
+  payload Json
+
+  status  String @default("pending")
+  retries Int    @default(0)
+
+  parentId String?
+  parent   Message? @relation("Replies", fields: [parentId], references: [id])
+  replies  Message[] @relation("Replies")
+
+  createdAt DateTime @default(now())
+
+  @@index([threadId])
+  @@index([toAgentId])
+  @@index([fromAgentId])
+  @@index([status])
+  @@index([createdAt])
+}
