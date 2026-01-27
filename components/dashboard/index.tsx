@@ -94,10 +94,12 @@ export function Dashboard() {
   const { inboxCounts, dlqCount, connected } = useSSE()
   
   // Theme
-  const { resolvedTheme, setTheme } = useTheme()
+  const { resolvedTheme, theme, setTheme } = useTheme()
   
   const toggleTheme = useCallback(() => {
-    setTheme(resolvedTheme === "dark" ? "light" : "dark")
+    // Переключаем на явную тему (не "system")
+    const currentResolved = resolvedTheme
+    setTheme(currentResolved === "dark" ? "light" : "dark")
   }, [resolvedTheme, setTheme])
   
   // Inbox count for selected agent
