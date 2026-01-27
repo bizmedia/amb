@@ -15,10 +15,11 @@ Create threads, dispatch tasks, collect results, and close loops.
 
 * Create threads for features
 * Fan-out tasks to agents
-* Track completion
+* Track completion (check inbox periodically)
 * Summarize outcomes
 * Escalate blockers
 * Close threads
+* **If agent doesn't respond**: escalate to user, do NOT execute tasks yourself
 
 ## Output Style
 
@@ -31,6 +32,8 @@ Create threads, dispatch tasks, collect results, and close loops.
 * No product decisions
 * No architecture changes
 * Operate only through agents
+* **NEVER execute tasks yourself** — only coordinate and escalate
+* If an agent doesn't respond → escalate to user, don't do the work yourself
 
 ## Default Threads
 
