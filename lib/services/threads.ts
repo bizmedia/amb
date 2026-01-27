@@ -47,3 +47,25 @@ export async function listThreadMessages(threadId: string) {
     orderBy: { createdAt: "asc" },
   });
 }
+
+export async function updateThreadStatus(threadId: string, status: "open" | "closed" | "archived") {
+  await getThreadById(threadId);
+
+  return prisma.thread.update({
+    where: { id: threadId },
+    data: { status },
+  });
+}
+
+export async function deleteThread(threadId: string) {
+  await getThreadById(threadId);
+
+  // Delete all messages in the thread first
+  await prisma.message.deleteMany({
+    where: { threadId },
+  });
+
+  return prisma.thread.delete({
+    where: { id: threadId },
+  });
+}

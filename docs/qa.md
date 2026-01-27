@@ -5,7 +5,7 @@
 We are testing a **local-only Agent Message Bus** built with:
 
 * Next.js App Router
-* Prisma + SQLite
+* Prisma + PostgreSQL (with `@prisma/adapter-pg`)
 * shadcn/ui UI
 * Threads + inbox model
 * Retry + DLQ
@@ -182,3 +182,69 @@ curl -s "http://localhost:3001/api/messages/inbox?agentId=<to-agent-id>"
 curl -s -X POST http://localhost:3001/api/messages/<message-id>/ack
 curl -s -X POST http://localhost:3001/api/messages/<message-id>/ack
 ```
+
+---
+
+# ✅ Phase 3 Validation — Inbox & ACK
+
+## Test Script
+
+Run automated tests:
+
+```bash
+chmod +x scripts/test-phase3.sh
+./scripts/test-phase3.sh
+```
+
+## Test Scenarios
+
+### Happy Path
+
+| Step | Action | Expected Result |
+|------|--------|-----------------|
+| 1 | Create Agent A | 201, returns `id` |
+| 2 | Create Agent B | 201, returns `id` |
+| 3 | Create Thread | 201, returns `id` |
+| 4 | Send message A→B | 201, `status: "pending"` |
+| 5 | Inbox fetch (B) | Message returned, `status: "delivered"` |
+| 6 | Inbox fetch #2 (B) | Same message, `status: "delivered"` (idempotent) |
+| 7 | ACK message | `status: "ack"` |
+| 8 | Inbox fetch (B) | Empty array (message gone) |
+
+### Edge Cases
+
+| Case | Action | Expected |
+|------|--------|----------|
+| Double ACK | ACK same message twice | Second call succeeds, `status: "ack"` |
+| ACK unknown | ACK non-existent UUID | 404 `not_found` |
+| ACK pending | ACK before inbox fetch | 409 `conflict` |
+| Invalid UUID | ACK with bad ID format | 400 `invalid_params` |
+
+## Status Transitions
+
+```
+[send] → pending → [inbox] → delivered → [ack] → ack
+```
+
+- `pending`: Message created, not yet fetched
+- `delivered`: Inbox fetched, awaiting ACK
+- `ack`: Confirmed received
+
+## Validation Checklist
+
+- [ ] `POST /api/agents` — creates agent
+- [ ] `POST /api/threads` — creates thread
+- [ ] `POST /api/messages/send` — creates message with `status: pending`
+- [ ] `GET /api/messages/inbox` — returns messages, transitions `pending → delivered`
+- [ ] `GET /api/messages/inbox` (repeat) — idempotent, still `delivered`
+- [ ] `POST /api/messages/:id/ack` — transitions `delivered → ack`
+- [ ] `POST /api/messages/:id/ack` (repeat) — idempotent
+- [ ] `GET /api/messages/inbox` (after ack) — message not returned
+- [ ] 404 for unknown message ACK
+- [ ] 409 for ACK on pending message
+
+## Phase 3 Status
+
+**STATUS: PENDING VALIDATION**
+
+Run `./scripts/test-phase3.sh` and update this section with results.

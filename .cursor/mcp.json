@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "message-bus": {
+      "command": "node",
+      "args": ["mcp-server/dist/index.js"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "MESSAGE_BUS_URL": "http://localhost:3333"
+      }
+    }
+  }
+}

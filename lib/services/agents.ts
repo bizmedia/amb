@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@/lib/generated/prisma";
+import { Prisma } from "../../prisma/generated/client";
 
 export type CreateAgentInput = {
   name: string;
@@ -20,5 +20,21 @@ export async function createAgent(input: CreateAgentInput) {
       role: input.role,
       capabilities: input.capabilities ?? undefined,
     },
+  });
+}
+
+export async function searchAgents(query: string) {
+  if (!query) {
+    return listAgents();
+  }
+
+  return prisma.agent.findMany({
+    where: {
+      OR: [
+        { name: { contains: query, mode: "insensitive" } },
+        { role: { contains: query, mode: "insensitive" } },
+      ],
+    },
+    orderBy: { name: "asc" },
   });
 }

@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { jsonError, handleApiError } from "@/lib/api/errors";
 import { sendMessage } from "@/lib/services/messages";
-import { Prisma } from "@/lib/generated/prisma";
+import { Prisma } from "../../../../prisma/generated/client";
 
 const sendMessageSchema = z.object({
   threadId: z.string().uuid(),

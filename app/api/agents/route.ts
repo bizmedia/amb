@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { jsonError, handleApiError } from "@/lib/api/errors";
 import { createAgent, listAgents } from "@/lib/services/agents";
-import { Prisma } from "@/lib/generated/prisma";
+import { Prisma } from "../../../prisma/generated/client";
 
 const createAgentSchema = z.object({
   name: z.string().min(1),

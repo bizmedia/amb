@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@/lib/generated/prisma";
+import { Prisma } from "../../prisma/generated/client";
 import { ConflictError, NotFoundError } from "@/lib/services/errors";
 
 export type SendMessageInput = {
@@ -67,6 +67,7 @@ export async function sendMessage(input: SendMessageInput) {
 
 export async function getInboxMessages(agentId: string) {
   return prisma.$transaction(async (tx) => {
+    // Mark pending messages as delivered
     await tx.message.updateMany({
       where: {
         toAgentId: agentId,
@@ -77,12 +78,11 @@ export async function getInboxMessages(agentId: string) {
       },
     });
 
+    // Return all delivered (unacked) messages
     return tx.message.findMany({
       where: {
         toAgentId: agentId,
-        status: {
-          in: ["pending", "delivered"],
-        },
+        status: "delivered",
       },
       orderBy: {
         createdAt: "asc",
@@ -112,4 +112,97 @@ export async function ackMessage(messageId: string) {
     where: { id: messageId },
     data: { status: "ack" },
   });
+}
+
+const MAX_RETRIES = 3;
+const DELIVERY_TIMEOUT_MS = 60_000; // 1 minute
+
+export async function retryTimedOutMessages() {
+  const timeoutThreshold = new Date(Date.now() - DELIVERY_TIMEOUT_MS);
+
+  const timedOutMessages = await prisma.message.findMany({
+    where: {
+      status: "delivered",
+      createdAt: { lt: timeoutThreshold },
+    },
+  });
+
+  const results = {
+    retried: 0,
+    movedToDlq: 0,
+  };
+
+  for (const message of timedOutMessages) {
+    const newRetries = message.retries + 1;
+
+    if (newRetries >= MAX_RETRIES) {
+      await prisma.message.update({
+        where: { id: message.id },
+        data: { status: "dlq", retries: newRetries },
+      });
+      results.movedToDlq++;
+    } else {
+      await prisma.message.update({
+        where: { id: message.id },
+        data: { status: "pending", retries: newRetries },
+      });
+      results.retried++;
+    }
+  }
+
+  return results;
+}
+
+export async function getDlqMessages() {
+  return prisma.message.findMany({
+    where: { status: "dlq" },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export async function cleanupOldMessages(retentionDays: number = 30) {
+  const threshold = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000);
+
+  const result = await prisma.message.deleteMany({
+    where: {
+      status: { in: ["ack", "dlq"] },
+      createdAt: { lt: threshold },
+    },
+  });
+
+  return { deleted: result.count };
+}
+
+export async function retryDlqMessage(messageId: string) {
+  const message = await prisma.message.findUnique({
+    where: { id: messageId },
+  });
+
+  if (!message) {
+    throw new NotFoundError("Message");
+  }
+
+  if (message.status !== "dlq") {
+    throw new ConflictError("Message", "Message must be in DLQ to retry");
+  }
+
+  return prisma.message.update({
+    where: { id: messageId },
+    data: { 
+      status: "pending",
+      retries: 0,
+    },
+  });
+}
+
+export async function retryAllDlqMessages() {
+  const result = await prisma.message.updateMany({
+    where: { status: "dlq" },
+    data: { 
+      status: "pending",
+      retries: 0,
+    },
+  });
+
+  return { retried: result.count };
 }

@@ -9,14 +9,13 @@ const paramsSchema = z.object({
 });
 
 type RouteContext = {
-  params: {
-    id: string;
-  };
+  params: Promise<{ id: string }>;
 };
 
 export async function POST(_request: Request, context: RouteContext) {
   try {
-    const parsed = paramsSchema.safeParse(context.params);
+    const params = await context.params;
+    const parsed = paramsSchema.safeParse(params);
     if (!parsed.success) {
       return jsonError(400, "invalid_params", "Invalid message id", parsed.error.flatten());
     }
