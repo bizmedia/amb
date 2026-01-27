@@ -52,7 +52,7 @@ docker compose exec app pnpm seed:agents
 
 Open [http://localhost:3333](http://localhost:3333)
 
-> **Note:** MCP сервер запускается локально через Cursor (stdio), не в Docker.
+> **Note:** The MCP server runs locally via Cursor (stdio), not in Docker.
 
 ### Database Commands
 
@@ -78,29 +78,16 @@ pnpm reset-db          # Reset DB and re-seed
 | `pnpm orchestrator` | Run orchestrator workflow |
 | `pnpm mcp:build` | Build MCP server |
 
-## API Endpoints
+## API Documentation
 
-### Agents
-- `GET /api/agents` — List agents
-- `POST /api/agents` — Register agent
+See [docs/api.md](docs/api.md) for complete API reference with examples.
 
-### Threads
-- `GET /api/threads` — List threads
-- `POST /api/threads` — Create thread
-- `GET /api/threads/:id` — Get thread
-- `PATCH /api/threads/:id` — Update thread status
-- `DELETE /api/threads/:id` — Delete thread
-- `GET /api/threads/:id/messages` — Get thread messages
+Quick reference:
 
-### Messages
-- `POST /api/messages/send` — Send message
-- `GET /api/messages/inbox?agentId=` — Get inbox
-- `POST /api/messages/:id/ack` — Acknowledge message
-
-### DLQ
-- `GET /api/dlq` — Get dead letter queue
-- `POST /api/dlq/:id/retry` — Retry message
-- `POST /api/dlq/retry-all` — Retry all
+- **Agents:** `GET /api/agents`, `POST /api/agents`, `GET /api/agents/search?q=`
+- **Threads:** `GET /api/threads`, `POST /api/threads`, `GET /api/threads/:id`, `PATCH /api/threads/:id`, `DELETE /api/threads/:id`, `GET /api/threads/:id/messages`
+- **Messages:** `POST /api/messages/send`, `GET /api/messages/inbox?agentId=`, `POST /api/messages/:id/ack`
+- **DLQ:** `GET /api/dlq`, `POST /api/dlq/:id/retry`, `POST /api/dlq/retry-all`
 
 ## SDK Usage
 
@@ -208,7 +195,7 @@ Add to your project's `.cursor/mcp.json`:
 }
 ```
 
-See [docs/guide-ru.md](docs/guide-ru.md#интеграция-в-другой-проект) for detailed integration guide.
+See [docs/getting-started.md](docs/getting-started.md) for detailed integration guide.
 
 ## Project Structure
 
@@ -324,6 +311,16 @@ docker compose down -v
 docker compose build --no-cache
 ```
 
+## Documentation
+
+- [Getting Started](docs/getting-started.md) - Quick start guide
+- [API Reference](docs/api.md) - Complete API documentation
+- [Architecture](docs/architecture.md) - System architecture overview
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
 ## License
 
-MIT
+MIT License - see [LICENSE](LICENSE) file for details.
