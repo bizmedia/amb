@@ -1,15 +1,13 @@
 "use client";
 
 import { JsonView, allExpanded } from "react-json-view-lite";
-import type { StyleProps } from "react-json-view-lite";
 
 type Props = {
   data: unknown;
   className?: string;
 };
 
-// Кастомные стили для тёмной темы
-const customStyles: StyleProps = {
+const customStyles = {
   container: "json-container",
   basicChildStyle: "json-child",
   label: "json-label",
@@ -23,33 +21,44 @@ const customStyles: StyleProps = {
   collapseIcon: "json-collapse-icon",
   expandIcon: "json-expand-icon",
   collapsedContent: "json-collapsed",
-};
+} as const;
 
 export function JsonViewer({ data, className }: Props) {
   try {
-    // Если это строка, пытаемся распарсить как JSON
+    let parsedData: unknown = data;
+
     if (typeof data === "string") {
       try {
-        data = JSON.parse(data);
+        parsedData = JSON.parse(data);
       } catch {
-        // Если не JSON, возвращаем как есть
-        return <span className={className}>{data}</span>;
+        return (
+          <pre className={`${className || ""} font-mono text-sm whitespace-pre-wrap break-words text-foreground`}>
+            {data}
+          </pre>
+        );
       }
+    }
+
+    if (parsedData === null || parsedData === undefined) {
+      return (
+        <span className={`${className || ""} text-muted-foreground italic`}>
+          {parsedData === null ? "null" : "undefined"}
+        </span>
+      );
     }
 
     return (
       <div className={`${className || ""} json-viewer-wrapper`}>
         <JsonView
-          data={data}
+          data={parsedData}
           shouldExpandNode={allExpanded}
           style={customStyles}
         />
       </div>
     );
   } catch {
-    // Fallback на обычный JSON.stringify
     return (
-      <pre className={`${className || ""} font-mono text-sm whitespace-pre-wrap break-words text-foreground`}>
+      <pre className={`${className || ""} font-mono text-sm whitespace-pre-wrap break-words text-foreground bg-muted/30 p-2 rounded`}>
         {JSON.stringify(data, null, 2)}
       </pre>
     );
