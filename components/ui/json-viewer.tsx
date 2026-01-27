@@ -1,6 +1,7 @@
 "use client";
 
 import { JsonView, allExpanded } from "react-json-view-lite";
+import "react-json-view-lite/dist/index.css";
 
 type Props = {
   data: unknown;
