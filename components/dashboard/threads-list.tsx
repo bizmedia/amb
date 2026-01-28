@@ -23,6 +23,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   MessageSquareIcon,
   PlusIcon,
   SearchIcon,
@@ -35,6 +40,8 @@ import {
   Loader2Icon,
   AlertCircleIcon,
   FilterIcon,
+  CopyIcon,
+  CheckIcon,
 } from "lucide-react";
 
 type Props = {
@@ -65,6 +72,7 @@ export function ThreadsList({
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [copiedThreadId, setCopiedThreadId] = useState<string | null>(null);
 
   const filteredThreads = useMemo(() => {
     let result = threads;
@@ -148,6 +156,29 @@ export function ThreadsList({
         return "secondary";
       default:
         return "outline";
+    }
+  };
+
+  const handleCopyTitle = async (title: string, threadId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent thread selection
+    try {
+      await navigator.clipboard.writeText(title);
+      setCopiedThreadId(threadId);
+      setTimeout(() => setCopiedThreadId(null), 2000);
+    } catch (err) {
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = title;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand("copy");
+        setCopiedThreadId(threadId);
+        setTimeout(() => setCopiedThreadId(null), 2000);
+      } catch {
+        // Ignore
+      }
+      document.body.removeChild(textArea);
     }
   };
 
@@ -340,17 +371,35 @@ export function ThreadsList({
                       }
                       ${isTemp ? "opacity-60" : ""}`}
                   >
-                    <button
+                    <div
                       onClick={() => !isTemp && onSelectThread(thread.id)}
-                      disabled={isTemp}
-                      className="w-full px-3 py-2.5 text-left"
+                      className={`w-full px-3 py-2.5 text-left ${isTemp ? "cursor-not-allowed" : "cursor-pointer"}`}
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <div className="flex items-center gap-2 min-w-0">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
                           {getStatusIcon(thread.status)}
                           <span className="font-medium text-sm truncate">
                             {thread.title}
                           </span>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="size-5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                                onClick={(e) => handleCopyTitle(thread.title, thread.id, e)}
+                              >
+                                {copiedThreadId === thread.id ? (
+                                  <CheckIcon className="size-3 text-green-500" />
+                                ) : (
+                                  <CopyIcon className="size-3" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {copiedThreadId === thread.id ? "Скопировано!" : "Копировать название"}
+                            </TooltipContent>
+                          </Tooltip>
                         </div>
                         <Badge
                           variant={getStatusBadgeVariant(thread.status)}
@@ -367,7 +416,7 @@ export function ThreadsList({
                           minute: "2-digit",
                         })}
                       </p>
-                    </button>
+                    </div>
 
                     {/* Actions dropdown */}
                     {!isTemp && (

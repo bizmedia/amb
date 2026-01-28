@@ -1,39 +1,39 @@
-# Getting Started
+# Начало работы
 
-Step-by-step guide for developers.
+Пошаговое руководство для разработчиков.
 
-## Table of Contents
+## Содержание
 
-1. [Quick Start (5 minutes)](#quick-start-5-minutes)
-2. [Best Practices](#best-practices)
-3. [Developer Cookbook](#developer-cookbook)
+1. [Быстрый старт (5 минут)](#быстрый-старт-5-минут)
+2. [Рекомендации](#рекомендации)
+3. [Поваренная книга разработчика](#поваренная-книга-разработчика)
 
 ---
 
-# Quick Start (5 minutes)
+# Быстрый старт (5 минут)
 
-Get the system running and send your first message between agents.
+Запустите систему и отправьте первое сообщение между агентами.
 
-## Step 1: Setup (2 min)
+## Шаг 1: Настройка (2 мин)
 
 ```bash
-# Clone and install
+# Клонировать и установить
 git clone <repo-url> && cd mcp-message-bus
 pnpm install
 
-# Start PostgreSQL
+# Запустить PostgreSQL
 docker compose up -d postgres
 
-# Configure and start
+# Настроить и запустить
 cp .env.example .env
 pnpm db:migrate
 pnpm seed:agents
 pnpm dev
 ```
 
-**Verify:** Open http://localhost:3333 — you should see the Dashboard.
+**Проверка:** Откройте http://localhost:3333 — вы должны увидеть Dashboard.
 
-## Step 2: Create a Thread (1 min)
+## Шаг 2: Создать тред (1 мин)
 
 ```bash
 curl -X POST http://localhost:3333/api/threads \
@@ -41,7 +41,7 @@ curl -X POST http://localhost:3333/api/threads \
   -d '{"title": "my-first-thread"}'
 ```
 
-Response:
+Ответ:
 ```json
 {
   "data": {
@@ -52,15 +52,15 @@ Response:
 }
 ```
 
-Save the thread `id`.
+Сохраните `id` треда.
 
-## Step 3: Get Agent IDs (30 sec)
+## Шаг 3: Получить ID агентов (30 сек)
 
 ```bash
 curl http://localhost:3333/api/agents | jq '.data[0:2]'
 ```
 
-Response (example):
+Ответ (пример):
 ```json
 {
   "data": [
@@ -70,9 +70,9 @@ Response (example):
 }
 ```
 
-Save the `id` values for `dev` and `qa` agents.
+Сохраните значения `id` для агентов `dev` и `qa`.
 
-## Step 4: Send a Message (1 min)
+## Шаг 4: Отправить сообщение (1 мин)
 
 ```bash
 curl -X POST http://localhost:3333/api/messages/send \
@@ -85,48 +85,48 @@ curl -X POST http://localhost:3333/api/messages/send \
   }'
 ```
 
-## Step 5: Check Recipient Inbox (30 sec)
+## Шаг 5: Проверить входящие получателя (30 сек)
 
 ```bash
 curl "http://localhost:3333/api/messages/inbox?agentId=<qa-uuid>"
 ```
 
-You should see a message with status `pending`.
+Вы должны увидеть сообщение со статусом `pending`.
 
-## Step 6: Acknowledge Receipt
+## Шаг 6: Подтвердить получение
 
 ```bash
 curl -X POST http://localhost:3333/api/messages/<message-uuid>/ack
 ```
 
-**Done!** You've sent and acknowledged your first message.
+**Готово!** Вы отправили и подтвердили первое сообщение.
 
 ---
 
-# Best Practices
+# Рекомендации
 
-Recommendations for effective use of Agent Message Bus.
+Рекомендации по эффективному использованию Agent Message Bus.
 
-## 1. Thread Structure
+## 1. Структура тредов
 
-### ✅ One thread — one task
-
-```
-feature-auth-login     ← specific feature
-bugfix-api-timeout     ← specific bug
-release-v1.2.0         ← specific release
-```
-
-### ❌ Don't do this
+### ✅ Один тред — одна задача
 
 ```
-general-discussion     ← too broad
-dev-tasks              ← too abstract
+feature-auth-login     ← конкретная фича
+bugfix-api-timeout     ← конкретный баг
+release-v1.2.0         ← конкретный релиз
 ```
 
-### Thread Naming
+### ❌ Не делайте так
 
-| Task Type | Pattern | Example |
+```
+general-discussion     ← слишком широко
+dev-tasks              ← слишком абстрактно
+```
+
+### Именование тредов
+
+| Тип задачи | Паттерн | Пример |
 |-----------|---------|---------|
 | Feature | `feature-<name>` | `feature-csv-export` |
 | Bugfix | `bugfix-<description>` | `bugfix-login-timeout` |
@@ -134,9 +134,9 @@ dev-tasks              ← too abstract
 | Incident | `incident-<code>` | `incident-2026-01-27-db` |
 | Review | `review-<type>-<id>` | `review-pr-142` |
 
-## 2. Message Addressing
+## 2. Адресация сообщений
 
-### Direct message → specific agent
+### Прямое сообщение → конкретному агенту
 
 ```json
 {
@@ -145,7 +145,7 @@ dev-tasks              ← too abstract
 }
 ```
 
-### Broadcast → all agents in thread
+### Broadcast → всем агентам в треде
 
 ```json
 {
@@ -154,7 +154,7 @@ dev-tasks              ← too abstract
 }
 ```
 
-### @mentions in payload
+### @упоминания в payload
 
 ```json
 {
@@ -165,37 +165,37 @@ dev-tasks              ← too abstract
 }
 ```
 
-## 3. Message Lifecycle
+## 3. Жизненный цикл сообщения
 
-### Always acknowledge processing
+### Всегда подтверждайте обработку
 
 ```typescript
 for await (const messages of client.pollInbox(agentId)) {
   for (const msg of messages) {
     try {
-      await processMessage(msg);      // Process
-      await client.ackMessage(msg.id); // ACK after success
+      await processMessage(msg);      // Обработать
+      await client.ackMessage(msg.id); // ACK после успеха
     } catch (error) {
       console.error("Failed:", error);
-      // Don't ACK — message will remain for retry
+      // Не подтверждать — сообщение останется для повтора
     }
   }
 }
 ```
 
-### Monitor DLQ
+### Мониторинг DLQ
 
 ```bash
-# Check periodically
+# Проверяйте периодически
 curl http://localhost:3333/api/dlq
 
-# If messages exist — investigate the cause
+# Если есть сообщения — выясните причину
 curl -X POST http://localhost:3333/api/dlq/<id>/retry
 ```
 
-## 4. Payload Structure
+## 4. Структура payload
 
-### Use typed payloads
+### Используйте типизированные payload
 
 ```typescript
 interface TaskPayload {
@@ -214,17 +214,17 @@ interface ResponsePayload {
 }
 ```
 
-### Example: task → response
+### Пример: задача → ответ
 
 ```json
-// Task from orchestrator → dev
+// Задача от orchestrator → dev
 {
   "type": "task",
   "action": "implement-feature",
   "data": {"feature": "csv-export", "spec": "..."}
 }
 
-// Response from dev → orchestrator
+// Ответ от dev → orchestrator
 {
   "type": "response",
   "parentMessageId": "550e8400-e29b-41d4-a716-446655440000",
@@ -233,23 +233,23 @@ interface ResponsePayload {
 }
 ```
 
-## 5. Polling Strategies
+## 5. Стратегии polling
 
-### For interactive work
-
-```typescript
-// Fast polling for UI
-client.pollInbox(agentId, { interval: 1000 }); // 1 sec
-```
-
-### For background workers
+### Для интерактивной работы
 
 ```typescript
-// Efficient polling for workers
-client.pollInbox(agentId, { interval: 5000 }); // 5 sec
+// Быстрый polling для UI
+client.pollInbox(agentId, { interval: 1000 }); // 1 сек
 ```
 
-### Graceful shutdown
+### Для фоновых воркеров
+
+```typescript
+// Эффективный polling для воркеров
+client.pollInbox(agentId, { interval: 5000 }); // 5 сек
+```
+
+### Корректное завершение
 
 ```typescript
 const controller = new AbortController();
@@ -264,9 +264,9 @@ for await (const msgs of client.pollInbox(agentId, {
 }
 ```
 
-## 6. Closing Threads
+## 6. Закрытие тредов
 
-### Close completed threads
+### Закрывайте завершённые треды
 
 ```bash
 curl -X PATCH http://localhost:3333/api/threads/<id> \
@@ -274,7 +274,7 @@ curl -X PATCH http://localhost:3333/api/threads/<id> \
   -d '{"status": "closed"}'
 ```
 
-### Final message before closing
+### Финальное сообщение перед закрытием
 
 ```json
 {
@@ -289,18 +289,18 @@ curl -X PATCH http://localhost:3333/api/threads/<id> \
 
 ---
 
-# Developer Cookbook
+# Поваренная книга разработчика
 
-Ready-to-use recipes for common tasks.
+Готовые рецепты для типичных задач.
 
-## Recipe 1: Register and Start Agent
+## Рецепт 1: Регистрация и запуск агента
 
 ```typescript
 import { createClient } from "./lib/sdk";
 
 const client = createClient("http://localhost:3333");
 
-// Register with capabilities
+// Регистрация с возможностями
 const agent = await client.registerAgent({
   name: "my-custom-agent",
   role: "worker",
@@ -313,14 +313,14 @@ const agent = await client.registerAgent({
 console.log("Agent ID:", agent.id);
 ```
 
-## Recipe 2: Send Task to Specific Agent
+## Рецепт 2: Отправка задачи конкретному агенту
 
 ```typescript
-// Find agent by role
+// Найти агента по роли
 const agents = await client.listAgents();
 const devAgent = agents.find(a => a.role === "dev");
 
-// Send task
+// Отправить задачу
 await client.sendMessage({
   threadId: "550e8400-e29b-41d4-a716-446655440000",
   fromAgentId: myAgent.id,
@@ -337,7 +337,7 @@ await client.sendMessage({
 });
 ```
 
-## Recipe 3: Inbox Listener with Type Handling
+## Рецепт 3: Обработчик входящих с обработкой типов
 
 ```typescript
 async function processMessage(msg: Message) {
@@ -358,7 +358,7 @@ async function processMessage(msg: Message) {
   }
 }
 
-// Polling loop
+// Цикл polling
 for await (const messages of client.pollInbox(agentId)) {
   for (const msg of messages) {
     await processMessage(msg);
@@ -367,7 +367,7 @@ for await (const messages of client.pollInbox(agentId)) {
 }
 ```
 
-## Recipe 4: Workflow with Sequential Steps
+## Рецепт 4: Workflow с последовательными шагами
 
 ```typescript
 interface Step {
@@ -391,14 +391,14 @@ async function runWorkflow(threadTitle: string, steps: Step[]) {
       payload: { type: "task", task: step.task },
     });
 
-    // Optionally: wait for response
+    // Опционально: дождаться ответа
     // await waitForResponse(thread.id, target.id);
   }
 
   return thread;
 }
 
-// Usage
+// Использование
 await runWorkflow("Deploy v1.2", [
   { agent: "dev", task: "Build release" },
   { agent: "qa", task: "Run smoke tests" },
@@ -406,7 +406,7 @@ await runWorkflow("Deploy v1.2", [
 ]);
 ```
 
-## Recipe 5: Broadcast to All Agents
+## Рецепт 5: Broadcast всем агентам
 
 ```typescript
 await client.sendMessage({
@@ -421,18 +421,18 @@ await client.sendMessage({
 });
 ```
 
-## Recipe 6: Reply to Message (Threading)
+## Рецепт 6: Ответ на сообщение (Threading)
 
 ```typescript
-// Received message
+// Полученное сообщение
 const incomingMsg = inbox[0];
 
-// Reply with parentId
+// Ответ с parentId
 await client.sendMessage({
   threadId: incomingMsg.threadId,
   fromAgentId: myAgent.id,
   toAgentId: incomingMsg.fromAgentId,
-  parentId: incomingMsg.id,  // ← link to parent
+  parentId: incomingMsg.id,  // ← ссылка на родителя
   payload: {
     type: "response",
     status: "done",
@@ -441,10 +441,10 @@ await client.sendMessage({
 });
 ```
 
-## Recipe 7: Retry from DLQ
+## Рецепт 7: Повтор из DLQ
 
 ```typescript
-// Get all failed messages
+// Получить все неудачные сообщения
 const dlq = await client.getDLQ();
 
 console.log(`In DLQ: ${dlq.length} messages`);
@@ -453,24 +453,24 @@ for (const msg of dlq) {
   console.log(`- ${msg.id}: ${msg.retryCount} attempts, from ${msg.fromAgentId}`);
 }
 
-// Retry specific message
+// Повторить конкретное сообщение
 if (dlq.length > 0) {
   await client.retryDLQMessage(dlq[0].id);
 }
 
-// Retry all
+// Повторить все
 await client.retryAllDLQ();
 ```
 
-## Recipe 8: Search Agents
+## Рецепт 8: Поиск агентов
 
 ```typescript
-// By name or role
+// По имени или роли
 const results = await client.searchAgents("dev");
-// Returns agents where name or role contains "dev"
+// Возвращает агентов, где имя или роль содержит "dev"
 ```
 
-## Recipe 9: Filter Threads by Status
+## Рецепт 9: Фильтрация тредов по статусу
 
 ```typescript
 const allThreads = await client.listThreads();
@@ -481,32 +481,32 @@ const closedThreads = allThreads.filter(t => t.status === "closed");
 console.log(`Open: ${openThreads.length}, Closed: ${closedThreads.length}`);
 ```
 
-## Recipe 10: MCP from Cursor
+## Рецепт 10: MCP из Cursor
 
-After configuring `.cursor/mcp.json`:
+После настройки `.cursor/mcp.json`:
 
 ```
-# In Cursor chat:
+# В чате Cursor:
 
 "Create thread 'bugfix-api' and send task to dev agent:
  fix timeout in /api/users"
 
-# AI will execute:
+# AI выполнит:
 # 1. create_thread({ title: "bugfix-api" })
 # 2. send_message({ threadId: ..., toAgentId: dev, payload: {...} })
 ```
 
 ---
 
-## What's Next?
+## Что дальше?
 
-| Resource | Description |
+| Ресурс | Описание |
 |----------|-------------|
-| [API Reference](api.md) | Complete API documentation |
-| [Architecture](architecture.md) | System architecture overview |
-| [examples/](../examples/) | Ready-to-use scripts |
+| [API Reference](api.md) | Полная документация API |
+| [Architecture](architecture.md) | Обзор архитектуры системы |
+| [examples/](../examples/) | Готовые к использованию скрипты |
 | http://localhost:3333 | Dashboard UI |
 
 ---
 
-*Documentation: January 2026*
+*Документация: Январь 2026*

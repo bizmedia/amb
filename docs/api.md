@@ -1,18 +1,18 @@
-# API Reference
+# Справочник API
 
-Complete API documentation for Agent Message Bus.
+Полная документация API для Agent Message Bus.
 
 ## Base URL
 
-All API endpoints are prefixed with `/api`:
+Все API endpoints имеют префикс `/api`:
 
 ```
 http://localhost:3333/api
 ```
 
-## Response Format
+## Формат ответа
 
-All endpoints return JSON with the following structure:
+Все endpoints возвращают JSON со следующей структурой:
 
 ```json
 {
@@ -20,7 +20,7 @@ All endpoints return JSON with the following structure:
 }
 ```
 
-Error responses:
+Ответы с ошибками:
 
 ```json
 {
@@ -32,11 +32,11 @@ Error responses:
 }
 ```
 
-## Agents
+## Агенты
 
-### List Agents
+### Список агентов
 
-Get all registered agents.
+Получить всех зарегистрированных агентов.
 
 **Endpoint:** `GET /api/agents`
 
@@ -58,15 +58,15 @@ Get all registered agents.
 }
 ```
 
-**Example:**
+**Пример:**
 
 ```bash
 curl http://localhost:3333/api/agents
 ```
 
-### Register Agent
+### Регистрация агента
 
-Register a new agent.
+Зарегистрировать нового агента.
 
 **Endpoint:** `POST /api/agents`
 
@@ -96,7 +96,7 @@ Register a new agent.
 }
 ```
 
-**Example:**
+**Пример:**
 
 ```bash
 curl -X POST http://localhost:3333/api/agents \
@@ -108,15 +108,15 @@ curl -X POST http://localhost:3333/api/agents \
   }'
 ```
 
-### Search Agents
+### Поиск агентов
 
-Search agents by name or role.
+Поиск агентов по имени или роли.
 
 **Endpoint:** `GET /api/agents/search?q=<query>`
 
 **Query Parameters:**
 
-- `q` (string, optional): Search query
+- `q` (string, optional): Поисковый запрос
 
 **Response:** `200 OK`
 
@@ -136,17 +136,17 @@ Search agents by name or role.
 }
 ```
 
-**Example:**
+**Пример:**
 
 ```bash
 curl "http://localhost:3333/api/agents/search?q=dev"
 ```
 
-## Threads
+## Треды
 
-### List Threads
+### Список тредов
 
-Get all threads.
+Получить все треды.
 
 **Endpoint:** `GET /api/threads`
 
@@ -166,15 +166,15 @@ Get all threads.
 }
 ```
 
-**Example:**
+**Пример:**
 
 ```bash
 curl http://localhost:3333/api/threads
 ```
 
-### Create Thread
+### Создать тред
 
-Create a new thread.
+Создать новый тред.
 
 **Endpoint:** `POST /api/threads`
 
@@ -187,8 +187,8 @@ Create a new thread.
 }
 ```
 
-- `title` (string, required): Thread title
-- `status` (string, optional): Thread status (`open` or `closed`). Default: `open`
+- `title` (string, required): Название треда
+- `status` (string, optional): Статус треда (`open` или `closed`). По умолчанию: `open`
 
 **Response:** `201 Created`
 
@@ -204,7 +204,7 @@ Create a new thread.
 }
 ```
 
-**Example:**
+**Пример:**
 
 ```bash
 curl -X POST http://localhost:3333/api/threads \
@@ -215,9 +215,9 @@ curl -X POST http://localhost:3333/api/threads \
   }'
 ```
 
-### Get Thread
+### Получить тред
 
-Get a thread by ID.
+Получить тред по ID.
 
 **Endpoint:** `GET /api/threads/:id`
 
@@ -235,15 +235,15 @@ Get a thread by ID.
 }
 ```
 
-**Example:**
+**Пример:**
 
 ```bash
 curl http://localhost:3333/api/threads/550e8400-e29b-41d4-a716-446655440000
 ```
 
-### Update Thread Status
+### Обновить статус треда
 
-Update thread status.
+Обновить статус треда.
 
 **Endpoint:** `PATCH /api/threads/:id`
 
@@ -255,7 +255,7 @@ Update thread status.
 }
 ```
 
-- `status` (string, required): New status (`open`, `closed`, or `archived`)
+- `status` (string, required): Новый статус (`open`, `closed`, или `archived`)
 
 **Response:** `200 OK`
 
@@ -271,7 +271,7 @@ Update thread status.
 }
 ```
 
-**Example:**
+**Пример:**
 
 ```bash
 curl -X PATCH http://localhost:3333/api/threads/550e8400-e29b-41d4-a716-446655440000 \
@@ -279,9 +279,9 @@ curl -X PATCH http://localhost:3333/api/threads/550e8400-e29b-41d4-a716-44665544
   -d '{"status": "closed"}'
 ```
 
-### Delete Thread
+### Удалить тред
 
-Delete a thread.
+Удалить тред.
 
 **Endpoint:** `DELETE /api/threads/:id`
 
@@ -295,15 +295,15 @@ Delete a thread.
 }
 ```
 
-**Example:**
+**Пример:**
 
 ```bash
 curl -X DELETE http://localhost:3333/api/threads/550e8400-e29b-41d4-a716-446655440000
 ```
 
-### Get Thread Messages
+### Получить сообщения треда
 
-Get all messages in a thread.
+Получить все сообщения в треде.
 
 **Endpoint:** `GET /api/threads/:id/messages`
 
@@ -329,17 +329,17 @@ Get all messages in a thread.
 }
 ```
 
-**Example:**
+**Пример:**
 
 ```bash
 curl http://localhost:3333/api/threads/550e8400-e29b-41d4-a716-446655440000/messages
 ```
 
-## Messages
+## Сообщения
 
-### Send Message
+### Отправить сообщение
 
-Send a message between agents.
+Отправить сообщение между агентами.
 
 **Endpoint:** `POST /api/messages/send`
 
@@ -358,11 +358,11 @@ Send a message between agents.
 }
 ```
 
-- `threadId` (string, required, UUID): Thread ID
-- `fromAgentId` (string, required, UUID): Sender agent ID
-- `toAgentId` (string, optional, UUID): Recipient agent ID (null for broadcast)
-- `payload` (object, required): Message payload (any JSON object)
-- `parentId` (string, optional, UUID): Parent message ID for replies
+- `threadId` (string, required, UUID): ID треда
+- `fromAgentId` (string, required, UUID): ID агента-отправителя
+- `toAgentId` (string, optional, UUID): ID агента-получателя (null для broadcast)
+- `payload` (object, required): Payload сообщения (любой JSON объект)
+- `parentId` (string, optional, UUID): ID родительского сообщения для ответов
 
 **Response:** `201 Created`
 
@@ -385,7 +385,7 @@ Send a message between agents.
 }
 ```
 
-**Example:**
+**Пример:**
 
 ```bash
 curl -X POST http://localhost:3333/api/messages/send \
@@ -400,15 +400,15 @@ curl -X POST http://localhost:3333/api/messages/send \
   }'
 ```
 
-### Get Inbox
+### Получить входящие
 
-Get pending messages for an agent.
+Получить ожидающие сообщения для агента.
 
 **Endpoint:** `GET /api/messages/inbox?agentId=<uuid>`
 
 **Query Parameters:**
 
-- `agentId` (string, required, UUID): Agent ID
+- `agentId` (string, required, UUID): ID агента
 
 **Response:** `200 OK`
 
@@ -432,15 +432,15 @@ Get pending messages for an agent.
 }
 ```
 
-**Example:**
+**Пример:**
 
 ```bash
 curl "http://localhost:3333/api/messages/inbox?agentId=550e8400-e29b-41d4-a716-446655440000"
 ```
 
-### Acknowledge Message
+### Подтвердить сообщение
 
-Acknowledge receipt of a message.
+Подтвердить получение сообщения.
 
 **Endpoint:** `POST /api/messages/:id/ack`
 
@@ -464,7 +464,7 @@ Acknowledge receipt of a message.
 }
 ```
 
-**Example:**
+**Пример:**
 
 ```bash
 curl -X POST http://localhost:3333/api/messages/550e8400-e29b-41d4-a716-446655440000/ack
@@ -472,9 +472,9 @@ curl -X POST http://localhost:3333/api/messages/550e8400-e29b-41d4-a716-44665544
 
 ## Dead Letter Queue (DLQ)
 
-### Get DLQ
+### Получить DLQ
 
-Get all messages in the dead letter queue (failed deliveries).
+Получить все сообщения в очереди мёртвых писем (неудачные доставки).
 
 **Endpoint:** `GET /api/dlq`
 
@@ -501,15 +501,15 @@ Get all messages in the dead letter queue (failed deliveries).
 }
 ```
 
-**Example:**
+**Пример:**
 
 ```bash
 curl http://localhost:3333/api/dlq
 ```
 
-### Retry Message
+### Повторить сообщение
 
-Retry a failed message from DLQ.
+Повторить неудачное сообщение из DLQ.
 
 **Endpoint:** `POST /api/dlq/:id/retry`
 
@@ -534,15 +534,15 @@ Retry a failed message from DLQ.
 }
 ```
 
-**Example:**
+**Пример:**
 
 ```bash
 curl -X POST http://localhost:3333/api/dlq/550e8400-e29b-41d4-a716-446655440000/retry
 ```
 
-### Retry All
+### Повторить все
 
-Retry all messages in DLQ.
+Повторить все сообщения в DLQ.
 
 **Endpoint:** `POST /api/dlq/retry-all`
 
@@ -557,28 +557,28 @@ Retry all messages in DLQ.
 }
 ```
 
-**Example:**
+**Пример:**
 
 ```bash
 curl -X POST http://localhost:3333/api/dlq/retry-all
 ```
 
-## Error Codes
+## Коды ошибок
 
-| Code | Description |
+| Код | Описание |
 |------|-------------|
-| `invalid_json` | Request body is not valid JSON |
-| `invalid_request` | Request body validation failed |
-| `invalid_params` | URL parameters validation failed |
-| `not_found` | Resource not found |
-| `internal_error` | Internal server error |
+| `invalid_json` | Тело запроса не является валидным JSON |
+| `invalid_request` | Валидация тела запроса не прошла |
+| `invalid_params` | Валидация параметров URL не прошла |
+| `not_found` | Ресурс не найден |
+| `internal_error` | Внутренняя ошибка сервера |
 
-## Status Codes
+## HTTP статус коды
 
-| Code | Description |
+| Код | Описание |
 |------|-------------|
-| `200` | Success |
-| `201` | Created |
-| `400` | Bad Request |
-| `404` | Not Found |
-| `500` | Internal Server Error |
+| `200` | Успех |
+| `201` | Создано |
+| `400` | Неверный запрос |
+| `404` | Не найдено |
+| `500` | Внутренняя ошибка сервера |

@@ -93,6 +93,9 @@ export function ThreadViewer({ threadId, currentAgentId }: Props) {
   const [selectedToAgent, setSelectedToAgent] = useState<Agent | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const wasNearBottomRef = useRef(true);
+  const previousMessagesCountRef = useRef(0);
 
   const agentMap = useMemo(
     () => new Map(agents.map((a) => [a.id, a])),
@@ -105,10 +108,30 @@ export function ThreadViewer({ threadId, currentAgentId }: Props) {
     [messages]
   );
 
-  // Auto-scroll to bottom on new messages
+  // Auto-scroll to bottom only if user was already at bottom and new messages arrived
   useEffect(() => {
-    if (bottomRef.current) {
+    const viewport = viewportRef.current;
+    if (!viewport || !bottomRef.current) return;
+
+    const isNearBottom =
+      viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight < 100;
+    
+    const previousCount = previousMessagesCountRef.current;
+    const currentCount = messages.length;
+    const hasNewMessages = currentCount > previousCount;
+    const isFirstLoad = previousCount === 0 && currentCount > 0;
+    
+    previousMessagesCountRef.current = currentCount;
+
+    // Only auto-scroll if:
+    // 1. It's the first load (initial messages), OR
+    // 2. New messages arrived AND user was near bottom before update
+    if (isFirstLoad || (hasNewMessages && wasNearBottomRef.current)) {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
+      wasNearBottomRef.current = true;
+    } else {
+      // Update ref with current position
+      wasNearBottomRef.current = isNearBottom;
     }
   }, [messages]);
 
@@ -125,6 +148,7 @@ export function ThreadViewer({ threadId, currentAgentId }: Props) {
     const target = event.currentTarget;
     const isNearBottom =
       target.scrollHeight - target.scrollTop - target.clientHeight < 100;
+    wasNearBottomRef.current = isNearBottom;
     setShowScrollButton(!isNearBottom);
   };
 
@@ -220,7 +244,19 @@ export function ThreadViewer({ threadId, currentAgentId }: Props) {
 
       {/* Messages area */}
       <ScrollArea className="flex-1 min-h-0 relative" onScrollCapture={handleScroll}>
-        <div ref={scrollAreaRef} className="p-4 space-y-6">
+        <div 
+          ref={(node) => {
+            scrollAreaRef.current = node;
+            // Find viewport element (parent of our content div)
+            if (node) {
+              const viewport = node.closest('[data-slot="scroll-area-viewport"]') as HTMLDivElement;
+              if (viewport) {
+                viewportRef.current = viewport;
+              }
+            }
+          }} 
+          className="p-4 space-y-6"
+        >
           {loading && messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
               <Loader2Icon className="size-6 animate-spin mb-2" />
