@@ -22,7 +22,9 @@
     "example:workflow": "tsx --env-file .env examples/workflow-runner.ts",
     "orchestrator": "tsx --env-file .env scripts/orchestrator.ts",
     "mcp:build": "cd mcp-server && pnpm build",
-    "mcp:dev": "cd mcp-server && pnpm dev"
+    "mcp:dev": "cd mcp-server && pnpm dev",
+    "agent:worker": "tsx --env-file .env scripts/agent-worker.ts",
+    "agent:worker:single": "tsx --env-file .env scripts/agent-worker.ts --agent-id="
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.3.0",

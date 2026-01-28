@@ -164,7 +164,7 @@ export function InboxViewer({ agentId }: Props) {
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 h-0">
         <div className="p-4">
           {loading && messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
