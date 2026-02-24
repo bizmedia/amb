@@ -20,7 +20,10 @@ import {
   SunIcon,
   MoonIcon,
   GripVerticalIcon,
+  BookOpenIcon,
+  HelpCircleIcon,
 } from "lucide-react"
+import Link from "next/link"
 import { useTheme } from "@/components/theme-provider"
 
 type TabValue = "messages" | "inbox" | "dlq"
@@ -147,6 +150,22 @@ export function Dashboard() {
               </span>
               {connected && <span>Real-time</span>}
             </div>
+
+            {/* Documentation */}
+            <Button variant="outline" size="sm" asChild className="gap-2 text-muted-foreground">
+              <Link href="/api-docs" target="_blank" rel="noopener noreferrer">
+                <BookOpenIcon className="size-4" />
+                <span className="hidden sm:inline">Документация API</span>
+              </Link>
+            </Button>
+
+            {/* Help */}
+            <Button variant="outline" size="sm" asChild className="gap-2 text-muted-foreground">
+              <Link href="/help">
+                <HelpCircleIcon className="size-4" />
+                <span className="hidden sm:inline">Помощь</span>
+              </Link>
+            </Button>
 
             {/* Theme toggle */}
             <Button

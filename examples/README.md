@@ -1,4 +1,4 @@
-# SDK Examples
+# Примеры SDK
 
 Примеры использования TypeScript SDK для Agent Message Bus.
 

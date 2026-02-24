@@ -1,118 +1,138 @@
-# Agent Message Bus
+# Agent Message Bus (AMB)
 
-Local multi-agent message bus for AI agent orchestration.
+Локальная шина сообщений для оркестрации ИИ-агентов. Репозиторий: [github.com/bizmedia/amb](https://github.com/bizmedia/amb).
 
-## Features
+## Чем является (текущее состояние)
 
-- Thread-based messaging between agents
-- Inbox with ACK/retry/DLQ
+- **Локальный dev-инструмент** — запуск на своей машине или в Docker; без облачного сервиса.
+- **Шина сообщений** — треды, inbox, ACK, retry, DLQ для оркестрации ИИ-агентов.
+- **Монолит на Next.js** — одно приложение: REST API + Dashboard UI, PostgreSQL.
+- **SDK + MCP** — TypeScript SDK и MCP-сервер для Cursor (и других MCP-клиентов).
+- **Без аутентификации** — открытый API для локального использования; сценарий одного пользователя / одного проекта.
+- **Ориентация на разработку** — быстрый старт, seed агентов, примеры, сценарии оркестратора.
+
+## Чем не является (пока)
+
+- **Не облачный сервис** — вы запускаете его сами; публичного SaaS нет.
+- **Не multi-tenant** — нет тенантов, проектов и изоляции по проектам.
+- **Не production-ready** — нет auth, rate limiting и SLA; только для разработки.
+- **Без i18n** — интерфейс и сообщения пока не локализованы.
+
+Дорожная карта (vNext): hosted multi-tenant сервис, API на Nest.js, JWT auth, Dashboard по HTTP — см. [docs/product-vision.md](docs/product-vision.md) и [docs/backlog.md](docs/backlog.md).
+
+## Возможности
+
+- Обмен сообщениями между агентами в рамках тредов
+- Inbox с ACK, retry и DLQ
 - TypeScript SDK
-- MCP Server integration
+- Интеграция с MCP-сервером
 - Dashboard UI
-- Orchestrator workflows
+- Сценарии оркестратора
 
-## Quick Start
+## Быстрый старт
 
-### Option 1: Local Development (recommended)
+### Вариант 1: Локальная разработка (рекомендуется)
 
 ```bash
-# 1. Install dependencies
+# 1. Установить зависимости
 pnpm install
 
-# 2. Start PostgreSQL (via Docker)
+# 2. Запустить PostgreSQL (через Docker)
 docker compose up -d postgres
 
-# 3. Copy environment file
+# 3. Скопировать файл окружения
 cp .env.example .env
 
-# 4. Run database migrations
+# 4. Выполнить миграции БД
 pnpm db:migrate
 
-# 5. Seed agents
-pnpm seed:agents
-
-# 6. Start dev server
+# 5. Запустить dev-сервер
 pnpm dev
 ```
 
-Open [http://localhost:3333](http://localhost:3333)
-
-### Option 2: Full Docker Setup
+Откройте [http://localhost:3333](http://localhost:3333), чтобы убедиться, что сервер запущен.
 
 ```bash
-# Build and start PostgreSQL + Next.js app
+# 6. Засеять агентов (нужен запущенный сервер)
+pnpm seed:agents
+```
+
+### Вариант 2: Полный запуск в Docker
+
+```bash
+# Собрать и запустить PostgreSQL + Next.js приложение
 docker compose up -d --build
 
-# Run migrations
+# Применить миграции
 docker compose exec app pnpm db:migrate:deploy
 
-# Seed data
+# Засеять данные
 docker compose exec app pnpm seed:agents
 ```
 
-Open [http://localhost:3333](http://localhost:3333)
+Откройте [http://localhost:3333](http://localhost:3333)
 
-> **Note:** The MCP server runs locally via Cursor (stdio), not in Docker.
+> **Важно:** MCP-сервер запускается локально через Cursor (stdio), не в Docker.
 
-### Database Commands
+### Команды для работы с БД
 
 ```bash
-pnpm db:migrate        # Create/apply migrations (dev)
-pnpm db:migrate:deploy # Apply migrations (prod)
-pnpm db:studio         # Open Prisma Studio GUI
-pnpm reset-db          # Reset DB and re-seed
+pnpm db:migrate        # Создать/применить миграции (dev)
+pnpm db:migrate:deploy # Применить миграции (prod)
+pnpm db:studio         # Открыть Prisma Studio (GUI)
+pnpm reset-db          # Сбросить БД и засеять заново
 ```
 
-## Scripts
+## Скрипты
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start dev server |
-| `pnpm build` | Build for production |
-| `pnpm seed:agents` | Seed agents from registry |
-| `pnpm seed:threads` | Seed default threads |
-| `pnpm seed:all` | Seed agents + threads |
-| `pnpm reset-db` | Reset database and re-seed |
-| `pnpm worker:retry` | Run retry worker |
-| `pnpm cleanup` | Clean old messages |
-| `pnpm orchestrator` | Run orchestrator workflow |
-| `pnpm mcp:build` | Build MCP server |
+| Команда | Описание |
+|---------|----------|
+| `pnpm dev` | Запустить dev-сервер |
+| `pnpm build` | Сборка для production |
+| `pnpm seed:agents` | Засеять агентов из реестра |
+| `pnpm seed:threads` | Засеять треды по умолчанию |
+| `pnpm seed:all` | Засеять агентов и треды |
+| `pnpm reset-db` | Сбросить БД и засеять заново |
+| `pnpm worker:retry` | Запустить retry-воркер |
+| `pnpm cleanup` | Очистить старые сообщения |
+| `pnpm orchestrator` | Запустить сценарий оркестратора |
+| `pnpm mcp:build` | Собрать MCP-сервер |
 
-## API Documentation
+## Документация API
 
-See [docs/api.md](docs/api.md) for complete API reference with examples.
+Полное описание API с примерами: [docs/api.md](docs/api.md).
 
-Quick reference:
+Краткая справка:
 
-- **Agents:** `GET /api/agents`, `POST /api/agents`, `GET /api/agents/search?q=`
-- **Threads:** `GET /api/threads`, `POST /api/threads`, `GET /api/threads/:id`, `PATCH /api/threads/:id`, `DELETE /api/threads/:id`, `GET /api/threads/:id/messages`
-- **Messages:** `POST /api/messages/send`, `GET /api/messages/inbox?agentId=`, `POST /api/messages/:id/ack`
+- **Агенты:** `GET /api/agents`, `POST /api/agents`, `GET /api/agents/search?q=`
+- **Треды:** `GET /api/threads`, `POST /api/threads`, `GET /api/threads/:id`, `PATCH /api/threads/:id`, `DELETE /api/threads/:id`, `GET /api/threads/:id/messages`
+- **Сообщения:** `POST /api/messages/send`, `GET /api/messages/inbox?agentId=`, `POST /api/messages/:id/ack`
 - **DLQ:** `GET /api/dlq`, `POST /api/dlq/:id/retry`, `POST /api/dlq/retry-all`
 
-## SDK Usage
+## Использование SDK
 
 ```typescript
 import { createClient } from "./lib/sdk";
 
 const client = createClient("http://localhost:3333");
 
-// Register agent
+// Регистрация агента
 const agent = await client.registerAgent({
   name: "my-agent",
   role: "worker",
 });
 
-// Create thread
+// Создание треда
 const thread = await client.createThread({ title: "Task" });
 
-// Send message
+// Отправка сообщения
 await client.sendMessage({
   threadId: thread.id,
   fromAgentId: agent.id,
   payload: { text: "Hello" },
 });
 
-// Poll inbox
+// Опрос inbox
 for await (const messages of client.pollInbox(agent.id)) {
   for (const msg of messages) {
     console.log(msg.payload);
@@ -121,20 +141,22 @@ for await (const messages of client.pollInbox(agent.id)) {
 }
 ```
 
-## MCP Integration
+## Интеграция с MCP
 
-1. Build MCP server:
+1. Собрать MCP-сервер:
+
 ```bash
 cd mcp-server && pnpm install && pnpm build
 ```
 
-2. Add to Cursor settings:
+2. Добавить в настройки Cursor:
+
 ```json
 {
   "mcpServers": {
     "message-bus": {
       "command": "node",
-      "args": ["<path>/mcp-server/dist/index.js"],
+      "args": ["<путь>/mcp-server/dist/index.js"],
       "env": {
         "MESSAGE_BUS_URL": "http://localhost:3333"
       }
@@ -143,30 +165,30 @@ cd mcp-server && pnpm install && pnpm build
 }
 ```
 
-Available MCP tools:
+Доступные MCP-инструменты:
 - `list_agents`, `register_agent`
 - `list_threads`, `create_thread`, `get_thread`, `update_thread`, `close_thread`
 - `get_thread_messages`, `send_message`
 - `get_inbox`, `ack_message`
 - `get_dlq`
 
-## Using in Another Project
+## Использование в другом проекте
 
-### Option 1: Docker Service (Recommended)
+### Вариант 1: Сервис в Docker (рекомендуется)
 
-Run Message Bus as a standalone service and connect via HTTP:
+Запустить Message Bus как отдельный сервис и подключаться по HTTP:
 
 ```bash
-# Start Message Bus
+# Запустить Message Bus
 docker compose up -d
 
-# Connect from your app
+# Подключиться из своего приложения
 curl http://localhost:3333/api/agents
 ```
 
-### Option 2: Copy SDK
+### Вариант 2: Копирование SDK
 
-Copy SDK files to your project for a typed client:
+Скопировать файлы SDK в проект для типизированного клиента:
 
 ```bash
 cp -r lib/sdk your-project/lib/message-bus-sdk
@@ -179,9 +201,9 @@ const client = createClient("http://localhost:3333");
 const agent = await client.registerAgent({ name: "my-service", role: "worker" });
 ```
 
-### Option 3: MCP in Cursor
+### Вариант 3: MCP в Cursor
 
-Add to your project's `.cursor/mcp.json`:
+Добавить в `.cursor/mcp.json` вашего проекта:
 
 ```json
 {
@@ -195,45 +217,45 @@ Add to your project's `.cursor/mcp.json`:
 }
 ```
 
-See [docs/getting-started.md](docs/getting-started.md) for detailed integration guide.
+Подробнее: [docs/getting-started.md](docs/getting-started.md).
 
-## Project Structure
+## Структура проекта
 
 ```
 .cursor/
-  agents/         # Agent system prompts
-  mcp.json        # MCP config example
+  agents/         # Системные промпты агентов
+  mcp.json        # Пример конфига MCP
 app/
-  api/            # API routes
+  api/            # API-маршруты
   page.tsx        # Dashboard
 components/
-  dashboard/      # UI components
-  ui/             # shadcn components
+  dashboard/      # UI-компоненты
+  ui/             # shadcn-компоненты
 lib/
   sdk/            # TypeScript SDK
-  services/       # Business logic
+  services/       # Бизнес-логика
   hooks/          # React hooks
-mcp-server/       # MCP server
-scripts/          # Automation scripts
-examples/         # SDK examples
+mcp-server/       # MCP-сервер
+scripts/          # Скрипты
+examples/         # Примеры использования SDK
 prisma/
-  schema.prisma   # Database schema
+  schema.prisma   # Схема БД
 ```
 
-## Agents
+## Агенты
 
-| Role | Description |
-|------|-------------|
+| Роль | Описание |
+|------|----------|
 | `po` | Product Owner |
-| `architect` | System Architect |
-| `dev` | Developer |
-| `qa` | QA Engineer |
-| `devops` | DevOps Engineer |
-| `sdk` | SDK Developer |
-| `ux` | UX Designer |
-| `orchestrator` | Workflow Orchestrator |
+| `architect` | Системный архитектор |
+| `dev` | Разработчик |
+| `qa` | QA-инженер |
+| `devops` | DevOps-инженер |
+| `sdk` | Разработчик SDK |
+| `ux` | UX-дизайнер |
+| `orchestrator` | Оркестратор сценариев |
 
-## Message Flow
+## Поток сообщений
 
 ```
 Agent A                    Message Bus                    Agent B
@@ -248,79 +270,81 @@ Agent A                    Message Bus                    Agent B
    │                           │── mark (ack) ─────────────>│
 ```
 
-## Environment Variables
+## Переменные окружения
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | `postgresql://postgres:postgres@localhost:5432/messagebus` |
-| `PORT` | Server port | `3333` |
+| Переменная | Описание | По умолчанию |
+|------------|----------|--------------|
+| `DATABASE_URL` | Строка подключения к PostgreSQL | `postgresql://postgres:postgres@localhost:5432/messagebus` |
+| `PORT` | Порт сервера | `3333` |
 
-See `.env.example` for full configuration.
+Полный список: `.env.example`.
 
-## Troubleshooting
+## Устранение неполадок
 
-### Database connection refused
+### Нет подключения к БД
 
 ```bash
-# Check if PostgreSQL is running
+# Проверить, запущен ли PostgreSQL
 docker compose ps
 
-# Restart PostgreSQL
+# Перезапустить PostgreSQL
 docker compose restart postgres
 
-# Check logs
+# Посмотреть логи
 docker compose logs postgres
 ```
 
-### Prisma client not generated
+### Prisma client не сгенерирован
 
 ```bash
 pnpm prisma generate
 ```
 
-### Migration errors
+### Ошибки миграций
 
 ```bash
-# Reset database (WARNING: deletes all data)
+# Сбросить БД (ВНИМАНИЕ: удаляет все данные)
 pnpm reset-db
 
-# Or manually
+# Или вручную
 pnpm prisma migrate reset
 ```
 
-### Port already in use
+### Порт уже занят
 
 ```bash
-# Find process on port 3333
+# Найти процесс на порту 3333
 lsof -i :3333
 
-# Kill process
+# Завершить процесс
 kill -9 <PID>
 ```
 
-### Docker cleanup
+### Очистка Docker
 
 ```bash
-# Stop all containers
+# Остановить контейнеры
 docker compose down
 
-# Remove volumes (deletes data)
+# Удалить тома (удаляет данные)
 docker compose down -v
 
-# Rebuild images
+# Пересобрать образы
 docker compose build --no-cache
 ```
 
-## Documentation
+## Документация
 
-- [Getting Started](docs/getting-started.md) - Quick start guide
-- [API Reference](docs/api.md) - Complete API documentation
-- [Architecture](docs/architecture.md) - System architecture overview
+- [Getting Started](docs/getting-started.md) — подробное руководство
+- [Сценарии использования AMB](docs/use-cases.md) — все варианты применения (REST, SDK, MCP, workflow, DLQ)
+- [API Reference](docs/api.md) — описание API
+- [Architecture](docs/architecture.md) — архитектура системы
+- [Changelog](CHANGELOG.md) — история изменений
 
-## Contributing
+## Участие в разработке
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Мы приветствуем контрибуции. Подробнее: [CONTRIBUTING.md](CONTRIBUTING.md) (как сообщать об ошибках, процесс Pull Request, стандарты кода).
 
-## License
+## Лицензия
 
-MIT License - see [LICENSE](LICENSE) file for details.
+MIT — см. файл [LICENSE](LICENSE).

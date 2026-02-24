@@ -26,7 +26,7 @@ http://localhost:3333/api
 {
   "error": {
     "code": "error_code",
-    "message": "Human readable message",
+    "message": "Человекочитаемое сообщение об ошибке",
     "details": { ... }
   }
 }

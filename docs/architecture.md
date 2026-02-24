@@ -1,10 +1,17 @@
-# Architecture Documentation
-# Agent Message Bus
+# Документация по архитектуре — Agent Message Bus
 
 **Версия:** 1.0  
 **Дата:** 27.01.2026  
 **Автор:** Architect Agent  
 **Статус:** Утверждено
+
+> Примечание (2026-01-28): документ описывает текущую v1 архитектуру (локальный Next.js монолит).
+> Для продуктового vNext (hosted, multi-tenant, JWT, Nest.js backend, RLS) см.:
+> - `docs/productization-multi-tenant-nestjs.md`
+> - `docs/adr/ADR-005-nestjs-backend.md`
+> - `docs/adr/ADR-006-multi-tenant-model.md`
+> - `docs/adr/ADR-007-jwt-and-project-tokens.md`
+> - `docs/adr/ADR-008-postgres-rls.md`
 
 ---
 
@@ -15,7 +22,7 @@
 3. [Компонентная архитектура](#3-компонентная-архитектура)
 4. [Модель данных](#4-модель-данных)
 5. [Потоки данных](#5-потоки-данных)
-6. [API Design](#6-api-design)
+6. [Дизайн API](#6-дизайн-api)
 7. [Интеграции](#7-интеграции)
 8. [Развёртывание](#8-развёртывание)
 9. [Масштабирование](#9-масштабирование)
@@ -81,10 +88,10 @@ Agent Message Bus — локальная шина сообщений для ор
 | Принцип | Описание | Обоснование |
 |---------|----------|-------------|
 | **Local-first** | Только локальное развёртывание | Безопасность данных, минимальные зависимости |
-| **Simplicity** | Минимум движущихся частей | Простота отладки и эксплуатации |
-| **Thread-centric** | Все сообщения в контексте треда | Организация и трассировка |
-| **Reliable delivery** | ACK + Retry + DLQ | Гарантия обработки |
-| **Schema-less payload** | JSON payload без схемы | Гибкость для разных агентов |
+| **Простота** | Минимум движущихся частей | Простота отладки и эксплуатации |
+| **Тредоцентричность** | Все сообщения в контексте треда | Организация и трассировка |
+| **Надёжная доставка** | ACK + Retry + DLQ | Гарантия обработки |
+| **Payload без схемы** | JSON payload без жёсткой схемы | Гибкость для разных агентов |
 
 ### 2.2 Архитектурный стиль
 
@@ -123,9 +130,9 @@ Agent Message Bus — локальная шина сообщений для ор
 └─────────────────────────────────────────────┘
 ```
 
-### 2.3 Ограничения (Constraints)
+### 2.3 Ограничения
 
-| Constraint | Описание |
+| Ограничение | Описание |
 |------------|----------|
 | Next.js App Router | Фреймворк для API и UI |
 | Prisma + PostgreSQL | ORM и база данных |
@@ -228,7 +235,7 @@ Agent Message Bus — локальная шина сообщений для ор
 | Расположение | `app/api/` |
 | Назначение | HTTP endpoints для всех операций |
 
-**Endpoints:**
+**Маршруты API:**
 - `/api/agents` — CRUD для агентов
 - `/api/threads` — CRUD для тредов
 - `/api/messages` — отправка, inbox, ACK
@@ -243,7 +250,7 @@ Agent Message Bus — локальная шина сообщений для ор
 | Расположение | `mcp-server/` |
 | Назначение | Интеграция с Cursor IDE |
 
-**Tools:**
+**Инструменты MCP:**
 - `list_agents`, `register_agent`
 - `list_threads`, `create_thread`, `get_thread`, `update_thread`, `close_thread`
 - `get_thread_messages`, `send_message`
@@ -420,7 +427,7 @@ Agent Message Bus — локальная шина сообщений для ор
      └                                                           └──────────┘
 ```
 
-### 5.3 Retry Flow
+### 5.3 Поток повторов (Retry)
 
 ```
 ┌────────────┐
@@ -477,19 +484,19 @@ Agent Message Bus — локальная шина сообщений для ор
 
 ---
 
-## 6. API Design
+## 6. Дизайн API
 
-### 6.1 REST API Principles
+### 6.1 Принципы REST API
 
-- **Resource-oriented** — `/api/{resource}`
-- **JSON everywhere** — request/response bodies
-- **Consistent response format** — `{ data, error, meta }`
-- **HTTP status codes** — 200, 201, 400, 404, 409, 500
+- **Ориентация на ресурсы** — `/api/{resource}`
+- **JSON везде** — тела запросов и ответов
+- **Единый формат ответа** — `{ data, error, meta }`
+- **HTTP-коды** — 200, 201, 400, 404, 409, 500
 
-### 6.2 Response Format
+### 6.2 Формат ответа
 
 ```typescript
-// Success response
+// Успешный ответ
 {
   "data": { ... },
   "meta": {
@@ -497,34 +504,34 @@ Agent Message Bus — локальная шина сообщений для ор
   }
 }
 
-// Error response
+// Ответ с ошибкой
 {
   "error": {
     "code": "NOT_FOUND",
-    "message": "Thread not found"
+    "message": "Тред не найден"
   }
 }
 ```
 
-### 6.3 Endpoint Summary
+### 6.3 Сводка endpoints
 
-| Method | Path | Description | Request Body |
+| Метод | Путь | Описание | Тело запроса |
 |--------|------|-------------|--------------|
-| GET | `/api/agents` | List agents | — |
-| POST | `/api/agents` | Register agent | `{name, role, capabilities?}` |
-| GET | `/api/agents/search?q=` | Search agents | — |
-| GET | `/api/threads` | List threads | — |
-| POST | `/api/threads` | Create thread | `{title}` |
-| GET | `/api/threads/:id` | Get thread | — |
-| PATCH | `/api/threads/:id` | Update thread | `{status}` |
-| DELETE | `/api/threads/:id` | Delete thread | — |
-| GET | `/api/threads/:id/messages` | Thread messages | — |
-| POST | `/api/messages/send` | Send message | `{threadId, fromAgentId, toAgentId?, payload, parentId?}` |
-| GET | `/api/messages/inbox?agentId=` | Get inbox | — |
-| POST | `/api/messages/:id/ack` | Acknowledge | — |
-| GET | `/api/dlq` | Get DLQ | — |
-| POST | `/api/dlq/:id/retry` | Retry one | — |
-| POST | `/api/dlq/retry-all` | Retry all | — |
+| GET | `/api/agents` | Список агентов | — |
+| POST | `/api/agents` | Регистрация агента | `{name, role, capabilities?}` |
+| GET | `/api/agents/search?q=` | Поиск агентов | — |
+| GET | `/api/threads` | Список тредов | — |
+| POST | `/api/threads` | Создание треда | `{title}` |
+| GET | `/api/threads/:id` | Получить тред | — |
+| PATCH | `/api/threads/:id` | Обновить тред | `{status}` |
+| DELETE | `/api/threads/:id` | Удалить тред | — |
+| GET | `/api/threads/:id/messages` | Сообщения треда | — |
+| POST | `/api/messages/send` | Отправить сообщение | `{threadId, fromAgentId, toAgentId?, payload, parentId?}` |
+| GET | `/api/messages/inbox?agentId=` | Входящие | — |
+| POST | `/api/messages/:id/ack` | Подтвердить доставку | — |
+| GET | `/api/dlq` | Очередь DLQ | — |
+| POST | `/api/dlq/:id/retry` | Повторить одно | — |
+| POST | `/api/dlq/retry-all` | Повторить все | — |
 
 ---
 
@@ -611,7 +618,7 @@ services:
 
 ## 8. Развёртывание
 
-### 8.1 Deployment Diagram
+### 8.1 Схема развёртывания
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -643,22 +650,22 @@ services:
 └──────────────────────────────────────────────────────────────┘
 ```
 
-### 8.2 Environment Variables
+### 8.2 Переменные окружения
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | `postgresql://...@localhost:5432/messagebus` |
-| `PORT` | Server port | `3333` |
-| `MESSAGE_BUS_URL` | URL for MCP server | `http://localhost:3333` |
+| Переменная | Описание | По умолчанию |
+|------------|----------|--------------|
+| `DATABASE_URL` | Строка подключения к PostgreSQL | `postgresql://...@localhost:5432/messagebus` |
+| `PORT` | Порт сервера | `3333` |
+| `MESSAGE_BUS_URL` | URL для MCP-сервера | `http://localhost:3333` |
 
-### 8.3 Startup Sequence
+### 8.3 Последовательность запуска
 
 ```
-1. docker compose up -d postgres     # Start PostgreSQL
-2. pnpm db:migrate                   # Apply migrations
-3. pnpm seed:agents                  # Seed default agents
-4. pnpm dev                          # Start Next.js
-5. Cursor loads MCP server           # stdio transport
+1. docker compose up -d postgres     # Запуск PostgreSQL
+2. pnpm db:migrate                   # Применить миграции
+3. pnpm seed:agents                  # Засеять агентов по умолчанию
+4. pnpm dev                          # Запуск Next.js
+5. Cursor загружает MCP-сервер       # транспорт stdio
 ```
 
 ---
@@ -763,14 +770,14 @@ services:
 
 ## 10. Безопасность
 
-### 10.1 Security Model
+### 10.1 Модель безопасности
 
 | Аспект | Текущее состояние | Обоснование |
 |--------|-------------------|-------------|
-| Аутентификация | Отсутствует | Local-only deployment |
-| Авторизация | Отсутствует | Single-user scenario |
+| Аутентификация | Отсутствует | Только локальное развёртывание |
+| Авторизация | Отсутствует | Сценарий одного пользователя |
 | Шифрование в transit | HTTP (не HTTPS) | localhost |
-| Шифрование at rest | Нет | Local development |
+| Шифрование at rest | Нет | Локальная разработка |
 
 ### 10.2 Рекомендации для production
 
@@ -786,7 +793,7 @@ services:
 
 ## 11. Мониторинг
 
-### 11.1 Текущие возможности
+### 11.1 Текущие возможности мониторинга
 
 | Компонент | Мониторинг |
 |-----------|------------|

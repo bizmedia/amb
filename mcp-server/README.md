@@ -1,6 +1,6 @@
-# Message Bus MCP Server
+# MCP-сервер Agent Message Bus
 
-MCP (Model Context Protocol) server для интеграции Agent Message Bus с Cursor и другими AI клиентами.
+MCP (Model Context Protocol) сервер для интеграции Agent Message Bus с Cursor и другими ИИ-клиентами.
 
 ## Установка
 

@@ -17,21 +17,31 @@
 ## Шаг 1: Настройка (2 мин)
 
 ```bash
-# Клонировать и установить
-git clone <repo-url> && cd mcp-message-bus
+# 1. Клонировать и установить зависимости
+git clone https://github.com/bizmedia/amb.git && cd amb
 pnpm install
 
-# Запустить PostgreSQL
+# 2. Запустить PostgreSQL
 docker compose up -d postgres
 
-# Настроить и запустить
+# 3. Настроить окружение
 cp .env.example .env
+
+# 4. Применить миграции
 pnpm db:migrate
-pnpm seed:agents
+
+# 5. Запустить сервер
 pnpm dev
 ```
 
 **Проверка:** Откройте http://localhost:3333 — вы должны увидеть Dashboard.
+
+> ⚠️ **Важно:** `pnpm seed:agents` требует работающего сервера. Выполняйте его только **после** `pnpm dev`.
+
+```bash
+# 6. В отдельном терминале — засеять агентов
+pnpm seed:agents
+```
 
 ## Шаг 2: Создать тред (1 мин)
 
@@ -509,4 +519,4 @@ console.log(`Open: ${openThreads.length}, Closed: ${closedThreads.length}`);
 
 ---
 
-*Документация: Январь 2026*
+*Обновлено: Февраль 2026*

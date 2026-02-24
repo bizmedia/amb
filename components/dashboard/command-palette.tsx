@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
+import { useRouter } from "next/navigation"
 import {
   CommandDialog,
   CommandEmpty,
@@ -23,6 +24,8 @@ import {
   ArrowDownIcon,
   CheckIcon,
   SendIcon,
+  BookOpenIcon,
+  HelpCircleIcon,
 } from "lucide-react"
 
 type CommandPaletteProps = {
@@ -40,6 +43,7 @@ export function CommandPalette({
   onNewThread,
   onRefresh,
 }: CommandPaletteProps) {
+  const router = useRouter()
   const runCommand = useCallback(
     (command: () => void) => {
       onOpenChange(false)
@@ -89,6 +93,20 @@ export function CommandPalette({
             <SearchIcon className="size-4" />
             <span>Поиск</span>
             <CommandShortcut>/</CommandShortcut>
+          </CommandItem>
+          <CommandItem
+            onSelect={() =>
+              runCommand(() => window.open("/api-docs", "_blank", "noopener,noreferrer"))
+            }
+          >
+            <BookOpenIcon className="size-4" />
+            <span>Документация API (Swagger)</span>
+          </CommandItem>
+          <CommandItem
+            onSelect={() => runCommand(() => router.push("/help"))}
+          >
+            <HelpCircleIcon className="size-4" />
+            <span>Помощь</span>
           </CommandItem>
         </CommandGroup>
 

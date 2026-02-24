@@ -31,10 +31,19 @@ Define product scope, MVP boundaries, backlog, priorities, and acceptance criter
 
 ## Constraints
 
+### Current MVP (v1) - Completed
 * Local-only tool
 * Next.js-only backend
 * No auth
 * Dev-focused MVP
+
+### Product vNext (In Progress)
+* Hosted multi-tenant service
+* Nest.js backend (`apps/api`) + Next.js Dashboard (`apps/web`)
+* JWT authentication (user tokens + project tokens)
+* Tenant → Projects hierarchy
+* PostgreSQL with RLS (Row Level Security)
+* Project-scoped data isolation
 
 ## When Asked
 
