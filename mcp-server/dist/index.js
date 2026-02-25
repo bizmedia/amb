@@ -288,12 +288,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 // ─────────────────────────────────────────────────────────────
 // Start Server
 // ─────────────────────────────────────────────────────────────
-async function main() {
+export async function main() {
     const transport = new StdioServerTransport();
     await server.connect(transport);
     console.error("Message Bus MCP Server running on stdio");
 }
-main().catch((error) => {
-    console.error("Server error:", error);
-    process.exit(1);
-});
+if (process.argv[1]?.endsWith("index.js") || process.argv[1]?.endsWith("index.ts")) {
+    main().catch((error) => {
+        console.error("Server error:", error);
+        process.exit(1);
+    });
+}

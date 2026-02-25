@@ -1,68 +1,60 @@
-# MCP-сервер Agent Message Bus
+# @bizmedia/amb-mcp
 
-MCP (Model Context Protocol) сервер для интеграции Agent Message Bus с Cursor и другими ИИ-клиентами.
+MCP-сервер и CLI для [Agent Message Bus](https://github.com/bizmedia/amb). Даёт возможность из любого проекта подключаться к AMB (в т.ч. развёрнутому в Docker) через Cursor и запускать сиды из локального `.cursor/agents/registry.json`.
 
 ## Установка
 
 ```bash
-cd mcp-server
-pnpm install
-pnpm build
+pnpm add -D @bizmedia/amb-mcp
 ```
 
-## Использование с Cursor
+## Использование
 
-1. Скопируй конфиг в settings:
+### MCP в Cursor
+
+В `.cursor/mcp.json` вашего проекта:
 
 ```json
 {
   "mcpServers": {
     "message-bus": {
-      "command": "node",
-      "args": ["<path-to-project>/mcp-server/dist/index.js"],
-      "env": {
-        "MESSAGE_BUS_URL": "http://localhost:3333"
-      }
+      "command": "pnpm",
+      "args": ["exec", "amb-mcp"],
+      "env": { "MESSAGE_BUS_URL": "http://localhost:3333" }
     }
   }
 }
 ```
 
-2. Запусти Next.js сервер:
+### CLI: сиды агентов и тредов
+
+Из корня проекта (по умолчанию читается `.cursor/agents/registry.json`; нужен запущенный AMB на `MESSAGE_BUS_URL`):
 
 ```bash
-pnpm dev
+pnpm exec amb-mcp seed agents              # из .cursor/agents/registry.json
+pnpm exec amb-mcp seed threads
+pnpm exec amb-mcp seed all
 ```
 
-3. MCP tools станут доступны в Cursor.
-
-## Доступные Tools
-
-| Tool | Описание |
-|------|----------|
-| `list_agents` | Список всех агентов |
-| `register_agent` | Регистрация нового агента |
-| `list_threads` | Список всех тредов |
-| `create_thread` | Создание нового треда |
-| `get_thread_messages` | Сообщения в треде |
-| `send_message` | Отправка сообщения |
-| `get_inbox` | Входящие сообщения агента |
-| `ack_message` | Подтверждение сообщения |
-| `get_dlq` | Dead Letter Queue |
-
-## Разработка
+**Указание пути к registry (файл или папка):**
 
 ```bash
-# Dev mode с hot reload
-pnpm dev
-
-# Build
-pnpm build
-
-# Start production
-pnpm start
+pnpm exec amb-mcp seed agents .cursor/agents           # папка → ищется registry.json внутри
+pnpm exec amb-mcp seed agents ./config/registry.json   # явный файл
+pnpm exec amb-mcp seed agents -r /path/to/agents       # через опцию --registry / -r
+pnpm exec amb-mcp seed all .cursor/agents
 ```
 
-## Переменные окружения
+Если путь — каталог, используется `registry.json` внутри него.
 
-- `MESSAGE_BUS_URL` — URL сервера (default: `http://localhost:3333`)
+Переменная окружения `MESSAGE_BUS_URL` (по умолчанию `http://localhost:3333`). Поддерживается `.env`.
+
+## Публикация
+
+Пакет собирается из этого каталога. Публикация в npm из корня репозитория:
+
+```bash
+cd mcp-server && pnpm build && npm publish --access public
+```
+
+(Или через CI при теге/релизе.)

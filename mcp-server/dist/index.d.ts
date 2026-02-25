@@ -4,4 +4,4 @@
  *
  * Exposes message bus operations as MCP tools for AI agents.
  */
-export {};
+export declare function main(): Promise<void>;

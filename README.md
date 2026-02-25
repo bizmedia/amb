@@ -210,21 +210,58 @@ const client = createClient("http://localhost:3333");
 const agent = await client.registerAgent({ name: "my-service", role: "worker" });
 ```
 
-### Вариант 3: MCP в Cursor
+### Вариант 3: MCP в Cursor (AMB в Docker, подключаемся из другого проекта)
 
-Добавить в `.cursor/mcp.json` вашего проекта:
+Если AMB развёрнут в Docker и доступен на `http://localhost:3333`, а вы работаете в другом репозитории (например, `cloudpbx-ui`), можно подключить MCP **через npm-пакет** (рекомендуется) или по пути к клону AMB.
 
-```json
-{
-  "mcpServers": {
-    "message-bus": {
-      "command": "node",
-      "args": ["/path/to/mcp-server/dist/index.js"],
-      "env": { "MESSAGE_BUS_URL": "http://localhost:3333" }
-    }
-  }
-}
-```
+#### Через npm-пакет @bizmedia/amb-mcp (рекомендуется)
+
+1. **В вашем проекте** установите пакет в dev-зависимости:
+   ```bash
+   pnpm add -D @bizmedia/amb-mcp
+   ```
+
+2. **Создайте или отредактируйте** `.cursor/mcp.json` в корне проекта:
+
+   ```json
+   {
+     "mcpServers": {
+       "message-bus": {
+         "command": "pnpm",
+         "args": ["exec", "amb-mcp"],
+         "env": { "MESSAGE_BUS_URL": "http://localhost:3333" }
+       }
+     }
+   }
+   ```
+
+3. **Сиды агентов и тредов** — из корня проекта (должен быть файл `.cursor/agents/registry.json` и запущен AMB на 3333):
+   ```bash
+   pnpm exec amb-mcp seed agents
+   pnpm exec amb-mcp seed threads
+   pnpm exec amb-mcp seed all
+   ```
+
+   Переменная `MESSAGE_BUS_URL` берётся из окружения или из `.env` (пакет подтягивает dotenv).
+
+#### Через путь к клону AMB
+
+1. Соберите MCP в репозитории AMB: `cd /path/to/amb && pnpm mcp:build`.
+2. В проекте в `.cursor/mcp.json` укажите:
+   ```json
+   {
+     "mcpServers": {
+       "message-bus": {
+         "command": "node",
+         "args": ["/path/to/amb/mcp-server/dist/index.js"],
+         "cwd": "/path/to/amb",
+         "env": { "MESSAGE_BUS_URL": "http://localhost:3333" }
+       }
+     }
+   }
+   ```
+
+Перезапустите Cursor или перезагрузите MCP-серверы — в чате появятся инструменты `list_agents`, `send_message`, `get_inbox` и др.
 
 Подробнее: [docs/getting-started.md](docs/getting-started.md).
 
@@ -244,7 +281,7 @@ lib/
   sdk/            # TypeScript SDK
   services/       # Бизнес-логика
   hooks/          # React hooks
-mcp-server/       # MCP-сервер
+mcp-server/       # MCP-сервер и npm-пакет @bizmedia/amb-mcp (CLI: amb-mcp seed agents)
 scripts/          # Скрипты
 examples/         # Примеры использования SDK
 prisma/

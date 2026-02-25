@@ -1,0 +1,130 @@
+/**
+ * Seed default threads from .cursor/agents/registry.json into the Message Bus API.
+ * Reads registry from current working directory (project that installed the package).
+ */
+
+import "dotenv/config";
+import fs from "fs/promises";
+import path from "path";
+
+const API_URL = process.env.MESSAGE_BUS_URL ?? "http://localhost:3333";
+
+type Registry = {
+  project: string;
+  agents: {
+    id: string;
+    name: string;
+    role: string;
+    defaultThreads?: string[];
+  }[];
+};
+
+async function createThread(title: string): Promise<{ id: string; title: string } | null> {
+  try {
+    const res = await fetch(`${API_URL}/api/threads`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, status: "open" }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error(`   ❌ Failed: ${text}`);
+      return null;
+    }
+
+    const json = await res.json();
+    return json.data;
+  } catch (err) {
+    console.error(`   ❌ Error: ${err}`);
+    return null;
+  }
+}
+
+async function getExistingThreads(): Promise<Set<string>> {
+  try {
+    const res = await fetch(`${API_URL}/api/threads`);
+    if (!res.ok) return new Set();
+    const json = await res.json();
+    return new Set(json.data.map((t: { title: string }) => t.title));
+  } catch {
+    return new Set();
+  }
+}
+
+/** Разрешает путь к файлу registry: если передан каталог — ищет registry.json внутри. */
+async function resolveRegistryFile(registryPath?: string): Promise<string> {
+  if (!registryPath) {
+    return path.resolve(process.cwd(), ".cursor/agents/registry.json");
+  }
+  const resolved = path.resolve(process.cwd(), registryPath);
+  const stat = await fs.stat(resolved).catch(() => null);
+  if (stat?.isDirectory()) {
+    return path.join(resolved, "registry.json");
+  }
+  return resolved;
+}
+
+export async function runSeedThreads(registryPath?: string): Promise<void> {
+  console.log("🌱 Seeding default threads...\n");
+
+  const resolved = await resolveRegistryFile(registryPath);
+
+  const raw = await fs.readFile(resolved, "utf-8");
+  const registry = JSON.parse(raw) as Registry;
+
+  const existingThreads = await getExistingThreads();
+  console.log(`📋 Existing threads: ${existingThreads.size}\n`);
+
+  let created = 0;
+  let skipped = 0;
+
+  const threadTitles = new Set<string>();
+
+  for (const agent of registry.agents) {
+    if (agent.defaultThreads) {
+      for (const thread of agent.defaultThreads) {
+        threadTitles.add(thread);
+      }
+    }
+  }
+
+  console.log(`📝 Threads to seed: ${threadTitles.size}\n`);
+
+  for (const title of threadTitles) {
+    if (existingThreads.has(title)) {
+      console.log(`⏭️  Skip (exists): ${title}`);
+      skipped++;
+      continue;
+    }
+
+    const thread = await createThread(title);
+    if (thread) {
+      console.log(`✅ Created: ${title} → ${thread.id}`);
+      created++;
+    }
+  }
+
+  const workflowThreads = ["general", "announcements", "incidents", "releases"];
+
+  console.log("\n📂 Workflow threads:");
+
+  for (const title of workflowThreads) {
+    if (existingThreads.has(title) || threadTitles.has(title)) {
+      console.log(`⏭️  Skip (exists): ${title}`);
+      skipped++;
+      continue;
+    }
+
+    const thread = await createThread(title);
+    if (thread) {
+      console.log(`✅ Created: ${title} → ${thread.id}`);
+      created++;
+    }
+  }
+
+  console.log("\n────────────────────────────────────");
+  console.log(`✅ Created: ${created}`);
+  console.log(`⏭️  Skipped: ${skipped}`);
+  console.log("🎉 Thread seeding complete.");
+}
