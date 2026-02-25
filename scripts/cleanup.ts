@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { cleanupOldMessages } from "../lib/services/messages";
 
 const RETENTION_DAYS = parseInt(process.env.RETENTION_DAYS || "30", 10);

@@ -11,6 +11,7 @@
  * 6. Close thread
  */
 
+import "dotenv/config";
 import { createClient, type Agent, type Message } from "../lib/sdk/index.js";
 
 const client = createClient(process.env.MESSAGE_BUS_URL ?? "http://localhost:3333");

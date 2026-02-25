@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   # PostgreSQL database
   postgres:
@@ -29,6 +27,10 @@ services:
       - "3333:3333"
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/messagebus
+      # Слушать на всех интерфейсах, чтобы exec (seed:agents и т.д.) мог достучаться до API
+      HOSTNAME: "0.0.0.0"
+      # Для скриптов внутри контейнера — явно IPv4
+      MESSAGE_BUS_URL: http://127.0.0.1:3333
     depends_on:
       postgres:
         condition: service_healthy

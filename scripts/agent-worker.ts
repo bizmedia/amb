@@ -6,6 +6,7 @@
  * и обрабатывает входящие сообщения.
  */
 
+import "dotenv/config";
 import { createClient, type Message } from "../lib/sdk/index.js";
 
 const client = createClient(process.env.MESSAGE_BUS_URL ?? "http://localhost:3333");

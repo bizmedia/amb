@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { retryTimedOutMessages } from "../lib/services/messages";
 
 async function main() {

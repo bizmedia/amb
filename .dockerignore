@@ -1,0 +1,33 @@
+# Dependencies and build artifacts (install in container)
+node_modules
+.next
+.pnpm-store
+
+# Git and IDE
+.git
+.gitignore
+.cursor
+!.cursor/agents
+.vscode
+*.swp
+*.swo
+
+# Env and secrets
+.env
+.env.*
+!.env.example
+
+# Docs and dev
+README.md
+QUICKSTART.md
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+*.md
+docs
+examples
+mcp-server
+
+# Tests and misc
+coverage
+*.log
+.DS_Store

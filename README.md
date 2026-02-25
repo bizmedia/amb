@@ -37,8 +37,9 @@
 # 1. Установить зависимости
 pnpm install
 
-# 2. Запустить PostgreSQL (через Docker)
+# 2. Запустить PostgreSQL (Docker или Podman)
 docker compose up -d postgres
+# или: podman compose up -d postgres
 
 # 3. Скопировать файл окружения
 cp .env.example .env
@@ -57,18 +58,24 @@ pnpm dev
 pnpm seed:agents
 ```
 
-### Вариант 2: Полный запуск в Docker
+### Вариант 2: Полный запуск в Docker/Podman
 
 ```bash
-# Собрать и запустить PostgreSQL + Next.js приложение
+# Собрать и запустить PostgreSQL + Next.js приложение (дождитесь запуска обоих контейнеров)
 docker compose up -d --build
+# или: podman compose up -d --build
 
-# Применить миграции
+# Применить миграции внутри контейнера app
 docker compose exec app pnpm db:migrate:deploy
+# или: podman compose exec app pnpm db:migrate:deploy
 
 # Засеять данные
 docker compose exec app pnpm seed:agents
 ```
+
+Если при запуске сидов в контейнере возникает `ECONNREFUSED`, засевайте с хоста (приложение должно быть запущено и доступно на порту 3333): `MESSAGE_BUS_URL=http://localhost:3333 pnpm seed:agents`.
+
+Если контейнер `app` не запущен, миграции можно применить с хоста (при настроенном `DATABASE_URL` в `.env`): `pnpm db:migrate:deploy`.
 
 Откройте [http://localhost:3333](http://localhost:3333)
 
@@ -280,6 +287,8 @@ Agent A                    Message Bus                    Agent B
 Полный список: `.env.example`.
 
 ## Устранение неполадок
+
+> Во всех командах ниже вместо `docker compose` можно использовать `podman compose`, если у вас установлен Podman.
 
 ### Нет подключения к БД
 

@@ -5,6 +5,7 @@
  * Creates default threads for all agents based on registry.json
  */
 
+import "dotenv/config";
 import fs from "fs/promises";
 import path from "path";
 

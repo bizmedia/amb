@@ -1,6 +1,6 @@
 // Prisma configuration for PostgreSQL
 import "dotenv/config";
-import { defineConfig, env } from "prisma/config";
+import { defineConfig } from "prisma/config";
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
@@ -9,6 +9,7 @@ export default defineConfig({
     seed: "tsx scripts/seed-agents.ts",
   },
   datasource: {
-    url: env("DATABASE_URL"),
+    // Для prisma generate при установке (postinstall) DATABASE_URL может быть не задан
+    url: process.env.DATABASE_URL ?? "postgresql://localhost:5432/amb-db",
   },
 });

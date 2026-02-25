@@ -6,6 +6,7 @@
  * USE WITH CAUTION - this deletes all messages!
  */
 
+import "dotenv/config";
 import { execSync } from "child_process";
 import readline from "readline";
 
