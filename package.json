@@ -32,7 +32,12 @@
     "mcp:dev": "cd mcp-server && pnpm dev",
     "agent:worker": "tsx scripts/agent-worker.ts",
     "agent:worker:single": "tsx scripts/agent-worker.ts --agent-id=",
-    "po:check-inbox": "tsx scripts/po-inbox-checker.ts"
+    "po:check-inbox": "tsx scripts/po-inbox-checker.ts",
+    "docker:build": "podman build -t bizmedia/amb:latest .",
+    "docker:push": "podman push bizmedia/amb:latest",
+    "docker:publish": "pnpm docker:build && pnpm docker:push",
+    "mcp:publish": "pnpm mcp:build && cd mcp-server && npm publish --access public",
+    "mcp:version": "cd mcp-server && npm version"
   },
   "dependencies": {
     "dotenv": "^16.4.7",

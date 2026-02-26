@@ -1,6 +1,6 @@
 {
-  "name": "@bizmedia/amb-mcp",
-  "version": "0.1.0",
+  "name": "@openaisdk/amb-mcp",
+  "version": "0.1.1",
   "description": "MCP server and CLI for Agent Message Bus — list agents, threads, send messages, seed from .cursor/agents/registry.json",
   "type": "module",
   "main": "dist/index.js",
@@ -30,6 +30,11 @@
     "url": "https://github.com/bizmedia/amb.git",
     "directory": "mcp-server"
   },
-  "keywords": ["mcp", "message-bus", "agents", "cursor"],
+  "keywords": [
+    "mcp",
+    "message-bus",
+    "agents",
+    "cursor"
+  ],
   "license": "MIT"
 }
