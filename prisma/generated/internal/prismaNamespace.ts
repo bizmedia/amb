@@ -387,7 +387,8 @@ export const ModelName = {
   Agent: 'Agent',
   Thread: 'Thread',
   Message: 'Message',
-  Project: 'Project'
+  Project: 'Project',
+  Issue: 'Issue'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -403,7 +404,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agent" | "thread" | "message" | "project"
+    modelProps: "agent" | "thread" | "message" | "project" | "issue"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -703,6 +704,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Issue: {
+      payload: Prisma.$IssuePayload<ExtArgs>
+      fields: Prisma.IssueFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.IssueFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IssuePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.IssueFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IssuePayload>
+        }
+        findFirst: {
+          args: Prisma.IssueFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IssuePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.IssueFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IssuePayload>
+        }
+        findMany: {
+          args: Prisma.IssueFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IssuePayload>[]
+        }
+        create: {
+          args: Prisma.IssueCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IssuePayload>
+        }
+        createMany: {
+          args: Prisma.IssueCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.IssueCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IssuePayload>[]
+        }
+        delete: {
+          args: Prisma.IssueDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IssuePayload>
+        }
+        update: {
+          args: Prisma.IssueUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IssuePayload>
+        }
+        deleteMany: {
+          args: Prisma.IssueDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.IssueUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.IssueUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IssuePayload>[]
+        }
+        upsert: {
+          args: Prisma.IssueUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IssuePayload>
+        }
+        aggregate: {
+          args: Prisma.IssueAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateIssue>
+        }
+        groupBy: {
+          args: Prisma.IssueGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.IssueGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.IssueCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.IssueCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -791,6 +866,22 @@ export const ProjectScalarFieldEnum = {
 } as const
 
 export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
+
+
+export const IssueScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  title: 'title',
+  description: 'description',
+  state: 'state',
+  priority: 'priority',
+  assigneeId: 'assigneeId',
+  dueDate: 'dueDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type IssueScalarFieldEnum = (typeof IssueScalarFieldEnum)[keyof typeof IssueScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -900,6 +991,34 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'IssueState'
+ */
+export type EnumIssueStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IssueState'>
+    
+
+
+/**
+ * Reference to a field of type 'IssueState[]'
+ */
+export type ListEnumIssueStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IssueState[]'>
+    
+
+
+/**
+ * Reference to a field of type 'IssuePriority'
+ */
+export type EnumIssuePriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IssuePriority'>
+    
+
+
+/**
+ * Reference to a field of type 'IssuePriority[]'
+ */
+export type ListEnumIssuePriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IssuePriority[]'>
     
 
 
@@ -1015,6 +1134,7 @@ export type GlobalOmitConfig = {
   thread?: Prisma.ThreadOmit
   message?: Prisma.MessageOmit
   project?: Prisma.ProjectOmit
+  issue?: Prisma.IssueOmit
 }
 
 /* Types for Logging */

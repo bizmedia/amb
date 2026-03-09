@@ -37,3 +37,8 @@ export type Message = Prisma.MessageModel
  * 
  */
 export type Project = Prisma.ProjectModel
+/**
+ * Model Issue
+ * 
+ */
+export type Issue = Prisma.IssueModel

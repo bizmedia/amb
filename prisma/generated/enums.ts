@@ -9,7 +9,23 @@
 * 🟢 You can import this file directly.
 */
 
+export const IssueState = {
+  BACKLOG: 'BACKLOG',
+  TODO: 'TODO',
+  IN_PROGRESS: 'IN_PROGRESS',
+  DONE: 'DONE',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type IssueState = (typeof IssueState)[keyof typeof IssueState]
 
 
-// This file is empty because there are no enums in the schema.
-export {}
+export const IssuePriority = {
+  NONE: 'NONE',
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  URGENT: 'URGENT'
+} as const
+
+export type IssuePriority = (typeof IssuePriority)[keyof typeof IssuePriority]

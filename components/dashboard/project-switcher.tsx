@@ -27,7 +27,9 @@ import {
   CopyIcon,
   CheckIcon,
   ChevronDownIcon,
+  ListTodoIcon,
 } from "lucide-react";
+import Link from "next/link";
 
 type Project = {
   id: string;
@@ -226,6 +228,20 @@ export function ProjectSwitcher() {
         {copied ? <CheckIcon className="size-4 text-green-500" /> : <CopyIcon className="size-4" />}
         <span className="hidden sm:inline">ID</span>
       </Button>
+
+      {selectedProject ? (
+        <Button variant="outline" size="sm" asChild className="gap-2">
+          <Link href={`/projects/${selectedProject.id}/tasks`}>
+            <ListTodoIcon className="size-4" />
+            <span className="hidden sm:inline">Tasks</span>
+          </Link>
+        </Button>
+      ) : (
+        <Button variant="outline" size="sm" disabled className="gap-2">
+          <ListTodoIcon className="size-4" />
+          <span className="hidden sm:inline">Tasks</span>
+        </Button>
+      )}
     </div>
   );
 }

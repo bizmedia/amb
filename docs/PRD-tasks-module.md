@@ -32,7 +32,7 @@
 |---------|----------|
 | Issues (CRUD) | Создание, просмотр, редактирование, удаление задач |
 | Title, description | Обязательный title, опциональный description |
-| States | Backlog, Todo, In Progress, Done, Cancelled |
+| States | Backlog, Todo, In Progress, Done |
 | Priorities | None, Low, Medium, High, Urgent |
 | Assignees | Только участники проекта |
 | Due date | Опциональный дедлайн |
@@ -75,7 +75,7 @@
 
 ### E2: States и Priorities
 
-- [ ] State: Backlog, Todo, In Progress, Done, Cancelled (предопределённые)
+- [ ] State: Backlog, Todo, In Progress, Done (предопределённые)
 - [ ] Priority: None, Low, Medium, High, Urgent
 - [ ] Фильтрация по state и priority
 - [ ] Drag-and-drop меняет state (в Kanban)

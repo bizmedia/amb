@@ -57,6 +57,20 @@ pnpm exec amb-mcp seed all .cursor/agents
 
 Поддерживается `.env`.
 
+## MCP Tools: Tasks
+
+Добавлены инструменты для управления задачами проекта (issues):
+
+- `list_project_members` — список участников проекта (agents)
+- `list_issues` — список задач с фильтрами (`state`, `priority`, `assignee`, `dueFrom`, `dueTo`)
+- `create_issue` — создать задачу
+- `get_issue` — получить задачу по `issueId`
+- `update_issue` — обновить поля задачи
+- `move_issue_state` — быстрый перенос задачи между статусами (Kanban shortcut)
+- `delete_issue` — удалить задачу
+
+`projectId` можно передавать в аргументах каждого инструмента, либо задать через `MESSAGE_BUS_PROJECT_ID`.
+
 ## Публикация
 
 Пакет собирается из этого каталога. Публикация в npm из корня репозитория:

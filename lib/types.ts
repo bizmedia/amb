@@ -29,3 +29,26 @@ export type Message = {
   parentId: string | null;
   createdAt: string;
 };
+
+export type IssueState = "BACKLOG" | "TODO" | "IN_PROGRESS" | "DONE" | "CANCELLED";
+export type IssuePriority = "NONE" | "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+
+export type IssueAssignee = {
+  id: string;
+  name: string;
+  role: string;
+};
+
+export type Issue = {
+  id: string;
+  projectId: string;
+  title: string;
+  description: string | null;
+  state: IssueState;
+  priority: IssuePriority;
+  assigneeId: string | null;
+  assignee: IssueAssignee | null;
+  dueDate: string | null;
+  createdAt: string;
+  updatedAt: string;
+};

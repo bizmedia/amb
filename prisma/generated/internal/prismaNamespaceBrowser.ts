@@ -54,7 +54,8 @@ export const ModelName = {
   Agent: 'Agent',
   Thread: 'Thread',
   Message: 'Message',
-  Project: 'Project'
+  Project: 'Project',
+  Issue: 'Issue'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -122,6 +123,22 @@ export const ProjectScalarFieldEnum = {
 } as const
 
 export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
+
+
+export const IssueScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  title: 'title',
+  description: 'description',
+  state: 'state',
+  priority: 'priority',
+  assigneeId: 'assigneeId',
+  dueDate: 'dueDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type IssueScalarFieldEnum = (typeof IssueScalarFieldEnum)[keyof typeof IssueScalarFieldEnum]
 
 
 export const SortOrder = {
