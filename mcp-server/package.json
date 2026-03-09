@@ -13,7 +13,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "tsx index.ts"
+    "dev": "tsx index.ts",
+    "seed:agents": "tsx cli.ts seed agents"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",

@@ -35,11 +35,56 @@ async function resolveRegistryFile(registryPath) {
     }
     return resolved;
 }
+function humanizeRole(role) {
+    return role
+        .split(/[-_]/g)
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
+}
+async function buildRegistryFromAgentsFolder(registryFile) {
+    const agentsDir = path.dirname(registryFile);
+    const entries = await fs.readdir(agentsDir, { withFileTypes: true }).catch(() => []);
+    const mdFiles = entries
+        .filter((entry) => entry.isFile() && entry.name.endsWith(".md"))
+        .map((entry) => entry.name)
+        .sort((a, b) => a.localeCompare(b));
+    const agents = mdFiles.map((fileName) => {
+        const role = path.basename(fileName, ".md");
+        return {
+            id: role,
+            name: humanizeRole(role),
+            role,
+            systemPromptFile: path.join(path.relative(process.cwd(), agentsDir), fileName).replace(/\\/g, "/"),
+            defaultThreads: [`${role}-tasks`],
+        };
+    });
+    return {
+        project: path.basename(process.cwd()),
+        mode: "auto-generated",
+        agents,
+    };
+}
+async function loadOrCreateRegistry(registryFile) {
+    const raw = await fs.readFile(registryFile, "utf-8").catch(() => null);
+    if (raw) {
+        return JSON.parse(raw);
+    }
+    const registry = await buildRegistryFromAgentsFolder(registryFile);
+    await fs.mkdir(path.dirname(registryFile), { recursive: true });
+    await fs.writeFile(registryFile, `${JSON.stringify(registry, null, 2)}\n`, "utf-8");
+    console.log(`ℹ️  registry.json не найден, создан автоматически: ${registryFile}`);
+    console.log(`ℹ️  Найдено агентов по *.md: ${registry.agents.length}\n`);
+    return registry;
+}
 export async function runSeedAgents(registryPath) {
     const resolved = await resolveRegistryFile(registryPath);
-    const raw = await fs.readFile(resolved, "utf-8");
-    const registry = JSON.parse(raw);
+    const registry = await loadOrCreateRegistry(resolved);
     console.log(`🌱 Seeding agents for project: ${registry.project}\n`);
+    if (!registry.agents.length) {
+        console.log("⚠️  В registry нет агентов. Добавьте *.md в .cursor/agents или заполните registry.json.");
+        return;
+    }
     const existingAgents = await getExistingAgents();
     console.log(`📋 Existing agents: ${existingAgents.size}\n`);
     let created = 0;
