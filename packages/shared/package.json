@@ -2,13 +2,11 @@
   "name": "@amb-app/shared",
   "version": "0.1.2",
   "private": true,
-  "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
       "default": "./dist/index.js"
     }
   },
@@ -20,6 +18,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
     "typescript": "^5"
   }
 }

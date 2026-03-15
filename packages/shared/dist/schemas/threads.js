@@ -1,11 +1,14 @@
-import { z } from "zod";
-export const createThreadSchema = z.object({
-    title: z.string().min(1),
-    status: z.enum(["open", "closed"]).optional().default("open"),
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.threadIdParamsSchema = exports.updateThreadSchema = exports.createThreadSchema = void 0;
+const zod_1 = require("zod");
+exports.createThreadSchema = zod_1.z.object({
+    title: zod_1.z.string().min(1),
+    status: zod_1.z.enum(["open", "closed"]).optional().default("open"),
 });
-export const updateThreadSchema = z.object({
-    status: z.enum(["open", "closed", "archived"]),
+exports.updateThreadSchema = zod_1.z.object({
+    status: zod_1.z.enum(["open", "closed", "archived"]),
 });
-export const threadIdParamsSchema = z.object({
-    id: z.string().uuid(),
+exports.threadIdParamsSchema = zod_1.z.object({
+    id: zod_1.z.string().uuid(),
 });

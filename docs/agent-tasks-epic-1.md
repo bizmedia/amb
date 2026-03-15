@@ -25,13 +25,26 @@
 
 ---
 
-### Текущая задача: E1-S2 — packages/db
+### ✅ E1-S2 — packages/db (завершено)
 
-**Статус:** 🚧 In Progress
+**Статус:** ✅ Done  
+**Итог:** Prisma schema и миграции в packages/db, экспорт клиента и IssueState/IssuePriority, RLS-заглушки, prisma.config.mjs, apps/web на @amb-app/db.
 
-**Сделать:** см. [sprint-1-2-action-plan.md](./sprint-1-2-action-plan.md) — создать `packages/db/`, перенести Prisma schema и migrations из `apps/web/prisma/`, экспорт client, RLS helpers (заглушки).
+---
 
-**Очередь (после E1-S2)**
+### ✅ E1-S4 — packages/sdk (завершено)
+
+**Статус:** ✅ Done  
+**Итог:** packages/sdk с типами из shared, createClient({ baseUrl, token? }), apps/web реэкспорт.
+
+---
+
+### Текущая задача: E1-S5 — apps/api (Nest.js)
+
+**Статус:** 🚧 In Progress  
+**Сделано:** Каркас Nest.js (apps/api), PrismaModule/PrismaService с @amb-app/db, ProjectGuard и ProjectParamGuard, глобальный AllExceptionsFilter (NotFoundError, ConflictError, ZodError). Модули: Projects, Agents, Threads, Messages, Issues (projects/:projectId/issues), DLQ. Эндпоинты 1:1 с текущим API. Запуск: `pnpm --filter amb-api run start:dev`, порт 3334.
+
+**Очередь (после E1-S5)**
 
 | Story   | Задача | Зависимость   |
 |--------|--------|----------------|

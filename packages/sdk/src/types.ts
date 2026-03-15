@@ -1,38 +1,11 @@
 /**
  * Agent Message Bus SDK Types
+ * Entity types from shared; API/transport types defined here.
  */
 
-export interface Agent {
-  id: string;
-  projectId: string;
-  name: string;
-  role: string;
-  status: string;
-  capabilities: unknown;
-  createdAt: string;
-  lastSeen: string | null;
-}
+import type { Agent, Message, Thread } from "@amb-app/shared";
 
-export interface Thread {
-  id: string;
-  projectId: string;
-  title: string;
-  status: "open" | "closed" | "archived";
-  createdAt: string;
-}
-
-export interface Message {
-  id: string;
-  projectId: string;
-  threadId: string;
-  fromAgentId: string;
-  toAgentId: string | null;
-  payload: unknown;
-  status: "pending" | "delivered" | "ack" | "failed" | "dlq";
-  retries: number;
-  parentId: string | null;
-  createdAt: string;
-}
+export type { Agent, Thread, Message };
 
 export interface ApiResponse<T> {
   data: T;
@@ -69,6 +42,8 @@ export interface MessageBusConfig {
   baseUrl: string;
   timeout?: number;
   projectId?: string;
+  /** JWT or API token for auth (vNext) */
+  token?: string;
 }
 
 export interface PollOptions {

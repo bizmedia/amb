@@ -183,12 +183,12 @@ export function AgentsList({ selectedAgentId, onSelectAgent, searchInputRef, inb
                         ) : (
                           <WifiOffIcon className="size-3.5 text-muted-foreground" />
                         )}
-                        {counts[agent.id] > 0 && (
+                        {(counts[agent.id] ?? 0) > 0 && (
                           <Badge
                             variant="default"
                             className="text-[10px] px-1.5 h-5 min-w-5 flex items-center justify-center bg-blue-500 text-white"
                           >
-                            {counts[agent.id] > 99 ? "99+" : counts[agent.id]}
+                            {(counts[agent.id] ?? 0) > 99 ? "99+" : counts[agent.id]}
                           </Badge>
                         )}
                         <Badge

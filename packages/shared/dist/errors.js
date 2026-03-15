@@ -1,4 +1,7 @@
-export class NotFoundError extends Error {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ConflictError = exports.NotFoundError = void 0;
+class NotFoundError extends Error {
     resource;
     constructor(resource, message) {
         super(message ?? `${resource} not found`);
@@ -6,7 +9,8 @@ export class NotFoundError extends Error {
         this.resource = resource;
     }
 }
-export class ConflictError extends Error {
+exports.NotFoundError = NotFoundError;
+class ConflictError extends Error {
     resource;
     constructor(resource, message) {
         super(message ?? `${resource} state conflict`);
@@ -14,3 +18,4 @@ export class ConflictError extends Error {
         this.resource = resource;
     }
 }
+exports.ConflictError = ConflictError;

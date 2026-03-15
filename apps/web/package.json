@@ -8,6 +8,7 @@
     "postinstall": "pnpm --filter @amb-app/db exec prisma generate",
     "start": "next start -p 3333",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
     "db:migrate": "pnpm --filter @amb-app/db run db:migrate",
     "db:migrate:deploy": "pnpm --filter @amb-app/db run db:migrate:deploy",
     "db:studio": "pnpm --filter @amb-app/db run db:studio",
@@ -27,6 +28,7 @@
   },
   "dependencies": {
     "@amb-app/db": "workspace:*",
+    "@amb-app/sdk": "workspace:*",
     "@amb-app/shared": "workspace:*",
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
@@ -58,6 +60,8 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.16",
     "@types/node": "^20",

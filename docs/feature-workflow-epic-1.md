@@ -4,7 +4,7 @@
 **Открыт:** 2026-03-15  
 **Оркестратор:** orchestrator  
 **Статус:** 🚧 In Progress  
-**Последняя проверка inbox:** 2026-03-15 (1 входящее обработано)  
+**Последняя проверка тредов:** 2026-03-15. Тред Epic 1: 6 сообщений; E1-S3, E1-S1, E1-S2 — Done; E1-S4 — In Progress.  
 
 **Message Bus (MCP):** тред создан, задачи разосланы агентам.  
 - **Thread ID:** `1c0afd9c-cdad-4f50-bcd6-080232702c3e`  
@@ -25,9 +25,9 @@
 | --- | ----- | --------------- | ----- | -------------- |
 | 1   | E1-S3 | packages/shared | Dev   | ✅ Done        |
 | 2   | E1-S1 | packages/core   | Dev   | ✅ Done        |
-| 3   | E1-S2 | packages/db     | Dev   | 📋 Planned     |
-| 4   | E1-S4 | packages/sdk    | Dev   | 📋 Planned     |
-| 5   | E1-S5 | apps/api (Nest) | Dev   | 📋 Planned     |
+| 3   | E1-S2 | packages/db     | Dev   | ✅ Done        |
+| 4   | E1-S4 | packages/sdk    | Dev   | ✅ Done        |
+| 5   | E1-S5 | apps/api (Nest) | Dev   | 🚧 In Progress |
 | 6   | E1-S6 | Миграция API    | Dev   | 📋 Planned     |
 
 
@@ -47,9 +47,9 @@
 |-----------|---------------|--------|------------|----------|
 | **Dev**   | packages/shared | E1-S3  | ✅ Done     | [agent-tasks-epic-1.md](./agent-tasks-epic-1.md) |
 | Dev       | packages/core | E1-S1  | ✅ Done     | после E1-S3 |
-| **Dev**   | packages/db   | E1-S2  | 🚧 In Progress | после E1-S3 |
-| Dev       | packages/sdk  | E1-S4  | 📋 Queued   | после E1-S3 |
-| Dev       | apps/api      | E1-S5  | 📋 Queued   | после E1-S2 |
+| Dev       | packages/db   | E1-S2  | ✅ Done     | после E1-S3 |
+| Dev       | packages/sdk  | E1-S4  | ✅ Done     | после E1-S3 |
+| **Dev**   | apps/api      | E1-S5  | 🚧 In Progress | после E1-S2 |
 | Dev       | Миграция API  | E1-S6  | 📋 Queued   | после E1-S5 |
 | Architect | Интерфейсы (storage, RLS) | — | 📋 On demand | при блокерах |
 | QA        | Проверки после каждой story | — | 📋 После Dev | см. agent-tasks |
@@ -60,7 +60,7 @@
 
 ## Диспетчеризация
 
-**Сейчас:** Dev — выполнить **E1-S2 (packages/db)** по [agent-tasks-epic-1.md](./agent-tasks-epic-1.md) и [sprint-1-2-action-plan.md](./sprint-1-2-action-plan.md).
+**Сейчас:** Dev — завершить **E1-S5 (apps/api)**: Nest.js приложение создано, endpoints 1:1 с текущим API (projects, agents, threads, messages, inbox, ack, issues, dlq). Порт по умолчанию 3334.
 
 **После E1-S3 (done):** Dev — E1-S1 → E1-S2 → E1-S4. Architect — по запросу (интерфейсы, RLS). QA — проверки после завершения stories.
 

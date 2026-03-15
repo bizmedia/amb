@@ -17,7 +17,7 @@ export function parseMentions(text: string): ParsedMention[] {
 
   while ((match = mentionPattern.exec(text)) !== null) {
     mentions.push({
-      mention: match[1], // группа без @
+      mention: match[1]!, // группа без @
       startIndex: match.index,
       endIndex: match.index + match[0].length,
     });
@@ -57,7 +57,7 @@ export function extractToAgentId(text: string, agents: Agent[]): string | null {
   const mentions = parseMentions(text);
   if (mentions.length === 0) return null;
 
-  const agent = resolveAgentByMention(mentions[0].mention, agents);
+  const agent = resolveAgentByMention(mentions[0]!.mention, agents);
   return agent?.id ?? null;
 }
 
@@ -95,7 +95,7 @@ export function getCurrentMentionAtCursor(
   if (/\s/.test(textAfterAt)) return null;
 
   // Проверяем, что @ в начале или после пробела
-  if (lastAtIndex > 0 && !/\s/.test(text[lastAtIndex - 1])) return null;
+  if (lastAtIndex > 0 && !/\s/.test(text[lastAtIndex - 1]!)) return null;
 
   return {
     mention: textAfterAt,

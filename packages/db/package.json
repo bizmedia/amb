@@ -2,13 +2,11 @@
   "name": "@amb-app/db",
   "version": "0.1.2",
   "private": true,
-  "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
       "default": "./dist/index.js"
     }
   },
@@ -26,6 +24,7 @@
     "dotenv": "^16.4.7"
   },
   "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
     "prisma": "^7.3.0",
     "typescript": "^5"
   }

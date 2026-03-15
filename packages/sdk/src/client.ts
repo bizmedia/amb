@@ -20,49 +20,48 @@ export class MessageBusClient {
   private baseUrl: string;
   private timeout: number;
   private projectId?: string;
+  private token?: string;
 
   constructor(config: MessageBusConfig) {
     this.baseUrl = config.baseUrl.replace(/\/$/, "");
     this.timeout = config.timeout ?? 10000;
     this.projectId = config.projectId;
+    this.token = config.token;
   }
 
-  private async fetch<T>(
-    path: string,
-    options: RequestInit = {}
-  ): Promise<T> {
+  private async fetch<T>(path: string, options: RequestInit = {}): Promise<T> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...(options.headers as Record<string, string>),
+    };
+    if (this.projectId) headers["x-project-id"] = this.projectId;
+    if (this.token) headers["Authorization"] = `Bearer ${this.token}`;
 
     try {
       const response = await fetch(`${this.baseUrl}${path}`, {
         ...options,
         signal: controller.signal,
-        headers: {
-          "Content-Type": "application/json",
-          ...(this.projectId ? { "x-project-id": this.projectId } : {}),
-          ...options.headers,
-        },
+        headers,
       });
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
         throw new MessageBusError(
-          error.error?.message ?? `HTTP ${response.status}`,
-          error.error?.code ?? "http_error",
+          (error as { error?: { message?: string } }).error?.message ??
+            `HTTP ${response.status}`,
+          (error as { error?: { code?: string } }).error?.code ?? "http_error",
           response.status
         );
       }
 
-      return response.json();
+      return response.json() as Promise<T>;
     } finally {
       clearTimeout(timeoutId);
     }
   }
-
-  // ─────────────────────────────────────────────────────────────
-  // Agents
-  // ─────────────────────────────────────────────────────────────
 
   async registerAgent(input: CreateAgentInput): Promise<Agent> {
     const res = await this.fetch<ApiResponse<Agent>>("/api/agents", {
@@ -83,10 +82,6 @@ export class MessageBusClient {
     );
     return res.data;
   }
-
-  // ─────────────────────────────────────────────────────────────
-  // Threads
-  // ─────────────────────────────────────────────────────────────
 
   async createThread(input: CreateThreadInput): Promise<Thread> {
     const res = await this.fetch<ApiResponse<Thread>>("/api/threads", {
@@ -115,7 +110,10 @@ export class MessageBusClient {
     return res.data;
   }
 
-  async updateThread(threadId: string, input: UpdateThreadInput): Promise<Thread> {
+  async updateThread(
+    threadId: string,
+    input: UpdateThreadInput
+  ): Promise<Thread> {
     const res = await this.fetch<ApiResponse<Thread>>(
       `/api/threads/${threadId}`,
       {
@@ -129,10 +127,6 @@ export class MessageBusClient {
   async closeThread(threadId: string): Promise<Thread> {
     return this.updateThread(threadId, { status: "closed" });
   }
-
-  // ─────────────────────────────────────────────────────────────
-  // Messages
-  // ─────────────────────────────────────────────────────────────
 
   async sendMessage(input: SendMessageInput): Promise<Message> {
     const res = await this.fetch<ApiResponse<Message>>("/api/messages/send", {
@@ -150,10 +144,6 @@ export class MessageBusClient {
     return res.data;
   }
 
-  // ─────────────────────────────────────────────────────────────
-  // Inbox
-  // ─────────────────────────────────────────────────────────────
-
   async getInbox(agentId: string): Promise<Message[]> {
     const res = await this.fetch<ApiResponse<Message[]>>(
       `/api/messages/inbox?agentId=${agentId}`
@@ -161,9 +151,6 @@ export class MessageBusClient {
     return res.data;
   }
 
-  /**
-   * Poll inbox for new messages
-   */
   async *pollInbox(
     agentId: string,
     options: PollOptions = {}
@@ -190,9 +177,6 @@ export class MessageBusClient {
     });
   }
 
-  /**
-   * Wait for a response message in a thread from a specific agent
-   */
   async waitForResponse(
     threadId: string,
     fromAgentId: string,
@@ -208,8 +192,6 @@ export class MessageBusClient {
       if (signal?.aborted) return null;
 
       const messages = await this.getThreadMessages(threadId);
-      
-      // Find message from target agent after our message
       let foundAfter = false;
       for (const msg of messages) {
         if (msg.id === afterMessageId) {
@@ -227,9 +209,6 @@ export class MessageBusClient {
     return null;
   }
 
-  /**
-   * Send message and wait for response
-   */
   async sendAndWait(
     input: SendMessageInput & { toAgentId: string },
     options: WaitForResponseOptions = {}
@@ -243,10 +222,6 @@ export class MessageBusClient {
     );
     return { sent, response };
   }
-
-  // ─────────────────────────────────────────────────────────────
-  // DLQ
-  // ─────────────────────────────────────────────────────────────
 
   async getDLQ(): Promise<Message[]> {
     const res = await this.fetch<ApiResponse<Message[]>>("/api/dlq");
@@ -281,9 +256,30 @@ export class MessageBusError extends Error {
   }
 }
 
-// Default client for localhost
-export function createClient(baseUrl = "http://localhost:3333", projectId?: string): MessageBusClient {
-  return new MessageBusClient({ baseUrl, projectId });
+export interface CreateClientOptions {
+  baseUrl?: string;
+  token?: string;
+  projectId?: string;
+  timeout?: number;
+}
+
+/**
+ * Create SDK client. Supports JWT/token for vNext auth.
+ * @example createClient({ baseUrl: "http://localhost:3333", token: "…" })
+ */
+export function createClient(
+  options: string | CreateClientOptions = "http://localhost:3333"
+): MessageBusClient {
+  const config: MessageBusConfig =
+    typeof options === "string"
+      ? { baseUrl: options }
+      : {
+          baseUrl: options.baseUrl ?? "http://localhost:3333",
+          token: options.token,
+          projectId: options.projectId,
+          timeout: options.timeout,
+        };
+  return new MessageBusClient(config);
 }
 
 export * from "./types";

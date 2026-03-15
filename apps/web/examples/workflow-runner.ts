@@ -40,7 +40,7 @@ async function runWorkflow(title: string, steps: WorkflowStep[]) {
 
   // Выполняем шаги
   for (let i = 0; i < steps.length; i++) {
-    const step = steps[i];
+    const step = steps[i]!;
     const targetAgent = agentMap.get(step.agent);
 
     console.log(`Step ${i + 1}/${steps.length}: ${step.task}`);

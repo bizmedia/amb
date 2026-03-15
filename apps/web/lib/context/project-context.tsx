@@ -78,7 +78,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
 
   const selectedProject =
     projectId && projects.length > 0
-      ? projects.find((p) => p.id === projectId) ?? projects[0]
+      ? (projects.find((p) => p.id === projectId) ?? projects[0] ?? null)
       : null;
 
   const value: ProjectContextValue = {

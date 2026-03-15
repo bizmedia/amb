@@ -11,8 +11,10 @@
   "homepage": "https://github.com/bizmedia/amb#readme",
   "author": "Анатолий Туков <anatoliy.tukov@gmail.com>",
   "scripts": {
-    "dev": "turbo run dev --filter=mcp-message-bus",
+    "dev": "turbo run dev --filter=mcp-message-bus --filter=amb-api",
+    "dev:api": "pnpm --filter amb-api run dev",
     "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
     "start": "turbo run start --filter=mcp-message-bus",
     "lint": "turbo run lint --filter=mcp-message-bus",
     "db:migrate": "pnpm --filter @amb-app/db run db:migrate",

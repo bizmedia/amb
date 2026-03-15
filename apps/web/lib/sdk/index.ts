@@ -1,37 +1,11 @@
 /**
- * Agent Message Bus SDK
- *
- * @example
- * ```ts
- * import { createClient } from "@/lib/sdk";
- *
- * const client = createClient("http://localhost:3333");
- *
- * // Register agent
- * const agent = await client.registerAgent({
- *   name: "my-agent",
- *   role: "worker",
- * });
- *
- * // Create thread
- * const thread = await client.createThread({ title: "Task #1" });
- *
- * // Send message
- * await client.sendMessage({
- *   threadId: thread.id,
- *   fromAgentId: agent.id,
- *   payload: { text: "Hello!" },
- * });
- *
- * // Poll inbox
- * for await (const messages of client.pollInbox(agent.id)) {
- *   for (const msg of messages) {
- *     console.log(msg.payload);
- *     await client.ackMessage(msg.id);
- *   }
- * }
- * ```
+ * Re-export Agent Message Bus SDK from @amb-app/sdk for backward compatibility.
+ * Scripts and examples can keep importing from "@/lib/sdk" or "../lib/sdk".
  */
-
-export { MessageBusClient, MessageBusError, createClient } from "./client";
-export * from "./types";
+export {
+  MessageBusClient,
+  MessageBusError,
+  createClient,
+} from "@amb-app/sdk";
+export type { CreateClientOptions } from "@amb-app/sdk";
+export * from "@amb-app/sdk";

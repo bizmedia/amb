@@ -2,7 +2,7 @@
 
 **Версия:** 1.0  
 **Дата:** 2026-01-28  
-**Последняя проверка статуса:** 2026-03-15 (Orchestrator)  
+**Последняя проверка статуса:** 2026-03-15 (Orchestrator). Тред Epic 1 проверен: E1-S3, E1-S1, E1-S2 — Done по отчётам Dev.  
 **Автор:** Product Owner Agent  
 **Статус:** Актуально
 
@@ -34,9 +34,9 @@
 | ID    | Story                           | Приоритет | Статус     | Acceptance Criteria                                                                                                     |
 | ----- | ------------------------------- | --------- | ---------- | ----------------------------------------------------------------------------------------------------------------------- |
 | E1-S1 | Выделить `packages/core`        | P0        | ✅ Done    | • Доменная логика (threads/messages/inbox/dlq) без Nest/Next • Интерфейс к хранилищу (без Prisma) • Unit тесты проходят |
-| E1-S2 | Выделить `packages/db`          | P0        | 📋 Planned | • Prisma schema + migrations • Prisma client export • RLS helpers (готовность к RLS)                                    |
+| E1-S2 | Выделить `packages/db`          | P0        | ✅ Done    | • Prisma schema + migrations • Prisma client export • RLS helpers (готовность к RLS)                                    |
 | E1-S3 | Выделить `packages/shared`      | P0        | ✅ Done        | • Общие типы/ошибки/схемы (Zod) • Константы • Используется в core/db/sdk                                                |
-| E1-S4 | Выделить `packages/sdk`         | P0        | 📋 Planned | • TS SDK для внешних проектов • `createClient({ baseUrl, token })` • Использует `packages/shared`                       |
+| E1-S4 | Выделить `packages/sdk`         | P0        | ✅ Done    | • TS SDK для внешних проектов • `createClient({ baseUrl, token })` • Использует `packages/shared`                       |
 | E1-S5 | Создать `apps/api` (Nest.js)    | P0        | 📋 Planned | • Nest.js приложение • Endpoints 1:1 с текущим API • Использует packages/core/db/shared • Временный доступ без RLS      |
 | E1-S6 | Миграция endpoints в `apps/api` | P0        | 📋 Planned | • Все текущие endpoints работают • Project scoping в коде (пока без RLS) • Integration тесты проходят                   |
 
