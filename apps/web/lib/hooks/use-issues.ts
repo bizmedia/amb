@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import type { Issue, IssuePriority, IssueState } from "@/lib/types";
+import { fetchApiData, isAuthError } from "@/lib/api/http";
 
 export type IssueFilters = {
   state?: IssueState | "ALL";
@@ -67,17 +68,17 @@ export function useIssues(projectId: string, filters: IssueFilters) {
 
     try {
       const query = buildIssueQuery(filters);
-      const res = await fetch(`/api/projects/${projectId}/issues${query}`);
-      const json = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        throw new Error(json?.error?.message ?? "Failed to fetch issues");
-      }
-
-      setIssues(json?.data ?? []);
+      const data = await fetchApiData<Issue[]>(`/api/projects/${projectId}/issues${query}`);
+      setIssues(data);
       setError(null);
     } catch (fetchError) {
-      setError(fetchError instanceof Error ? fetchError.message : "Failed to fetch issues");
+      setError(
+        isAuthError(fetchError)
+          ? "Authentication required. Please log in."
+          : fetchError instanceof Error
+            ? fetchError.message
+            : "Failed to fetch issues"
+      );
     } finally {
       setLoading(false);
     }
@@ -85,7 +86,7 @@ export function useIssues(projectId: string, filters: IssueFilters) {
 
   const createIssue = useCallback(
     async (input: IssueInput) => {
-      const res = await fetch(`/api/projects/${projectId}/issues`, {
+      const issue = await fetchApiData<Issue>(`/api/projects/${projectId}/issues`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -98,13 +99,8 @@ export function useIssues(projectId: string, filters: IssueFilters) {
         }),
       });
 
-      const json = await res.json().catch(() => null);
-      if (!res.ok) {
-        throw new Error(json?.error?.message ?? "Failed to create issue");
-      }
-
       await fetchIssues();
-      return json.data as Issue;
+      return issue;
     },
     [fetchIssues, projectId]
   );
@@ -132,33 +128,22 @@ export function useIssues(projectId: string, filters: IssueFilters) {
         payload.dueDate = toApiDate(input.dueDate);
       }
 
-      const res = await fetch(`/api/projects/${projectId}/issues/${issueId}`, {
+      const issue = await fetchApiData<Issue>(`/api/projects/${projectId}/issues/${issueId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
-      const json = await res.json().catch(() => null);
-      if (!res.ok) {
-        throw new Error(json?.error?.message ?? "Failed to update issue");
-      }
-
-      setIssues((current) => current.map((issue) => (issue.id === issueId ? json.data : issue)));
-      return json.data as Issue;
+      setIssues((current) => current.map((currentIssue) => (currentIssue.id === issueId ? issue : currentIssue)));
+      return issue;
     },
     [projectId]
   );
 
   const deleteIssue = useCallback(
     async (issueId: string) => {
-      const res = await fetch(`/api/projects/${projectId}/issues/${issueId}`, {
+      await fetchApiData<{ success: true }>(`/api/projects/${projectId}/issues/${issueId}`, {
         method: "DELETE",
       });
-
-      const json = await res.json().catch(() => null);
-      if (!res.ok) {
-        throw new Error(json?.error?.message ?? "Failed to delete issue");
-      }
 
       setIssues((current) => current.filter((issue) => issue.id !== issueId));
     },

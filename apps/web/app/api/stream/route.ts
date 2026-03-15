@@ -1,6 +1,7 @@
 import { resolveProjectId } from "@/lib/api/project-context";
 import { getApiClient } from "@/lib/api/client";
 import { handleApiError } from "@/lib/api/errors";
+import { getRequestAuthToken } from "@/lib/api/auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,8 +12,11 @@ type SSEData =
   | { type: "connected"; data: { timestamp: string } }
   | { type: "new_message"; data: { messageId: string; threadId: string; fromAgentId: string; toAgentId: string | null; timestamp: string } };
 
-async function getInboxCounts(projectId: string): Promise<Record<string, number>> {
-  const client = getApiClient(projectId);
+async function getInboxCounts(
+  projectId: string,
+  token?: string
+): Promise<Record<string, number>> {
+  const client = getApiClient({ projectId, token });
   const agents = await client.listAgents();
   const counts = await Promise.all(
     agents.map(async (agent) => {
@@ -29,16 +33,17 @@ async function getInboxCounts(projectId: string): Promise<Record<string, number>
   );
 }
 
-async function getDlqCount(projectId: string): Promise<number> {
-  const client = getApiClient(projectId);
+async function getDlqCount(projectId: string, token?: string): Promise<number> {
+  const client = getApiClient({ projectId, token });
   const messages = await client.getDLQ();
   return messages.length;
 }
 
 export async function GET(req: Request) {
   let project;
+  const token = getRequestAuthToken(req);
   try {
-    project = await resolveProjectId(req);
+    project = await resolveProjectId(req, token);
   } catch (error) {
     return handleApiError(error);
   }
@@ -64,8 +69,8 @@ export async function GET(req: Request) {
 
       // Send initial data
       const [inboxCounts, dlqCount] = await Promise.all([
-        getInboxCounts(projectId),
-        getDlqCount(projectId),
+        getInboxCounts(projectId, token),
+        getDlqCount(projectId, token),
       ]);
 
       send(controller, { type: "inbox_counts", data: inboxCounts });
@@ -75,8 +80,8 @@ export async function GET(req: Request) {
       const interval = setInterval(async () => {
         try {
           const [newInboxCounts, newDlqCount] = await Promise.all([
-            getInboxCounts(projectId),
-            getDlqCount(projectId),
+            getInboxCounts(projectId, token),
+            getDlqCount(projectId, token),
           ]);
 
           send(controller, { type: "inbox_counts", data: newInboxCounts });

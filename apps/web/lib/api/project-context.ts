@@ -13,9 +13,12 @@ type ProjectContextResult =
   | { projectId: string; error: null }
   | { projectId: null; error: Response };
 
-export async function resolveProjectId(request: Request): Promise<ProjectContextResult> {
+export async function resolveProjectId(
+  request: Request,
+  token?: string
+): Promise<ProjectContextResult> {
   const rawProjectId = getProjectIdFromRequest(request);
-  const client = getApiClient();
+  const client = getApiClient({ token });
 
   if (!rawProjectId) {
     const projects = await client.listProjects();

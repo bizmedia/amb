@@ -6,7 +6,10 @@ type ProjectParamResult =
   | { projectId: string; error: null }
   | { projectId: null; error: Response };
 
-export async function resolveProjectIdParam(rawProjectId: string): Promise<ProjectParamResult> {
+export async function resolveProjectIdParam(
+  rawProjectId: string,
+  token?: string
+): Promise<ProjectParamResult> {
   const parsed = projectIdSchema.safeParse(rawProjectId);
   if (!parsed.success) {
     return {
@@ -15,7 +18,7 @@ export async function resolveProjectIdParam(rawProjectId: string): Promise<Proje
     };
   }
 
-  const client = getApiClient();
+  const client = getApiClient({ token });
   const projects = await client.listProjects();
   const project = projects.find((p) => p.id === parsed.data);
   if (!project) {

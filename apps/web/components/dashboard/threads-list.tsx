@@ -110,6 +110,7 @@ export function ThreadsList({
     setCreating(true);
     try {
       const thread = await createThread(newTitle.trim());
+      if (!thread) return;
       setNewTitle("");
       setDialogOpen(false);
       onSelectThread(thread.id);

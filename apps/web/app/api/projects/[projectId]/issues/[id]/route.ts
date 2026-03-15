@@ -3,16 +3,18 @@ import { NextResponse } from "next/server";
 import { jsonError, handleApiError } from "@/lib/api/errors";
 import { resolveProjectIdParam } from "@/lib/api/project-params";
 import { getApiClient } from "@/lib/api/client";
+import { getRequestAuthToken } from "@/lib/api/auth";
 import { updateIssueSchema } from "@amb-app/shared";
 
 type RouteParams = { params: Promise<{ projectId: string; id: string }> };
 
-export async function GET(_request: Request, { params }: RouteParams) {
+export async function GET(request: Request, { params }: RouteParams) {
   try {
+    const token = getRequestAuthToken(request);
     const { projectId: rawProjectId, id } = await params;
-    const project = await resolveProjectIdParam(rawProjectId);
+    const project = await resolveProjectIdParam(rawProjectId, token);
     if (project.error) return project.error;
-    const client = getApiClient(project.projectId);
+    const client = getApiClient({ projectId: project.projectId, token });
     const issue = await client.getIssue(project.projectId, id);
     return NextResponse.json({ data: issue });
   } catch (error) {
@@ -22,8 +24,9 @@ export async function GET(_request: Request, { params }: RouteParams) {
 
 export async function PATCH(request: Request, { params }: RouteParams) {
   try {
+    const token = getRequestAuthToken(request);
     const { projectId: rawProjectId, id } = await params;
-    const project = await resolveProjectIdParam(rawProjectId);
+    const project = await resolveProjectIdParam(rawProjectId, token);
     if (project.error) return project.error;
     const body = await request.json().catch(() => null);
     if (!body) return jsonError(400, "invalid_json", "Request body must be valid JSON");
@@ -39,7 +42,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     if (Object.prototype.hasOwnProperty.call(result.data, "assigneeId")) update.assigneeId = result.data.assigneeId ?? null;
     if (Object.prototype.hasOwnProperty.call(result.data, "dueDate")) update.dueDate = result.data.dueDate ?? null;
 
-    const client = getApiClient(project.projectId);
+    const client = getApiClient({ projectId: project.projectId, token });
     const issue = await client.updateIssue(project.projectId, id, update);
     return NextResponse.json({ data: issue });
   } catch (error) {
@@ -47,12 +50,13 @@ export async function PATCH(request: Request, { params }: RouteParams) {
   }
 }
 
-export async function DELETE(_request: Request, { params }: RouteParams) {
+export async function DELETE(request: Request, { params }: RouteParams) {
   try {
+    const token = getRequestAuthToken(request);
     const { projectId: rawProjectId, id } = await params;
-    const project = await resolveProjectIdParam(rawProjectId);
+    const project = await resolveProjectIdParam(rawProjectId, token);
     if (project.error) return project.error;
-    const client = getApiClient(project.projectId);
+    const client = getApiClient({ projectId: project.projectId, token });
     await client.deleteIssue(project.projectId, id);
     return NextResponse.json({ data: { success: true } });
   } catch (error) {

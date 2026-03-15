@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { jsonError, handleApiError } from "@/lib/api/errors";
 import { resolveProjectIdParam } from "@/lib/api/project-params";
 import { getApiClient } from "@/lib/api/client";
+import { getRequestAuthToken } from "@/lib/api/auth";
 import {
   createIssueSchema,
   listIssuesQuerySchema,
@@ -12,8 +13,9 @@ type RouteParams = { params: Promise<{ projectId: string }> };
 
 export async function GET(request: Request, { params }: RouteParams) {
   try {
+    const token = getRequestAuthToken(request);
     const { projectId: rawProjectId } = await params;
-    const project = await resolveProjectIdParam(rawProjectId);
+    const project = await resolveProjectIdParam(rawProjectId, token);
     if (project.error) return project.error;
 
     const url = new URL(request.url);
@@ -28,7 +30,7 @@ export async function GET(request: Request, { params }: RouteParams) {
       return jsonError(400, "invalid_request", "Invalid query params", queryResult.error.flatten());
     }
 
-    const client = getApiClient(project.projectId);
+    const client = getApiClient({ projectId: project.projectId, token });
     const issues = await client.listIssues(project.projectId, {
       state: queryResult.data.state,
       priority: queryResult.data.priority,
@@ -44,8 +46,9 @@ export async function GET(request: Request, { params }: RouteParams) {
 
 export async function POST(request: Request, { params }: RouteParams) {
   try {
+    const token = getRequestAuthToken(request);
     const { projectId: rawProjectId } = await params;
-    const project = await resolveProjectIdParam(rawProjectId);
+    const project = await resolveProjectIdParam(rawProjectId, token);
     if (project.error) return project.error;
 
     const body = await request.json().catch(() => null);
@@ -55,7 +58,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       return jsonError(400, "invalid_request", "Invalid request body", result.error.flatten());
     }
 
-    const client = getApiClient(project.projectId);
+    const client = getApiClient({ projectId: project.projectId, token });
     const issue = await client.createIssue(project.projectId, {
       title: result.data.title,
       description: result.data.description ?? null,
