@@ -43,9 +43,12 @@ createClient({ baseUrl, token }), Authorization Bearer + x-project-id, MessageBu
 2. Описаны breaking changes v1 -> vNext.
 3. Добавлены SDK/API/Docker migration steps + checklist.
 
-### Текущая задача: E5-S5 — Примеры интеграций
+### ✅ E5-S5 — Примеры интеграций (Done)
 
-**Статус:** In progress
+Сделано:
+1. Добавлен `docs/integration-examples.md`.
+2. Примеры для TypeScript SDK, Python requests и curl.
+3. Добавлены best practices и common patterns.
 
 ---
 
@@ -55,4 +58,4 @@ createClient({ baseUrl, token }), Authorization Bearer + x-project-id, MessageBu
 
 ## QA
 
-**Queued:** проверка integration examples (после E5-S5).
+**Queued:** QA-review Epic 5 (документация + compose + migration + examples).

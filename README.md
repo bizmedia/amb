@@ -444,6 +444,7 @@ docker compose build --no-cache
 - [Сценарии использования AMB](docs/use-cases.md) — все варианты применения (REST, SDK, MCP, workflow, DLQ)
 - [API Reference](docs/api.md) — описание API
 - [Migration Guide v1 -> vNext](docs/migration-guide-v1-vnext.md) — шаги миграции и breaking changes
+- [Integration Examples](docs/integration-examples.md) — примеры для TypeScript/Python/curl и best practices
 - [Architecture](docs/architecture.md) — архитектура системы
 - [Changelog](CHANGELOG.md) — история изменений
 

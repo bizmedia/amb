@@ -2,7 +2,7 @@
 
 **Версия:** 1.0  
 **Дата:** 2026-01-28  
-**Последняя проверка статуса:** 2026-03-16 (Orchestrator). Инбокс пуст. Epic 1–4 завершены; Epic 5: E5-S1…E5-S4 — Done, E5-S5 — в работе (react-next-engineer).  
+**Последняя проверка статуса:** 2026-03-16 (Orchestrator). Инбокс пуст. Epic 1–5 завершены; E5-S1…E5-S5 — Done (react-next-engineer).  
 **Автор:** Product Owner Agent  
 **Статус:** Актуально
 
@@ -141,7 +141,7 @@
 | E5-S2 | Документация по интеграции              | P1        | ✅ Done    | • Quick start: docs/integration-guide.md • API reference: docs/api.md (+ auth headers) • Примеры кода: README + docs/getting-started.md |
 | E5-S3 | Docker Compose для локальной разработки | P1        | ✅ Done    | • docker-compose: postgres + api + web + seed • auth-aware seed script • проверка `compose up` (api/web healthy, seed exit 0) |
 | E5-S4 | Migration guide                         | P1        | ✅ Done    | • `docs/migration-guide-v1-vnext.md` • SDK migration steps • breaking changes и checklist  |
-| E5-S5 | Примеры интеграций                      | P1        | 🚧 In Progress | • Примеры для разных языков • Best practices • Common patterns                             |
+| E5-S5 | Примеры интеграций                      | P1        | ✅ Done    | • `docs/integration-examples.md` (TypeScript/Python/curl) • best practices • common patterns |
 
 
 **Definition of Done:**
