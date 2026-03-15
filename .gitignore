@@ -3,6 +3,7 @@
 # dependencies
 node_modules
 .turbo
+.pnpm-store
 /node_modules
 /.pnp
 .pnp.*
@@ -12,6 +13,7 @@ node_modules
 !.yarn/releases
 !.yarn/versions
 dist
+*.tsbuildinfo
 # testing
 /coverage
 
@@ -25,6 +27,10 @@ dist
 # misc
 .DS_Store
 *.pem
+*.log
+.cache
+.idea
+*.local
 
 # debug
 npm-debug.log*
@@ -39,5 +45,4 @@ yarn-error.log*
 .vercel
 
 # typescript
-*.tsbuildinfo
 next-env.d.ts
