@@ -726,4 +726,21 @@ describe("API (e2e)", () => {
       }
     });
   });
+
+  describe("observability metrics (E6-S2)", () => {
+    it("collects request metrics and exposes snapshot endpoint", async () => {
+      await request(app.getHttpServer()).get("/api/projects").expect(200);
+
+      const res = await request(app.getHttpServer())
+        .get("/api/observability/metrics")
+        .expect(200);
+
+      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(
+        (res.body.data as Array<{ route: string; method: string; count: number }>).some(
+          (row) => row.method === "GET" && row.route.includes("projects") && row.count >= 1
+        )
+      ).toBe(true);
+    });
+  });
 });

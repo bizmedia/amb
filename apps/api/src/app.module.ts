@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { APP_GUARD } from "@nestjs/core";
+import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { PrismaModule } from "./prisma/prisma.module";
 import { ProjectsModule } from "./projects/projects.module";
 import { AgentsModule } from "./agents/agents.module";
@@ -11,6 +11,8 @@ import { JwtAuthGuard } from "./common/jwt-auth.guard";
 import { AuthModule } from "./auth/auth.module";
 import { RateLimitGuard } from "./common/rate-limit.guard";
 import { TenantsModule } from "./tenants/tenants.module";
+import { ObservabilityModule } from "./observability/observability.module";
+import { ObservabilityInterceptor } from "./observability/observability.interceptor";
 
 @Module({
   imports: [
@@ -23,6 +25,7 @@ import { TenantsModule } from "./tenants/tenants.module";
     DlqModule,
     AuthModule,
     TenantsModule,
+    ObservabilityModule,
   ],
   providers: [
     {
@@ -32,6 +35,10 @@ import { TenantsModule } from "./tenants/tenants.module";
     {
       provide: APP_GUARD,
       useClass: RateLimitGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ObservabilityInterceptor,
     },
   ],
 })
