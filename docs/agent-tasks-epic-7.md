@@ -1,6 +1,6 @@
 # Задачи агентов: Epic 7 — Локализация (i18n)
 
-**Обновлено:** 2026-03-15 (Orchestrator, после E7-S1 + Architect)  
+**Обновлено:** 2026-03-16 (react-next-engineer, после E7-S4)  
 **Тред:** [feature-workflow-epic-7.md](./feature-workflow-epic-7.md)  
 **Message Bus:** тред `496d879e-a160-47b4-b51d-04ae9f3586c8`
 
@@ -14,18 +14,17 @@
 
 next-intl подключена, маршрутизация по locale, UI в ключах, en/ru/de. Evidence: `apps/web/i18n/*`, `messages/{en,ru,de}.json`, inbox-viewer, thread-viewer, tasks-module.
 
-### Текущая задача: E7-S2 — Переключатель языка и персистенция
+### ✅ E7-S2 — Переключатель языка и персистенция — Done
 
-**Статус:** Текущая | **area:** frontend
+Переключатель в Dashboard добавлен (`locale-switcher.tsx`), язык сохраняется в `NEXT_LOCALE` cookie и `localStorage` (`amb:locale`), при загрузке применяется выбранная локаль.
 
-**Сделать:** переключатель в UI, сохранение языка между сессиями (localStorage / user prefs), при загрузке — сохранённый язык.
+### ✅ E7-S3 — Перевод сообщений API в UI — Done
 
-### Очередь
+Добавлен централизованный маппинг ошибок API -> ключи i18n (`apps/web/lib/api/error-i18n.ts`), подключен в auth/project/tokens/tasks/messages flows; сырые API-строки не показываются пользователю.
 
-| Story   | Задача |
-|---------|--------|
-| E7-S3   | Перевод сообщений API в UI (ключи/маппинг, без «сырых» строк от API) |
-| E7-S4   | Документация для переводчиков (процесс, формат файлов, конвенции) |
+### ✅ E7-S4 — Документация для переводчиков — Done
+
+Подготовлен процесс для переводчиков: [i18n-translator-guide.md](./i18n-translator-guide.md) (формат файлов, добавление локали, конвенции ключей, API error mapping, чеклист).
 
 ---
 
@@ -35,4 +34,4 @@ next-intl подключена, маршрутизация по locale, UI в к
 
 ## QA
 
-**Queued:** после E7-S1/S2 (переключатель, 2 языка), после E7-S3 (перевод API-сообщений в UI).
+**Queued:** regression/smoke по i18n (переключение, ключи, API errors на разных локалях).

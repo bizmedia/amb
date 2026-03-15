@@ -9,7 +9,7 @@
 
 - **Thread ID:** `496d879e-a160-47b4-b51d-04ae9f3586c8`  
 - **Статус треда:** open  
-- E7-S1 Done (react-next-engineer). Architect отчитался. Текущая: E7-S2.
+- E7-S1/E7-S2/E7-S3/E7-S4 Done (react-next-engineer). Architect отчитался. QA queued for regression.
 
 ---
 
@@ -35,9 +35,9 @@
 | Шаг | Story | Описание                          | Статус      |
 | --- | ----- | --------------------------------- | ----------- |
 | 1   | E7-S1 | Инфраструктура i18n в Dashboard   | ✅ Done     |
-| 2   | E7-S2 | Переключатель языка и персистенция | 📋 Текущая  |
-| 3   | E7-S3 | Перевод сообщений API в UI        | 📋 Queued   |
-| 4   | E7-S4 | Документация для переводчиков     | 📋 Queued   |
+| 2   | E7-S2 | Переключатель языка и персистенция | ✅ Done     |
+| 3   | E7-S3 | Перевод сообщений API в UI        | ✅ Done     |
+| 4   | E7-S4 | Документация для переводчиков     | ✅ Done     |
 
 
 ---
@@ -55,7 +55,8 @@
 | Агент               | Задача                           | Story | Статус   |
 | ------------------- | -------------------------------- | ----- | -------- |
 | **react-next-engineer** | Инфраструктура i18n в Dashboard | E7-S1 | Done     |
-| **react-next-engineer** | Переключатель языка, E7-S3/S4  | E7-S2…E7-S4 | Текущая / Queued |
+| **react-next-engineer** | Переключатель языка и персистенция | E7-S2 | Done |
+| react-next-engineer    | E7-S3, E7-S4                     | E7-S3…E7-S4 | Done |
 | Architect              | По запросу (i18n, ключи)      | —     | Done     |
 | QA                    | Проверки после stories        | —     | Queued   |
 
@@ -66,3 +67,4 @@
 
 - Завершение story → обновить [backlog.md](./backlog.md) и эту таблицу.  
 - **MCP:** тред `496d879e-a160-47b4-b51d-04ae9f3586c8`. react-next-engineer `72c8cb90-…`, Architect `d6703179-…`, QA `aa052ead-…`.
+- **Docs:** translator guide — [i18n-translator-guide.md](./i18n-translator-guide.md).
