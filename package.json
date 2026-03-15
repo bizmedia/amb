@@ -35,6 +35,9 @@
     "po:check-inbox": "pnpm --filter mcp-message-bus run po:check-inbox",
     "docker:compose:publish": "podman build -t docker.io/openaisdk/amb:latest . && podman push docker.io/openaisdk/amb:latest",
     "deploy:amb": "podman pull docker.io/openaisdk/amb:latest && podman compose up -d",
+    "deploy:prod": "./scripts/deploy/production-deploy.sh",
+    "deploy:k8s:migrate": "kubectl apply -f deploy/k8s/api-migrate-job.yaml",
+    "deploy:k8s:api": "kubectl apply -f deploy/k8s/api-deployment.yaml -f deploy/k8s/api-service.yaml",
     "mcp:publish": "pnpm mcp:build && cd packages/mcp-server && npm publish --access public",
     "mcp:version": "cd packages/mcp-server && npm version"
   },
