@@ -2,7 +2,7 @@
 
 **Версия:** 1.0  
 **Дата:** 2026-01-28  
-**Последняя проверка статуса:** 2026-03-15 (Orchestrator). Epic 1 завершён. Epic 2 запущен: тред `66ddc5d9-…`, E2-S1 в работе.  
+**Последняя проверка статуса:** 2026-03-15 (Orchestrator). Epic 1 завершён. Epic 2: тред проверен, E2-S1 — Done, E2-S2 — In Progress (nest-engineer).  
 **Автор:** Product Owner Agent  
 **Статус:** Актуально
 
@@ -59,8 +59,8 @@
 
 | ID    | Story                                         | Приоритет | Статус     | Acceptance Criteria                                                                                                                     |
 | ----- | --------------------------------------------- | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| E2-S1 | Добавить Tenant и Project модели              | P0        | 🚧 In Progress | • Prisma модели `Tenant` и `Project` • Миграция создана • Relations настроены                                                           |
-| E2-S2 | Добавить tenantId/projectId в рабочие таблицы | P0        | 📋 Planned | • `Agent`, `Thread`, `Message` имеют `tenantId` и `projectId` • Индексы добавлены • Миграция создана                                    |
+| E2-S1 | Добавить Tenant и Project модели              | P0        | ✅ Done    | • Prisma модели `Tenant` и `Project` • Миграция создана • Relations настроены (Project→Tenant)                                           |
+| E2-S2 | Добавить tenantId/projectId в рабочие таблицы | P0        | 🚧 In Progress | • `Agent`, `Thread`, `Message` имеют `tenantId` и `projectId` • Индексы добавлены • Миграция создана                                    |
 | E2-S3 | Backfill существующих данных                  | P0        | 📋 Planned | • Создан default tenant + default project • Все существующие записи получили tenantId/projectId • Миграция данных выполнена             |
 | E2-S4 | Project-scoped API endpoints                  | P0        | 📋 Planned | • Все endpoints фильтруют по projectId из контекста • Cross-project доступ невозможен • Тесты изоляции проходят                         |
 | E2-S5 | RLS политики в PostgreSQL                     | P0        | 📋 Planned | • RLS включен на всех таблицах • Политики USING/WITH CHECK созданы • Тесты RLS проходят                                                 |

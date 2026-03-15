@@ -733,6 +733,7 @@ export declare const TransactionIsolationLevel: {
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel];
 export declare const AgentScalarFieldEnum: {
     readonly id: "id";
+    readonly tenantId: "tenantId";
     readonly projectId: "projectId";
     readonly name: "name";
     readonly role: "role";
@@ -744,6 +745,7 @@ export declare const AgentScalarFieldEnum: {
 export type AgentScalarFieldEnum = (typeof AgentScalarFieldEnum)[keyof typeof AgentScalarFieldEnum];
 export declare const ThreadScalarFieldEnum: {
     readonly id: "id";
+    readonly tenantId: "tenantId";
     readonly projectId: "projectId";
     readonly title: "title";
     readonly status: "status";
@@ -752,6 +754,7 @@ export declare const ThreadScalarFieldEnum: {
 export type ThreadScalarFieldEnum = (typeof ThreadScalarFieldEnum)[keyof typeof ThreadScalarFieldEnum];
 export declare const MessageScalarFieldEnum: {
     readonly id: "id";
+    readonly tenantId: "tenantId";
     readonly projectId: "projectId";
     readonly threadId: "threadId";
     readonly fromAgentId: "fromAgentId";

@@ -35,8 +35,8 @@
 
 | Шаг | Story | Описание                                                         | Область  | Агент                     | Статус         |
 | --- | ----- | ---------------------------------------------------------------- | -------- | ------------------------- | -------------- |
-| 1   | E2-S1 | Tenant и Project модели (Prisma)                                 | Backend  | nest-engineer / Dev       | 🚧 In Progress |
-| 2   | E2-S2 | tenantId/projectId в таблицах Agent, Thread, Message             | Backend  | nest-engineer / Dev       | 📋 Planned     |
+| 1   | E2-S1 | Tenant и Project модели (Prisma)                                 | Backend  | nest-engineer / Dev       | ✅ Done        |
+| 2   | E2-S2 | tenantId/projectId в таблицах Agent, Thread, Message             | Backend  | nest-engineer / Dev       | 🚧 In Progress |
 | 3   | E2-S3 | Backfill существующих данных                                     | Backend  | nest-engineer / Dev       | 📋 Planned     |
 | 4   | E2-S4 | Project-scoped API endpoints                                     | Backend  | nest-engineer / Dev       | 📋 Planned     |
 | 5   | E2-S5 | RLS политики в PostgreSQL                                        | Backend  | nest-engineer / Dev       | 📋 Planned     |
@@ -59,8 +59,8 @@
 
 | Область      | Агент                     | Задача                                      | Story       | Статус        |
 | ------------ | ------------------------- | ------------------------------------------- | ----------- | ------------- |
-| **Backend**  | nest-engineer / Dev       | Tenant/Project модели                       | E2-S1       | 🚧 Assigned   |
-| Backend      | nest-engineer / Dev       | tenantId/projectId в таблицах               | E2-S2       | 📋 Queued     |
+| **Backend**  | nest-engineer / Dev       | Tenant/Project модели                       | E2-S1       | ✅ Done       |
+| **Backend**  | nest-engineer / Dev       | tenantId/projectId в таблицах               | E2-S2       | 🚧 In Progress |
 | Backend      | nest-engineer / Dev       | Backfill, project-scoped API, RLS, контекст | E2-S3…E2-S6 | 📋 Queued     |
 | **Frontend** | react-next-engineer / Dev | UI tenant/project (если в рамках Epic 2)    | —           | 📋 По запросу |
 | —            | Architect                 | По запросу (модель, RLS, контекст)          | —           | 📋 On demand  |

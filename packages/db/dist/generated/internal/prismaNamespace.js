@@ -121,6 +121,7 @@ exports.TransactionIsolationLevel = runtime.makeStrictEnum({
 });
 exports.AgentScalarFieldEnum = {
     id: 'id',
+    tenantId: 'tenantId',
     projectId: 'projectId',
     name: 'name',
     role: 'role',
@@ -131,6 +132,7 @@ exports.AgentScalarFieldEnum = {
 };
 exports.ThreadScalarFieldEnum = {
     id: 'id',
+    tenantId: 'tenantId',
     projectId: 'projectId',
     title: 'title',
     status: 'status',
@@ -138,6 +140,7 @@ exports.ThreadScalarFieldEnum = {
 };
 exports.MessageScalarFieldEnum = {
     id: 'id',
+    tenantId: 'tenantId',
     projectId: 'projectId',
     threadId: 'threadId',
     fromAgentId: 'fromAgentId',

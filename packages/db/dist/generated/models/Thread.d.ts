@@ -12,6 +12,7 @@ export type AggregateThread = {
 };
 export type ThreadMinAggregateOutputType = {
     id: string | null;
+    tenantId: string | null;
     projectId: string | null;
     title: string | null;
     status: string | null;
@@ -19,6 +20,7 @@ export type ThreadMinAggregateOutputType = {
 };
 export type ThreadMaxAggregateOutputType = {
     id: string | null;
+    tenantId: string | null;
     projectId: string | null;
     title: string | null;
     status: string | null;
@@ -26,6 +28,7 @@ export type ThreadMaxAggregateOutputType = {
 };
 export type ThreadCountAggregateOutputType = {
     id: number;
+    tenantId: number;
     projectId: number;
     title: number;
     status: number;
@@ -34,6 +37,7 @@ export type ThreadCountAggregateOutputType = {
 };
 export type ThreadMinAggregateInputType = {
     id?: true;
+    tenantId?: true;
     projectId?: true;
     title?: true;
     status?: true;
@@ -41,6 +45,7 @@ export type ThreadMinAggregateInputType = {
 };
 export type ThreadMaxAggregateInputType = {
     id?: true;
+    tenantId?: true;
     projectId?: true;
     title?: true;
     status?: true;
@@ -48,6 +53,7 @@ export type ThreadMaxAggregateInputType = {
 };
 export type ThreadCountAggregateInputType = {
     id?: true;
+    tenantId?: true;
     projectId?: true;
     title?: true;
     status?: true;
@@ -118,6 +124,7 @@ export type ThreadGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 };
 export type ThreadGroupByOutputType = {
     id: string;
+    tenantId: string | null;
     projectId: string;
     title: string;
     status: string;
@@ -134,19 +141,23 @@ export type ThreadWhereInput = {
     OR?: Prisma.ThreadWhereInput[];
     NOT?: Prisma.ThreadWhereInput | Prisma.ThreadWhereInput[];
     id?: Prisma.StringFilter<"Thread"> | string;
+    tenantId?: Prisma.StringNullableFilter<"Thread"> | string | null;
     projectId?: Prisma.StringFilter<"Thread"> | string;
     title?: Prisma.StringFilter<"Thread"> | string;
     status?: Prisma.StringFilter<"Thread"> | string;
     createdAt?: Prisma.DateTimeFilter<"Thread"> | Date | string;
+    tenant?: Prisma.XOR<Prisma.TenantNullableScalarRelationFilter, Prisma.TenantWhereInput> | null;
     project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>;
     messages?: Prisma.MessageListRelationFilter;
 };
 export type ThreadOrderByWithRelationInput = {
     id?: Prisma.SortOrder;
+    tenantId?: Prisma.SortOrderInput | Prisma.SortOrder;
     projectId?: Prisma.SortOrder;
     title?: Prisma.SortOrder;
     status?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
+    tenant?: Prisma.TenantOrderByWithRelationInput;
     project?: Prisma.ProjectOrderByWithRelationInput;
     messages?: Prisma.MessageOrderByRelationAggregateInput;
 };
@@ -155,15 +166,18 @@ export type ThreadWhereUniqueInput = Prisma.AtLeast<{
     AND?: Prisma.ThreadWhereInput | Prisma.ThreadWhereInput[];
     OR?: Prisma.ThreadWhereInput[];
     NOT?: Prisma.ThreadWhereInput | Prisma.ThreadWhereInput[];
+    tenantId?: Prisma.StringNullableFilter<"Thread"> | string | null;
     projectId?: Prisma.StringFilter<"Thread"> | string;
     title?: Prisma.StringFilter<"Thread"> | string;
     status?: Prisma.StringFilter<"Thread"> | string;
     createdAt?: Prisma.DateTimeFilter<"Thread"> | Date | string;
+    tenant?: Prisma.XOR<Prisma.TenantNullableScalarRelationFilter, Prisma.TenantWhereInput> | null;
     project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>;
     messages?: Prisma.MessageListRelationFilter;
 }, "id">;
 export type ThreadOrderByWithAggregationInput = {
     id?: Prisma.SortOrder;
+    tenantId?: Prisma.SortOrderInput | Prisma.SortOrder;
     projectId?: Prisma.SortOrder;
     title?: Prisma.SortOrder;
     status?: Prisma.SortOrder;
@@ -177,6 +191,7 @@ export type ThreadScalarWhereWithAggregatesInput = {
     OR?: Prisma.ThreadScalarWhereWithAggregatesInput[];
     NOT?: Prisma.ThreadScalarWhereWithAggregatesInput | Prisma.ThreadScalarWhereWithAggregatesInput[];
     id?: Prisma.StringWithAggregatesFilter<"Thread"> | string;
+    tenantId?: Prisma.StringNullableWithAggregatesFilter<"Thread"> | string | null;
     projectId?: Prisma.StringWithAggregatesFilter<"Thread"> | string;
     title?: Prisma.StringWithAggregatesFilter<"Thread"> | string;
     status?: Prisma.StringWithAggregatesFilter<"Thread"> | string;
@@ -187,11 +202,13 @@ export type ThreadCreateInput = {
     title: string;
     status?: string;
     createdAt?: Date | string;
+    tenant?: Prisma.TenantCreateNestedOneWithoutThreadsInput;
     project: Prisma.ProjectCreateNestedOneWithoutThreadsInput;
     messages?: Prisma.MessageCreateNestedManyWithoutThreadInput;
 };
 export type ThreadUncheckedCreateInput = {
     id?: string;
+    tenantId?: string | null;
     projectId: string;
     title: string;
     status?: string;
@@ -203,11 +220,13 @@ export type ThreadUpdateInput = {
     title?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.StringFieldUpdateOperationsInput | string;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    tenant?: Prisma.TenantUpdateOneWithoutThreadsNestedInput;
     project?: Prisma.ProjectUpdateOneRequiredWithoutThreadsNestedInput;
     messages?: Prisma.MessageUpdateManyWithoutThreadNestedInput;
 };
 export type ThreadUncheckedUpdateInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     projectId?: Prisma.StringFieldUpdateOperationsInput | string;
     title?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -216,6 +235,7 @@ export type ThreadUncheckedUpdateInput = {
 };
 export type ThreadCreateManyInput = {
     id?: string;
+    tenantId?: string | null;
     projectId: string;
     title: string;
     status?: string;
@@ -229,6 +249,7 @@ export type ThreadUpdateManyMutationInput = {
 };
 export type ThreadUncheckedUpdateManyInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     projectId?: Prisma.StringFieldUpdateOperationsInput | string;
     title?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -236,6 +257,7 @@ export type ThreadUncheckedUpdateManyInput = {
 };
 export type ThreadCountOrderByAggregateInput = {
     id?: Prisma.SortOrder;
+    tenantId?: Prisma.SortOrder;
     projectId?: Prisma.SortOrder;
     title?: Prisma.SortOrder;
     status?: Prisma.SortOrder;
@@ -243,6 +265,7 @@ export type ThreadCountOrderByAggregateInput = {
 };
 export type ThreadMaxOrderByAggregateInput = {
     id?: Prisma.SortOrder;
+    tenantId?: Prisma.SortOrder;
     projectId?: Prisma.SortOrder;
     title?: Prisma.SortOrder;
     status?: Prisma.SortOrder;
@@ -250,6 +273,7 @@ export type ThreadMaxOrderByAggregateInput = {
 };
 export type ThreadMinOrderByAggregateInput = {
     id?: Prisma.SortOrder;
+    tenantId?: Prisma.SortOrder;
     projectId?: Prisma.SortOrder;
     title?: Prisma.SortOrder;
     status?: Prisma.SortOrder;
@@ -278,6 +302,44 @@ export type ThreadUpdateOneRequiredWithoutMessagesNestedInput = {
     upsert?: Prisma.ThreadUpsertWithoutMessagesInput;
     connect?: Prisma.ThreadWhereUniqueInput;
     update?: Prisma.XOR<Prisma.XOR<Prisma.ThreadUpdateToOneWithWhereWithoutMessagesInput, Prisma.ThreadUpdateWithoutMessagesInput>, Prisma.ThreadUncheckedUpdateWithoutMessagesInput>;
+};
+export type ThreadCreateNestedManyWithoutTenantInput = {
+    create?: Prisma.XOR<Prisma.ThreadCreateWithoutTenantInput, Prisma.ThreadUncheckedCreateWithoutTenantInput> | Prisma.ThreadCreateWithoutTenantInput[] | Prisma.ThreadUncheckedCreateWithoutTenantInput[];
+    connectOrCreate?: Prisma.ThreadCreateOrConnectWithoutTenantInput | Prisma.ThreadCreateOrConnectWithoutTenantInput[];
+    createMany?: Prisma.ThreadCreateManyTenantInputEnvelope;
+    connect?: Prisma.ThreadWhereUniqueInput | Prisma.ThreadWhereUniqueInput[];
+};
+export type ThreadUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: Prisma.XOR<Prisma.ThreadCreateWithoutTenantInput, Prisma.ThreadUncheckedCreateWithoutTenantInput> | Prisma.ThreadCreateWithoutTenantInput[] | Prisma.ThreadUncheckedCreateWithoutTenantInput[];
+    connectOrCreate?: Prisma.ThreadCreateOrConnectWithoutTenantInput | Prisma.ThreadCreateOrConnectWithoutTenantInput[];
+    createMany?: Prisma.ThreadCreateManyTenantInputEnvelope;
+    connect?: Prisma.ThreadWhereUniqueInput | Prisma.ThreadWhereUniqueInput[];
+};
+export type ThreadUpdateManyWithoutTenantNestedInput = {
+    create?: Prisma.XOR<Prisma.ThreadCreateWithoutTenantInput, Prisma.ThreadUncheckedCreateWithoutTenantInput> | Prisma.ThreadCreateWithoutTenantInput[] | Prisma.ThreadUncheckedCreateWithoutTenantInput[];
+    connectOrCreate?: Prisma.ThreadCreateOrConnectWithoutTenantInput | Prisma.ThreadCreateOrConnectWithoutTenantInput[];
+    upsert?: Prisma.ThreadUpsertWithWhereUniqueWithoutTenantInput | Prisma.ThreadUpsertWithWhereUniqueWithoutTenantInput[];
+    createMany?: Prisma.ThreadCreateManyTenantInputEnvelope;
+    set?: Prisma.ThreadWhereUniqueInput | Prisma.ThreadWhereUniqueInput[];
+    disconnect?: Prisma.ThreadWhereUniqueInput | Prisma.ThreadWhereUniqueInput[];
+    delete?: Prisma.ThreadWhereUniqueInput | Prisma.ThreadWhereUniqueInput[];
+    connect?: Prisma.ThreadWhereUniqueInput | Prisma.ThreadWhereUniqueInput[];
+    update?: Prisma.ThreadUpdateWithWhereUniqueWithoutTenantInput | Prisma.ThreadUpdateWithWhereUniqueWithoutTenantInput[];
+    updateMany?: Prisma.ThreadUpdateManyWithWhereWithoutTenantInput | Prisma.ThreadUpdateManyWithWhereWithoutTenantInput[];
+    deleteMany?: Prisma.ThreadScalarWhereInput | Prisma.ThreadScalarWhereInput[];
+};
+export type ThreadUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: Prisma.XOR<Prisma.ThreadCreateWithoutTenantInput, Prisma.ThreadUncheckedCreateWithoutTenantInput> | Prisma.ThreadCreateWithoutTenantInput[] | Prisma.ThreadUncheckedCreateWithoutTenantInput[];
+    connectOrCreate?: Prisma.ThreadCreateOrConnectWithoutTenantInput | Prisma.ThreadCreateOrConnectWithoutTenantInput[];
+    upsert?: Prisma.ThreadUpsertWithWhereUniqueWithoutTenantInput | Prisma.ThreadUpsertWithWhereUniqueWithoutTenantInput[];
+    createMany?: Prisma.ThreadCreateManyTenantInputEnvelope;
+    set?: Prisma.ThreadWhereUniqueInput | Prisma.ThreadWhereUniqueInput[];
+    disconnect?: Prisma.ThreadWhereUniqueInput | Prisma.ThreadWhereUniqueInput[];
+    delete?: Prisma.ThreadWhereUniqueInput | Prisma.ThreadWhereUniqueInput[];
+    connect?: Prisma.ThreadWhereUniqueInput | Prisma.ThreadWhereUniqueInput[];
+    update?: Prisma.ThreadUpdateWithWhereUniqueWithoutTenantInput | Prisma.ThreadUpdateWithWhereUniqueWithoutTenantInput[];
+    updateMany?: Prisma.ThreadUpdateManyWithWhereWithoutTenantInput | Prisma.ThreadUpdateManyWithWhereWithoutTenantInput[];
+    deleteMany?: Prisma.ThreadScalarWhereInput | Prisma.ThreadScalarWhereInput[];
 };
 export type ThreadCreateNestedManyWithoutProjectInput = {
     create?: Prisma.XOR<Prisma.ThreadCreateWithoutProjectInput, Prisma.ThreadUncheckedCreateWithoutProjectInput> | Prisma.ThreadCreateWithoutProjectInput[] | Prisma.ThreadUncheckedCreateWithoutProjectInput[];
@@ -322,10 +384,12 @@ export type ThreadCreateWithoutMessagesInput = {
     title: string;
     status?: string;
     createdAt?: Date | string;
+    tenant?: Prisma.TenantCreateNestedOneWithoutThreadsInput;
     project: Prisma.ProjectCreateNestedOneWithoutThreadsInput;
 };
 export type ThreadUncheckedCreateWithoutMessagesInput = {
     id?: string;
+    tenantId?: string | null;
     projectId: string;
     title: string;
     status?: string;
@@ -349,24 +413,76 @@ export type ThreadUpdateWithoutMessagesInput = {
     title?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.StringFieldUpdateOperationsInput | string;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    tenant?: Prisma.TenantUpdateOneWithoutThreadsNestedInput;
     project?: Prisma.ProjectUpdateOneRequiredWithoutThreadsNestedInput;
 };
 export type ThreadUncheckedUpdateWithoutMessagesInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     projectId?: Prisma.StringFieldUpdateOperationsInput | string;
     title?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.StringFieldUpdateOperationsInput | string;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+};
+export type ThreadCreateWithoutTenantInput = {
+    id?: string;
+    title: string;
+    status?: string;
+    createdAt?: Date | string;
+    project: Prisma.ProjectCreateNestedOneWithoutThreadsInput;
+    messages?: Prisma.MessageCreateNestedManyWithoutThreadInput;
+};
+export type ThreadUncheckedCreateWithoutTenantInput = {
+    id?: string;
+    projectId: string;
+    title: string;
+    status?: string;
+    createdAt?: Date | string;
+    messages?: Prisma.MessageUncheckedCreateNestedManyWithoutThreadInput;
+};
+export type ThreadCreateOrConnectWithoutTenantInput = {
+    where: Prisma.ThreadWhereUniqueInput;
+    create: Prisma.XOR<Prisma.ThreadCreateWithoutTenantInput, Prisma.ThreadUncheckedCreateWithoutTenantInput>;
+};
+export type ThreadCreateManyTenantInputEnvelope = {
+    data: Prisma.ThreadCreateManyTenantInput | Prisma.ThreadCreateManyTenantInput[];
+    skipDuplicates?: boolean;
+};
+export type ThreadUpsertWithWhereUniqueWithoutTenantInput = {
+    where: Prisma.ThreadWhereUniqueInput;
+    update: Prisma.XOR<Prisma.ThreadUpdateWithoutTenantInput, Prisma.ThreadUncheckedUpdateWithoutTenantInput>;
+    create: Prisma.XOR<Prisma.ThreadCreateWithoutTenantInput, Prisma.ThreadUncheckedCreateWithoutTenantInput>;
+};
+export type ThreadUpdateWithWhereUniqueWithoutTenantInput = {
+    where: Prisma.ThreadWhereUniqueInput;
+    data: Prisma.XOR<Prisma.ThreadUpdateWithoutTenantInput, Prisma.ThreadUncheckedUpdateWithoutTenantInput>;
+};
+export type ThreadUpdateManyWithWhereWithoutTenantInput = {
+    where: Prisma.ThreadScalarWhereInput;
+    data: Prisma.XOR<Prisma.ThreadUpdateManyMutationInput, Prisma.ThreadUncheckedUpdateManyWithoutTenantInput>;
+};
+export type ThreadScalarWhereInput = {
+    AND?: Prisma.ThreadScalarWhereInput | Prisma.ThreadScalarWhereInput[];
+    OR?: Prisma.ThreadScalarWhereInput[];
+    NOT?: Prisma.ThreadScalarWhereInput | Prisma.ThreadScalarWhereInput[];
+    id?: Prisma.StringFilter<"Thread"> | string;
+    tenantId?: Prisma.StringNullableFilter<"Thread"> | string | null;
+    projectId?: Prisma.StringFilter<"Thread"> | string;
+    title?: Prisma.StringFilter<"Thread"> | string;
+    status?: Prisma.StringFilter<"Thread"> | string;
+    createdAt?: Prisma.DateTimeFilter<"Thread"> | Date | string;
 };
 export type ThreadCreateWithoutProjectInput = {
     id?: string;
     title: string;
     status?: string;
     createdAt?: Date | string;
+    tenant?: Prisma.TenantCreateNestedOneWithoutThreadsInput;
     messages?: Prisma.MessageCreateNestedManyWithoutThreadInput;
 };
 export type ThreadUncheckedCreateWithoutProjectInput = {
     id?: string;
+    tenantId?: string | null;
     title: string;
     status?: string;
     createdAt?: Date | string;
@@ -393,18 +509,39 @@ export type ThreadUpdateManyWithWhereWithoutProjectInput = {
     where: Prisma.ThreadScalarWhereInput;
     data: Prisma.XOR<Prisma.ThreadUpdateManyMutationInput, Prisma.ThreadUncheckedUpdateManyWithoutProjectInput>;
 };
-export type ThreadScalarWhereInput = {
-    AND?: Prisma.ThreadScalarWhereInput | Prisma.ThreadScalarWhereInput[];
-    OR?: Prisma.ThreadScalarWhereInput[];
-    NOT?: Prisma.ThreadScalarWhereInput | Prisma.ThreadScalarWhereInput[];
-    id?: Prisma.StringFilter<"Thread"> | string;
-    projectId?: Prisma.StringFilter<"Thread"> | string;
-    title?: Prisma.StringFilter<"Thread"> | string;
-    status?: Prisma.StringFilter<"Thread"> | string;
-    createdAt?: Prisma.DateTimeFilter<"Thread"> | Date | string;
+export type ThreadCreateManyTenantInput = {
+    id?: string;
+    projectId: string;
+    title: string;
+    status?: string;
+    createdAt?: Date | string;
+};
+export type ThreadUpdateWithoutTenantInput = {
+    id?: Prisma.StringFieldUpdateOperationsInput | string;
+    title?: Prisma.StringFieldUpdateOperationsInput | string;
+    status?: Prisma.StringFieldUpdateOperationsInput | string;
+    createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    project?: Prisma.ProjectUpdateOneRequiredWithoutThreadsNestedInput;
+    messages?: Prisma.MessageUpdateManyWithoutThreadNestedInput;
+};
+export type ThreadUncheckedUpdateWithoutTenantInput = {
+    id?: Prisma.StringFieldUpdateOperationsInput | string;
+    projectId?: Prisma.StringFieldUpdateOperationsInput | string;
+    title?: Prisma.StringFieldUpdateOperationsInput | string;
+    status?: Prisma.StringFieldUpdateOperationsInput | string;
+    createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    messages?: Prisma.MessageUncheckedUpdateManyWithoutThreadNestedInput;
+};
+export type ThreadUncheckedUpdateManyWithoutTenantInput = {
+    id?: Prisma.StringFieldUpdateOperationsInput | string;
+    projectId?: Prisma.StringFieldUpdateOperationsInput | string;
+    title?: Prisma.StringFieldUpdateOperationsInput | string;
+    status?: Prisma.StringFieldUpdateOperationsInput | string;
+    createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
 export type ThreadCreateManyProjectInput = {
     id?: string;
+    tenantId?: string | null;
     title: string;
     status?: string;
     createdAt?: Date | string;
@@ -414,10 +551,12 @@ export type ThreadUpdateWithoutProjectInput = {
     title?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.StringFieldUpdateOperationsInput | string;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    tenant?: Prisma.TenantUpdateOneWithoutThreadsNestedInput;
     messages?: Prisma.MessageUpdateManyWithoutThreadNestedInput;
 };
 export type ThreadUncheckedUpdateWithoutProjectInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     title?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.StringFieldUpdateOperationsInput | string;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -425,6 +564,7 @@ export type ThreadUncheckedUpdateWithoutProjectInput = {
 };
 export type ThreadUncheckedUpdateManyWithoutProjectInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     title?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.StringFieldUpdateOperationsInput | string;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -455,57 +595,69 @@ export type ThreadCountOutputTypeCountMessagesArgs<ExtArgs extends runtime.Types
 };
 export type ThreadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
     id?: boolean;
+    tenantId?: boolean;
     projectId?: boolean;
     title?: boolean;
     status?: boolean;
     createdAt?: boolean;
+    tenant?: boolean | Prisma.Thread$tenantArgs<ExtArgs>;
     project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>;
     messages?: boolean | Prisma.Thread$messagesArgs<ExtArgs>;
     _count?: boolean | Prisma.ThreadCountOutputTypeDefaultArgs<ExtArgs>;
 }, ExtArgs["result"]["thread"]>;
 export type ThreadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
     id?: boolean;
+    tenantId?: boolean;
     projectId?: boolean;
     title?: boolean;
     status?: boolean;
     createdAt?: boolean;
+    tenant?: boolean | Prisma.Thread$tenantArgs<ExtArgs>;
     project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>;
 }, ExtArgs["result"]["thread"]>;
 export type ThreadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
     id?: boolean;
+    tenantId?: boolean;
     projectId?: boolean;
     title?: boolean;
     status?: boolean;
     createdAt?: boolean;
+    tenant?: boolean | Prisma.Thread$tenantArgs<ExtArgs>;
     project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>;
 }, ExtArgs["result"]["thread"]>;
 export type ThreadSelectScalar = {
     id?: boolean;
+    tenantId?: boolean;
     projectId?: boolean;
     title?: boolean;
     status?: boolean;
     createdAt?: boolean;
 };
-export type ThreadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "title" | "status" | "createdAt", ExtArgs["result"]["thread"]>;
+export type ThreadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "projectId" | "title" | "status" | "createdAt", ExtArgs["result"]["thread"]>;
 export type ThreadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+    tenant?: boolean | Prisma.Thread$tenantArgs<ExtArgs>;
     project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>;
     messages?: boolean | Prisma.Thread$messagesArgs<ExtArgs>;
     _count?: boolean | Prisma.ThreadCountOutputTypeDefaultArgs<ExtArgs>;
 };
 export type ThreadIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+    tenant?: boolean | Prisma.Thread$tenantArgs<ExtArgs>;
     project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>;
 };
 export type ThreadIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+    tenant?: boolean | Prisma.Thread$tenantArgs<ExtArgs>;
     project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>;
 };
 export type $ThreadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     name: "Thread";
     objects: {
+        tenant: Prisma.$TenantPayload<ExtArgs> | null;
         project: Prisma.$ProjectPayload<ExtArgs>;
         messages: Prisma.$MessagePayload<ExtArgs>[];
     };
     scalars: runtime.Types.Extensions.GetPayloadResult<{
         id: string;
+        tenantId: string | null;
         projectId: string;
         title: string;
         status: string;
@@ -839,6 +991,7 @@ export interface ThreadDelegate<ExtArgs extends runtime.Types.Extensions.Interna
  */
 export interface Prisma__ThreadClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise";
+    tenant<T extends Prisma.Thread$tenantArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Thread$tenantArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>;
     project<T extends Prisma.ProjectDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectDefaultArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>;
     messages<T extends Prisma.Thread$messagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Thread$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>;
     /**
@@ -867,6 +1020,7 @@ export interface Prisma__ThreadClient<T, Null = never, ExtArgs extends runtime.T
  */
 export interface ThreadFieldRefs {
     readonly id: Prisma.FieldRef<"Thread", 'String'>;
+    readonly tenantId: Prisma.FieldRef<"Thread", 'String'>;
     readonly projectId: Prisma.FieldRef<"Thread", 'String'>;
     readonly title: Prisma.FieldRef<"Thread", 'String'>;
     readonly status: Prisma.FieldRef<"Thread", 'String'>;
@@ -1248,6 +1402,24 @@ export type ThreadDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
      * Limit how many Threads to delete.
      */
     limit?: number;
+};
+/**
+ * Thread.tenant
+ */
+export type Thread$tenantArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenant
+     */
+    select?: Prisma.TenantSelect<ExtArgs> | null;
+    /**
+     * Omit specific fields from the Tenant
+     */
+    omit?: Prisma.TenantOmit<ExtArgs> | null;
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: Prisma.TenantInclude<ExtArgs> | null;
+    where?: Prisma.TenantWhereInput;
 };
 /**
  * Thread.messages

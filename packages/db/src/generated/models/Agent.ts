@@ -26,6 +26,7 @@ export type AggregateAgent = {
 
 export type AgentMinAggregateOutputType = {
   id: string | null
+  tenantId: string | null
   projectId: string | null
   name: string | null
   role: string | null
@@ -36,6 +37,7 @@ export type AgentMinAggregateOutputType = {
 
 export type AgentMaxAggregateOutputType = {
   id: string | null
+  tenantId: string | null
   projectId: string | null
   name: string | null
   role: string | null
@@ -46,6 +48,7 @@ export type AgentMaxAggregateOutputType = {
 
 export type AgentCountAggregateOutputType = {
   id: number
+  tenantId: number
   projectId: number
   name: number
   role: number
@@ -59,6 +62,7 @@ export type AgentCountAggregateOutputType = {
 
 export type AgentMinAggregateInputType = {
   id?: true
+  tenantId?: true
   projectId?: true
   name?: true
   role?: true
@@ -69,6 +73,7 @@ export type AgentMinAggregateInputType = {
 
 export type AgentMaxAggregateInputType = {
   id?: true
+  tenantId?: true
   projectId?: true
   name?: true
   role?: true
@@ -79,6 +84,7 @@ export type AgentMaxAggregateInputType = {
 
 export type AgentCountAggregateInputType = {
   id?: true
+  tenantId?: true
   projectId?: true
   name?: true
   role?: true
@@ -163,6 +169,7 @@ export type AgentGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
 
 export type AgentGroupByOutputType = {
   id: string
+  tenantId: string | null
   projectId: string
   name: string
   role: string
@@ -195,6 +202,7 @@ export type AgentWhereInput = {
   OR?: Prisma.AgentWhereInput[]
   NOT?: Prisma.AgentWhereInput | Prisma.AgentWhereInput[]
   id?: Prisma.StringFilter<"Agent"> | string
+  tenantId?: Prisma.StringNullableFilter<"Agent"> | string | null
   projectId?: Prisma.StringFilter<"Agent"> | string
   name?: Prisma.StringFilter<"Agent"> | string
   role?: Prisma.StringFilter<"Agent"> | string
@@ -202,12 +210,14 @@ export type AgentWhereInput = {
   capabilities?: Prisma.JsonNullableFilter<"Agent">
   createdAt?: Prisma.DateTimeFilter<"Agent"> | Date | string
   lastSeen?: Prisma.DateTimeNullableFilter<"Agent"> | Date | string | null
+  tenant?: Prisma.XOR<Prisma.TenantNullableScalarRelationFilter, Prisma.TenantWhereInput> | null
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
   issuesAssigned?: Prisma.IssueListRelationFilter
 }
 
 export type AgentOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  tenantId?: Prisma.SortOrderInput | Prisma.SortOrder
   projectId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
@@ -215,6 +225,7 @@ export type AgentOrderByWithRelationInput = {
   capabilities?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   lastSeen?: Prisma.SortOrderInput | Prisma.SortOrder
+  tenant?: Prisma.TenantOrderByWithRelationInput
   project?: Prisma.ProjectOrderByWithRelationInput
   issuesAssigned?: Prisma.IssueOrderByRelationAggregateInput
 }
@@ -224,6 +235,7 @@ export type AgentWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.AgentWhereInput | Prisma.AgentWhereInput[]
   OR?: Prisma.AgentWhereInput[]
   NOT?: Prisma.AgentWhereInput | Prisma.AgentWhereInput[]
+  tenantId?: Prisma.StringNullableFilter<"Agent"> | string | null
   projectId?: Prisma.StringFilter<"Agent"> | string
   name?: Prisma.StringFilter<"Agent"> | string
   role?: Prisma.StringFilter<"Agent"> | string
@@ -231,12 +243,14 @@ export type AgentWhereUniqueInput = Prisma.AtLeast<{
   capabilities?: Prisma.JsonNullableFilter<"Agent">
   createdAt?: Prisma.DateTimeFilter<"Agent"> | Date | string
   lastSeen?: Prisma.DateTimeNullableFilter<"Agent"> | Date | string | null
+  tenant?: Prisma.XOR<Prisma.TenantNullableScalarRelationFilter, Prisma.TenantWhereInput> | null
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
   issuesAssigned?: Prisma.IssueListRelationFilter
 }, "id">
 
 export type AgentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  tenantId?: Prisma.SortOrderInput | Prisma.SortOrder
   projectId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
@@ -254,6 +268,7 @@ export type AgentScalarWhereWithAggregatesInput = {
   OR?: Prisma.AgentScalarWhereWithAggregatesInput[]
   NOT?: Prisma.AgentScalarWhereWithAggregatesInput | Prisma.AgentScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Agent"> | string
+  tenantId?: Prisma.StringNullableWithAggregatesFilter<"Agent"> | string | null
   projectId?: Prisma.StringWithAggregatesFilter<"Agent"> | string
   name?: Prisma.StringWithAggregatesFilter<"Agent"> | string
   role?: Prisma.StringWithAggregatesFilter<"Agent"> | string
@@ -271,12 +286,14 @@ export type AgentCreateInput = {
   capabilities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   lastSeen?: Date | string | null
+  tenant?: Prisma.TenantCreateNestedOneWithoutAgentsInput
   project: Prisma.ProjectCreateNestedOneWithoutAgentsInput
   issuesAssigned?: Prisma.IssueCreateNestedManyWithoutAssigneeInput
 }
 
 export type AgentUncheckedCreateInput = {
   id?: string
+  tenantId?: string | null
   projectId: string
   name: string
   role: string
@@ -295,12 +312,14 @@ export type AgentUpdateInput = {
   capabilities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastSeen?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tenant?: Prisma.TenantUpdateOneWithoutAgentsNestedInput
   project?: Prisma.ProjectUpdateOneRequiredWithoutAgentsNestedInput
   issuesAssigned?: Prisma.IssueUpdateManyWithoutAssigneeNestedInput
 }
 
 export type AgentUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
@@ -313,6 +332,7 @@ export type AgentUncheckedUpdateInput = {
 
 export type AgentCreateManyInput = {
   id?: string
+  tenantId?: string | null
   projectId: string
   name: string
   role: string
@@ -334,6 +354,7 @@ export type AgentUpdateManyMutationInput = {
 
 export type AgentUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
@@ -345,6 +366,7 @@ export type AgentUncheckedUpdateManyInput = {
 
 export type AgentCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  tenantId?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
@@ -356,6 +378,7 @@ export type AgentCountOrderByAggregateInput = {
 
 export type AgentMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  tenantId?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
@@ -366,6 +389,7 @@ export type AgentMaxOrderByAggregateInput = {
 
 export type AgentMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  tenantId?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
@@ -399,6 +423,52 @@ export type DateTimeFieldUpdateOperationsInput = {
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
+}
+
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
+}
+
+export type AgentCreateNestedManyWithoutTenantInput = {
+  create?: Prisma.XOR<Prisma.AgentCreateWithoutTenantInput, Prisma.AgentUncheckedCreateWithoutTenantInput> | Prisma.AgentCreateWithoutTenantInput[] | Prisma.AgentUncheckedCreateWithoutTenantInput[]
+  connectOrCreate?: Prisma.AgentCreateOrConnectWithoutTenantInput | Prisma.AgentCreateOrConnectWithoutTenantInput[]
+  createMany?: Prisma.AgentCreateManyTenantInputEnvelope
+  connect?: Prisma.AgentWhereUniqueInput | Prisma.AgentWhereUniqueInput[]
+}
+
+export type AgentUncheckedCreateNestedManyWithoutTenantInput = {
+  create?: Prisma.XOR<Prisma.AgentCreateWithoutTenantInput, Prisma.AgentUncheckedCreateWithoutTenantInput> | Prisma.AgentCreateWithoutTenantInput[] | Prisma.AgentUncheckedCreateWithoutTenantInput[]
+  connectOrCreate?: Prisma.AgentCreateOrConnectWithoutTenantInput | Prisma.AgentCreateOrConnectWithoutTenantInput[]
+  createMany?: Prisma.AgentCreateManyTenantInputEnvelope
+  connect?: Prisma.AgentWhereUniqueInput | Prisma.AgentWhereUniqueInput[]
+}
+
+export type AgentUpdateManyWithoutTenantNestedInput = {
+  create?: Prisma.XOR<Prisma.AgentCreateWithoutTenantInput, Prisma.AgentUncheckedCreateWithoutTenantInput> | Prisma.AgentCreateWithoutTenantInput[] | Prisma.AgentUncheckedCreateWithoutTenantInput[]
+  connectOrCreate?: Prisma.AgentCreateOrConnectWithoutTenantInput | Prisma.AgentCreateOrConnectWithoutTenantInput[]
+  upsert?: Prisma.AgentUpsertWithWhereUniqueWithoutTenantInput | Prisma.AgentUpsertWithWhereUniqueWithoutTenantInput[]
+  createMany?: Prisma.AgentCreateManyTenantInputEnvelope
+  set?: Prisma.AgentWhereUniqueInput | Prisma.AgentWhereUniqueInput[]
+  disconnect?: Prisma.AgentWhereUniqueInput | Prisma.AgentWhereUniqueInput[]
+  delete?: Prisma.AgentWhereUniqueInput | Prisma.AgentWhereUniqueInput[]
+  connect?: Prisma.AgentWhereUniqueInput | Prisma.AgentWhereUniqueInput[]
+  update?: Prisma.AgentUpdateWithWhereUniqueWithoutTenantInput | Prisma.AgentUpdateWithWhereUniqueWithoutTenantInput[]
+  updateMany?: Prisma.AgentUpdateManyWithWhereWithoutTenantInput | Prisma.AgentUpdateManyWithWhereWithoutTenantInput[]
+  deleteMany?: Prisma.AgentScalarWhereInput | Prisma.AgentScalarWhereInput[]
+}
+
+export type AgentUncheckedUpdateManyWithoutTenantNestedInput = {
+  create?: Prisma.XOR<Prisma.AgentCreateWithoutTenantInput, Prisma.AgentUncheckedCreateWithoutTenantInput> | Prisma.AgentCreateWithoutTenantInput[] | Prisma.AgentUncheckedCreateWithoutTenantInput[]
+  connectOrCreate?: Prisma.AgentCreateOrConnectWithoutTenantInput | Prisma.AgentCreateOrConnectWithoutTenantInput[]
+  upsert?: Prisma.AgentUpsertWithWhereUniqueWithoutTenantInput | Prisma.AgentUpsertWithWhereUniqueWithoutTenantInput[]
+  createMany?: Prisma.AgentCreateManyTenantInputEnvelope
+  set?: Prisma.AgentWhereUniqueInput | Prisma.AgentWhereUniqueInput[]
+  disconnect?: Prisma.AgentWhereUniqueInput | Prisma.AgentWhereUniqueInput[]
+  delete?: Prisma.AgentWhereUniqueInput | Prisma.AgentWhereUniqueInput[]
+  connect?: Prisma.AgentWhereUniqueInput | Prisma.AgentWhereUniqueInput[]
+  update?: Prisma.AgentUpdateWithWhereUniqueWithoutTenantInput | Prisma.AgentUpdateWithWhereUniqueWithoutTenantInput[]
+  updateMany?: Prisma.AgentUpdateManyWithWhereWithoutTenantInput | Prisma.AgentUpdateManyWithWhereWithoutTenantInput[]
+  deleteMany?: Prisma.AgentScalarWhereInput | Prisma.AgentScalarWhereInput[]
 }
 
 export type AgentCreateNestedManyWithoutProjectInput = {
@@ -459,6 +529,71 @@ export type AgentUpdateOneWithoutIssuesAssignedNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AgentUpdateToOneWithWhereWithoutIssuesAssignedInput, Prisma.AgentUpdateWithoutIssuesAssignedInput>, Prisma.AgentUncheckedUpdateWithoutIssuesAssignedInput>
 }
 
+export type AgentCreateWithoutTenantInput = {
+  id?: string
+  name: string
+  role: string
+  status?: string
+  capabilities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  lastSeen?: Date | string | null
+  project: Prisma.ProjectCreateNestedOneWithoutAgentsInput
+  issuesAssigned?: Prisma.IssueCreateNestedManyWithoutAssigneeInput
+}
+
+export type AgentUncheckedCreateWithoutTenantInput = {
+  id?: string
+  projectId: string
+  name: string
+  role: string
+  status?: string
+  capabilities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  lastSeen?: Date | string | null
+  issuesAssigned?: Prisma.IssueUncheckedCreateNestedManyWithoutAssigneeInput
+}
+
+export type AgentCreateOrConnectWithoutTenantInput = {
+  where: Prisma.AgentWhereUniqueInput
+  create: Prisma.XOR<Prisma.AgentCreateWithoutTenantInput, Prisma.AgentUncheckedCreateWithoutTenantInput>
+}
+
+export type AgentCreateManyTenantInputEnvelope = {
+  data: Prisma.AgentCreateManyTenantInput | Prisma.AgentCreateManyTenantInput[]
+  skipDuplicates?: boolean
+}
+
+export type AgentUpsertWithWhereUniqueWithoutTenantInput = {
+  where: Prisma.AgentWhereUniqueInput
+  update: Prisma.XOR<Prisma.AgentUpdateWithoutTenantInput, Prisma.AgentUncheckedUpdateWithoutTenantInput>
+  create: Prisma.XOR<Prisma.AgentCreateWithoutTenantInput, Prisma.AgentUncheckedCreateWithoutTenantInput>
+}
+
+export type AgentUpdateWithWhereUniqueWithoutTenantInput = {
+  where: Prisma.AgentWhereUniqueInput
+  data: Prisma.XOR<Prisma.AgentUpdateWithoutTenantInput, Prisma.AgentUncheckedUpdateWithoutTenantInput>
+}
+
+export type AgentUpdateManyWithWhereWithoutTenantInput = {
+  where: Prisma.AgentScalarWhereInput
+  data: Prisma.XOR<Prisma.AgentUpdateManyMutationInput, Prisma.AgentUncheckedUpdateManyWithoutTenantInput>
+}
+
+export type AgentScalarWhereInput = {
+  AND?: Prisma.AgentScalarWhereInput | Prisma.AgentScalarWhereInput[]
+  OR?: Prisma.AgentScalarWhereInput[]
+  NOT?: Prisma.AgentScalarWhereInput | Prisma.AgentScalarWhereInput[]
+  id?: Prisma.StringFilter<"Agent"> | string
+  tenantId?: Prisma.StringNullableFilter<"Agent"> | string | null
+  projectId?: Prisma.StringFilter<"Agent"> | string
+  name?: Prisma.StringFilter<"Agent"> | string
+  role?: Prisma.StringFilter<"Agent"> | string
+  status?: Prisma.StringFilter<"Agent"> | string
+  capabilities?: Prisma.JsonNullableFilter<"Agent">
+  createdAt?: Prisma.DateTimeFilter<"Agent"> | Date | string
+  lastSeen?: Prisma.DateTimeNullableFilter<"Agent"> | Date | string | null
+}
+
 export type AgentCreateWithoutProjectInput = {
   id?: string
   name: string
@@ -467,11 +602,13 @@ export type AgentCreateWithoutProjectInput = {
   capabilities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   lastSeen?: Date | string | null
+  tenant?: Prisma.TenantCreateNestedOneWithoutAgentsInput
   issuesAssigned?: Prisma.IssueCreateNestedManyWithoutAssigneeInput
 }
 
 export type AgentUncheckedCreateWithoutProjectInput = {
   id?: string
+  tenantId?: string | null
   name: string
   role: string
   status?: string
@@ -507,20 +644,6 @@ export type AgentUpdateManyWithWhereWithoutProjectInput = {
   data: Prisma.XOR<Prisma.AgentUpdateManyMutationInput, Prisma.AgentUncheckedUpdateManyWithoutProjectInput>
 }
 
-export type AgentScalarWhereInput = {
-  AND?: Prisma.AgentScalarWhereInput | Prisma.AgentScalarWhereInput[]
-  OR?: Prisma.AgentScalarWhereInput[]
-  NOT?: Prisma.AgentScalarWhereInput | Prisma.AgentScalarWhereInput[]
-  id?: Prisma.StringFilter<"Agent"> | string
-  projectId?: Prisma.StringFilter<"Agent"> | string
-  name?: Prisma.StringFilter<"Agent"> | string
-  role?: Prisma.StringFilter<"Agent"> | string
-  status?: Prisma.StringFilter<"Agent"> | string
-  capabilities?: Prisma.JsonNullableFilter<"Agent">
-  createdAt?: Prisma.DateTimeFilter<"Agent"> | Date | string
-  lastSeen?: Prisma.DateTimeNullableFilter<"Agent"> | Date | string | null
-}
-
 export type AgentCreateWithoutIssuesAssignedInput = {
   id?: string
   name: string
@@ -529,11 +652,13 @@ export type AgentCreateWithoutIssuesAssignedInput = {
   capabilities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   lastSeen?: Date | string | null
+  tenant?: Prisma.TenantCreateNestedOneWithoutAgentsInput
   project: Prisma.ProjectCreateNestedOneWithoutAgentsInput
 }
 
 export type AgentUncheckedCreateWithoutIssuesAssignedInput = {
   id?: string
+  tenantId?: string | null
   projectId: string
   name: string
   role: string
@@ -567,10 +692,58 @@ export type AgentUpdateWithoutIssuesAssignedInput = {
   capabilities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastSeen?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tenant?: Prisma.TenantUpdateOneWithoutAgentsNestedInput
   project?: Prisma.ProjectUpdateOneRequiredWithoutAgentsNestedInput
 }
 
 export type AgentUncheckedUpdateWithoutIssuesAssignedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  capabilities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeen?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type AgentCreateManyTenantInput = {
+  id?: string
+  projectId: string
+  name: string
+  role: string
+  status?: string
+  capabilities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  lastSeen?: Date | string | null
+}
+
+export type AgentUpdateWithoutTenantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  capabilities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeen?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  project?: Prisma.ProjectUpdateOneRequiredWithoutAgentsNestedInput
+  issuesAssigned?: Prisma.IssueUpdateManyWithoutAssigneeNestedInput
+}
+
+export type AgentUncheckedUpdateWithoutTenantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  projectId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  capabilities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeen?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  issuesAssigned?: Prisma.IssueUncheckedUpdateManyWithoutAssigneeNestedInput
+}
+
+export type AgentUncheckedUpdateManyWithoutTenantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
@@ -583,6 +756,7 @@ export type AgentUncheckedUpdateWithoutIssuesAssignedInput = {
 
 export type AgentCreateManyProjectInput = {
   id?: string
+  tenantId?: string | null
   name: string
   role: string
   status?: string
@@ -599,11 +773,13 @@ export type AgentUpdateWithoutProjectInput = {
   capabilities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastSeen?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tenant?: Prisma.TenantUpdateOneWithoutAgentsNestedInput
   issuesAssigned?: Prisma.IssueUpdateManyWithoutAssigneeNestedInput
 }
 
 export type AgentUncheckedUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -615,6 +791,7 @@ export type AgentUncheckedUpdateWithoutProjectInput = {
 
 export type AgentUncheckedUpdateManyWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -656,6 +833,7 @@ export type AgentCountOutputTypeCountIssuesAssignedArgs<ExtArgs extends runtime.
 
 export type AgentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  tenantId?: boolean
   projectId?: boolean
   name?: boolean
   role?: boolean
@@ -663,6 +841,7 @@ export type AgentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   capabilities?: boolean
   createdAt?: boolean
   lastSeen?: boolean
+  tenant?: boolean | Prisma.Agent$tenantArgs<ExtArgs>
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   issuesAssigned?: boolean | Prisma.Agent$issuesAssignedArgs<ExtArgs>
   _count?: boolean | Prisma.AgentCountOutputTypeDefaultArgs<ExtArgs>
@@ -670,6 +849,7 @@ export type AgentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 
 export type AgentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  tenantId?: boolean
   projectId?: boolean
   name?: boolean
   role?: boolean
@@ -677,11 +857,13 @@ export type AgentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   capabilities?: boolean
   createdAt?: boolean
   lastSeen?: boolean
+  tenant?: boolean | Prisma.Agent$tenantArgs<ExtArgs>
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["agent"]>
 
 export type AgentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  tenantId?: boolean
   projectId?: boolean
   name?: boolean
   role?: boolean
@@ -689,11 +871,13 @@ export type AgentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   capabilities?: boolean
   createdAt?: boolean
   lastSeen?: boolean
+  tenant?: boolean | Prisma.Agent$tenantArgs<ExtArgs>
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["agent"]>
 
 export type AgentSelectScalar = {
   id?: boolean
+  tenantId?: boolean
   projectId?: boolean
   name?: boolean
   role?: boolean
@@ -703,27 +887,32 @@ export type AgentSelectScalar = {
   lastSeen?: boolean
 }
 
-export type AgentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "name" | "role" | "status" | "capabilities" | "createdAt" | "lastSeen", ExtArgs["result"]["agent"]>
+export type AgentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "projectId" | "name" | "role" | "status" | "capabilities" | "createdAt" | "lastSeen", ExtArgs["result"]["agent"]>
 export type AgentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  tenant?: boolean | Prisma.Agent$tenantArgs<ExtArgs>
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   issuesAssigned?: boolean | Prisma.Agent$issuesAssignedArgs<ExtArgs>
   _count?: boolean | Prisma.AgentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AgentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  tenant?: boolean | Prisma.Agent$tenantArgs<ExtArgs>
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }
 export type AgentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  tenant?: boolean | Prisma.Agent$tenantArgs<ExtArgs>
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }
 
 export type $AgentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Agent"
   objects: {
+    tenant: Prisma.$TenantPayload<ExtArgs> | null
     project: Prisma.$ProjectPayload<ExtArgs>
     issuesAssigned: Prisma.$IssuePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    tenantId: string | null
     projectId: string
     name: string
     role: string
@@ -1125,6 +1314,7 @@ readonly fields: AgentFieldRefs;
  */
 export interface Prisma__AgentClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  tenant<T extends Prisma.Agent$tenantArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Agent$tenantArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   project<T extends Prisma.ProjectDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectDefaultArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   issuesAssigned<T extends Prisma.Agent$issuesAssignedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Agent$issuesAssignedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IssuePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1157,6 +1347,7 @@ export interface Prisma__AgentClient<T, Null = never, ExtArgs extends runtime.Ty
  */
 export interface AgentFieldRefs {
   readonly id: Prisma.FieldRef<"Agent", 'String'>
+  readonly tenantId: Prisma.FieldRef<"Agent", 'String'>
   readonly projectId: Prisma.FieldRef<"Agent", 'String'>
   readonly name: Prisma.FieldRef<"Agent", 'String'>
   readonly role: Prisma.FieldRef<"Agent", 'String'>
@@ -1557,6 +1748,25 @@ export type AgentDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Limit how many Agents to delete.
    */
   limit?: number
+}
+
+/**
+ * Agent.tenant
+ */
+export type Agent$tenantArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Tenant
+   */
+  select?: Prisma.TenantSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Tenant
+   */
+  omit?: Prisma.TenantOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TenantInclude<ExtArgs> | null
+  where?: Prisma.TenantWhereInput
 }
 
 /**

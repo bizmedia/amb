@@ -77,6 +77,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const AgentScalarFieldEnum = {
   id: 'id',
+  tenantId: 'tenantId',
   projectId: 'projectId',
   name: 'name',
   role: 'role',
@@ -91,6 +92,7 @@ export type AgentScalarFieldEnum = (typeof AgentScalarFieldEnum)[keyof typeof Ag
 
 export const ThreadScalarFieldEnum = {
   id: 'id',
+  tenantId: 'tenantId',
   projectId: 'projectId',
   title: 'title',
   status: 'status',
@@ -102,6 +104,7 @@ export type ThreadScalarFieldEnum = (typeof ThreadScalarFieldEnum)[keyof typeof 
 
 export const MessageScalarFieldEnum = {
   id: 'id',
+  tenantId: 'tenantId',
   projectId: 'projectId',
   threadId: 'threadId',
   fromAgentId: 'fromAgentId',
