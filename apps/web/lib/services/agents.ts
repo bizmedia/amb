@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "../../prisma/generated/client";
+import { Prisma } from "@amb-app/db";
 
 export type CreateAgentInput = {
   projectId: string;

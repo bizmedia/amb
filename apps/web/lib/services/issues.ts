@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NotFoundError } from "@/lib/services/errors";
-import { IssuePriority, IssueState } from "../../prisma/generated/client";
+import { IssuePriority, IssueState } from "@amb-app/db";
 
 export type IssueFilters = {
   state?: IssueState;

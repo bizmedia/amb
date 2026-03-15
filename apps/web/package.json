@@ -4,13 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "echo '' && echo '  API Docs (Swagger): http://localhost:3333/api-docs' && echo '' && next dev -p 3333",
-    "build": "prisma generate && next build",
-    "postinstall": "prisma generate",
+    "build": "next build",
+    "postinstall": "pnpm --filter @amb-app/db exec prisma generate",
     "start": "next start -p 3333",
     "lint": "eslint",
-    "db:migrate": "prisma migrate dev",
-    "db:migrate:deploy": "prisma migrate deploy",
-    "db:studio": "prisma studio",
+    "db:migrate": "pnpm --filter @amb-app/db run db:migrate",
+    "db:migrate:deploy": "pnpm --filter @amb-app/db run db:migrate:deploy",
+    "db:studio": "pnpm --filter @amb-app/db run db:studio",
     "seed:agents": "tsx scripts/seed-agents.ts",
     "seed:threads": "tsx scripts/seed-threads.ts",
     "seed:all": "pnpm seed:agents && pnpm seed:threads",
@@ -26,6 +26,7 @@
     "po:check-inbox": "tsx scripts/po-inbox-checker.ts"
   },
   "dependencies": {
+    "@amb-app/db": "workspace:*",
     "@amb-app/shared": "workspace:*",
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",

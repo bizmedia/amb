@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { jsonError, handleApiError } from "@/lib/api/errors";
 import { resolveProjectId } from "@/lib/api/project-context";
 import { createAgent, listAgents } from "@/lib/services/agents";
-import { Prisma } from "../../../prisma/generated/client";
+import { Prisma } from "@amb-app/db";
 import { createAgentSchema } from "@amb-app/shared";
 
 export async function GET(request: Request) {
