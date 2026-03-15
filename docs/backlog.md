@@ -2,7 +2,7 @@
 
 **Версия:** 1.0  
 **Дата:** 2026-01-28  
-**Последняя проверка статуса:** 2026-03-16 (Orchestrator). Epic 1–5 завершены. Epic 6: E6-S1 — Done (nest-engineer), E6-S2 — в работе.  
+**Последняя проверка статуса:** 2026-03-16 (Orchestrator). Epic 1–6 завершены. E6-S1…E6-S6 — Done (nest-engineer).  
 **Автор:** Product Owner Agent  
 **Статус:** Актуально
 
@@ -18,8 +18,8 @@
 | [E3: JWT авторизация](#epic-3-jwt-авторизация)                         | P0        | ✅ Done        | Sprint 3-4 |
 | [E4: Dashboard как продукт](#epic-4-dashboard-как-продукт)             | P0        | ✅ Done        | Sprint 4-5 |
 | [E5: Developer Experience](#epic-5-developer-experience)               | P1        | 🚧 In Progress | Sprint 5-6 |
-| [E6: Операционная готовность](#epic-6-операционная-готовность)         | P1        | 🚧 In Progress | Sprint 6-7 |
-| [E7: Локализация (i18n)](#epic-7-локализация-i18n)                     | P1        | 📋 Planned     | Sprint 6-7 |
+| [E6: Операционная готовность](#epic-6-операционная-готовность)         | P1        | ✅ Done        | Sprint 6-7 |
+| [E7: Локализация (i18n)](#epic-7-локализация-i18n)                     | P1        | 🚧 In Progress | Sprint 6-7 |
 
 
 ---
@@ -163,11 +163,11 @@
 | ID    | Story                        | Приоритет | Статус     | Acceptance Criteria                                                                     |
 | ----- | ---------------------------- | --------- | ---------- | --------------------------------------------------------------------------------------- |
 | E6-S1 | Rate limiting                | P1        | ✅ Done    | • RateLimitGuard (APP_GUARD) • per-project key (tenantId/projectId/ip/method) • 429 • e2e 34/34 |
-| E6-S2 | Observability (логи/метрики) | P1        | 🚧 In Progress | • Structured logging • Metrics (Prometheus) • Health checks (в работе)                  |
-| E6-S3 | Tracing                      | P2        | 📋 Planned      | • Distributed tracing • Request correlation IDs • Performance monitoring                |
-| E6-S4 | Health checks                | P1        | 📋 Planned      | • `/health` endpoint • DB connectivity check • Dependency checks                        |
-| E6-S5 | Deployment automation        | P1        | 📋 Planned      | • CI/CD pipeline • Docker images (Podman) • Kubernetes manifests • Migration automation |
-| E6-S6 | Backup и disaster recovery   | P1        | 📋 Planned      | • Backup strategy • Recovery procedures • Testing                                       |
+| E6-S2 | Observability (логи/метрики) | P1        | ✅ Done    | • ObservabilityInterceptor • GET /api/observability/metrics • e2e 35/35                |
+| E6-S3 | Tracing                      | P2        | ✅ Done    | • x-request-id, traceparent • traceId/spanId в логах • e2e 37/37                        |
+| E6-S4 | Health checks                | P1        | ✅ Done    | • GET /api/health • liveness/readiness, DB check • e2e 38/38                            |
+| E6-S5 | Deployment automation        | P1        | ✅ Done    | • api-ci.yml • production-deploy.sh • deploy/k8s (Deployment, Service, migrate Job)     |
+| E6-S6 | Backup и disaster recovery   | P1        | ✅ Done    | • postgres-backup/restore.sh • disaster-recovery-runbook.md • backup:db/restore:db      |
 
 
 **Definition of Done:**
@@ -194,7 +194,7 @@
 
 | ID    | Story                              | Приоритет | Статус     | Acceptance Criteria                                                                                                                                                            |
 | ----- | ---------------------------------- | --------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| E7-S1 | Инфраструктура i18n в Dashboard    | P1        | 🚧 In Progress  | • Выбрана и подключена библиотека i18n (решение — Architect/Dev) • Все тексты UI вынесены в ключи переводов • Есть как минимум 2 языка (напр. en + ru) с полным набором ключей |
+| E7-S1 | Инфраструктура i18n в Dashboard    | P1        | ✅ Done         | • Выбрана и подключена библиотека i18n (решение — Architect/Dev) • Все тексты UI вынесены в ключи переводов • Есть как минимум 2 языка (напр. en + ru) с полным набором ключей |
 | E7-S2 | Переключатель языка и персистенция | P1        | 🚧 In Progress  | • В UI есть переключатель языка • Выбранный язык сохраняется между сессиями (localStorage или user prefs) • Приложение при загрузке отображает сохранённый язык                |
 | E7-S3 | Перевод сообщений API в UI         | P1        | 📋 Planned      | • Ошибки и сообщения от API, показываемые в Dashboard, переводимы • Используются ключи или маппинг к переводам в UI • Нет «сырых» непереведённых строк от API в интерфейсе     |
 | E7-S4 | Документация для переводчиков      | P2        | 📋 Planned      | • Описан процесс добавления нового языка • Формат файлов переводов и конвенции ключей задокументированы • При необходимости — инструкция для внешних переводчиков              |

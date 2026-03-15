@@ -881,6 +881,14 @@ services:
 | E4 | Dashboard, auth flow, UI | feature-workflow-epic-4, ADR-010/011 |
 | E5 | Структура документации, DX | docs/ в репозитории, ADR-013 при workers |
 | E6 | Операционная готовность: rate limiting, observability, health, deployment, backup | Разделы 10.2, 11; при необходимости — отдельный ADR по production-readiness |
+| E7 | Локализация (i18n): библиотека, конвенции ключей, перевод сообщений API в UI | Раздел ниже; apps/web — next-intl |
+
+#### Локализация (Epic 7)
+
+- **Библиотека:** [next-intl](https://next-intl-docs.vercel.app/) (уже в use: `apps/web`, Next.js App Router). Плагин в `next.config.ts`, конфиг в `i18n/request.ts`, `i18n/routing.ts`, `i18n/navigation.ts`. Локали: `en`, `ru`, `de` (расширяемо в `routing.locales`).
+- **Файлы переводов:** `apps/web/messages/{locale}.json` — один JSON на язык; ключи — namespace.key или плоские в рамках namespace.
+- **Конвенции ключей:** использовать неймспейсы по экрану/модулю (например `Dashboard`, `Tokens`, `Login`, `Common`). Формат ключей: `PascalCase` для неймспейсов, `camelCase` для ключей внутри (например `Dashboard.agentsList`, `Common.save`). Сообщения API, показываемые в UI: маппинг кода ошибки → ключ перевода в `lib/api/error-i18n` (или аналог); не хранить сырые строки от API в переводах, только ключи.
+- **Персистенция языка:** переключатель в UI; сохранение в `localStorage` (`amb:locale`) до появления user preferences в API — допустимо (уже используется в `locale-switcher`).
 
 #### Operational readiness (Epic 6)
 
@@ -940,3 +948,4 @@ amb-app/
 | 1.0 | 27.01.2026 | Architect Agent | Первоначальная версия |
 | 1.1 | 15.03.2026 | Architect Agent | ADR-005..013 в раздел 12; раздел 12.3 — уточнения по storage, RLS, эпам 2–5; структура проекта — монорепо |
 | 1.2 | 15.03.2026 | Architect Agent | Epic 6 в раздел 12.3: операционная готовность (rate limiting, observability, health, deployment, backup) |
+| 1.3 | 16.03.2026 | Architect Agent | Epic 7 в раздел 12.3: i18n (next-intl), конвенции ключей, персистенция языка |
