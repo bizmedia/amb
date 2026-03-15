@@ -679,4 +679,51 @@ describe("API (e2e)", () => {
         .expect(403);
     });
   });
+
+  describe("rate limiting (E6-S1)", () => {
+    it("returns 429 when per-project limit is exceeded", async () => {
+      const projectRes = await request(app.getHttpServer())
+        .post("/api/projects")
+        .send({ name: `E6 RL ${Date.now().toString(36)}` })
+        .expect(201);
+      const projectId = projectRes.body.data.id as string;
+
+      const prevMax = process.env.RATE_LIMIT_MAX_REQUESTS;
+      const prevWindow = process.env.RATE_LIMIT_WINDOW_MS;
+      process.env.RATE_LIMIT_MAX_REQUESTS = "2";
+      process.env.RATE_LIMIT_WINDOW_MS = "60000";
+
+      try {
+        await request(app.getHttpServer())
+          .get("/api/agents")
+          .set("x-project-id", projectId)
+          .set("x-forwarded-for", "198.51.100.10")
+          .expect(200);
+
+        await request(app.getHttpServer())
+          .get("/api/agents")
+          .set("x-project-id", projectId)
+          .set("x-forwarded-for", "198.51.100.10")
+          .expect(200);
+
+        await request(app.getHttpServer())
+          .get("/api/agents")
+          .set("x-project-id", projectId)
+          .set("x-forwarded-for", "198.51.100.10")
+          .expect(429);
+      } finally {
+        if (prevMax === undefined) {
+          delete process.env.RATE_LIMIT_MAX_REQUESTS;
+        } else {
+          process.env.RATE_LIMIT_MAX_REQUESTS = prevMax;
+        }
+
+        if (prevWindow === undefined) {
+          delete process.env.RATE_LIMIT_WINDOW_MS;
+        } else {
+          process.env.RATE_LIMIT_WINDOW_MS = prevWindow;
+        }
+      }
+    });
+  });
 });

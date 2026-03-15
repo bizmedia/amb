@@ -9,6 +9,7 @@ import { IssuesModule } from "./issues/issues.module";
 import { DlqModule } from "./dlq/dlq.module";
 import { JwtAuthGuard } from "./common/jwt-auth.guard";
 import { AuthModule } from "./auth/auth.module";
+import { RateLimitGuard } from "./common/rate-limit.guard";
 import { TenantsModule } from "./tenants/tenants.module";
 
 @Module({
@@ -27,6 +28,10 @@ import { TenantsModule } from "./tenants/tenants.module";
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RateLimitGuard,
     },
   ],
 })
