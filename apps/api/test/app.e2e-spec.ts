@@ -2,13 +2,42 @@ import "dotenv/config";
 import { Test, TestingModule } from "@nestjs/testing";
 import { INestApplication } from "@nestjs/common";
 import request from "supertest";
+import { createHmac } from "node:crypto";
 import { AppModule } from "../src/app.module";
 import { AllExceptionsFilter } from "../src/common/http-exception.filter";
+
+const DEFAULT_TENANT_ID = "00000000-0000-0000-0000-000000000001";
+
+function base64Url(input: string) {
+  return Buffer.from(input)
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
+}
+
+function signJwt(
+  payload: Record<string, unknown>,
+  secret: string
+): string {
+  const header = { alg: "HS256", typ: "JWT" };
+  const encodedHeader = base64Url(JSON.stringify(header));
+  const encodedPayload = base64Url(JSON.stringify(payload));
+  const signature = createHmac("sha256", secret)
+    .update(`${encodedHeader}.${encodedPayload}`)
+    .digest("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
+  return `${encodedHeader}.${encodedPayload}.${signature}`;
+}
 
 describe("API (e2e)", () => {
   let app: INestApplication;
 
   beforeAll(async () => {
+    process.env.JWT_SECRET = process.env.JWT_SECRET ?? "test-jwt-secret";
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -319,6 +348,91 @@ describe("API (e2e)", () => {
         .get("/api/threads")
         .set("x-project-id", projectAId)
         .query({ projectId: projectBId })
+        .expect(400);
+    });
+  });
+
+  describe("jwt guard (E3-S1)", () => {
+    let projectId: string;
+    let token: string;
+
+    beforeAll(async () => {
+      const suffix = Date.now().toString(36);
+      const projectRes = await request(app.getHttpServer())
+        .post("/api/projects")
+        .send({ name: `E3 JWT Project ${suffix}` })
+        .expect(201);
+      projectId = projectRes.body.data.id;
+
+      const now = Math.floor(Date.now() / 1000);
+      token = signJwt(
+        {
+          sub: "e2e-user",
+          tenantId: DEFAULT_TENANT_ID,
+          projectId,
+          roles: ["tenant-admin"],
+          iat: now,
+          exp: now + 3600,
+        },
+        process.env.JWT_SECRET!
+      );
+    });
+
+    it("returns 401 for invalid bearer token", async () => {
+      await request(app.getHttpServer())
+        .get("/api/agents")
+        .set("Authorization", "Bearer invalid.token.signature")
+        .expect(401);
+    });
+
+    it("accepts valid JWT and resolves project from claims", async () => {
+      await request(app.getHttpServer())
+        .post("/api/agents")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ name: "jwt-agent", role: "jwt-role" })
+        .expect(201);
+
+      const res = await request(app.getHttpServer())
+        .get("/api/agents")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200);
+
+      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(
+        (res.body.data as Array<{ name: string }>).some((a) => a.name === "jwt-agent")
+      ).toBe(true);
+    });
+
+    it("returns 400 for project mismatch between claims and query/header", async () => {
+      const otherProjectRes = await request(app.getHttpServer())
+        .post("/api/projects")
+        .send({ name: `E3 JWT Other ${Date.now().toString(36)}` })
+        .expect(201);
+      const otherProjectId = otherProjectRes.body.data.id as string;
+
+      await request(app.getHttpServer())
+        .get("/api/threads")
+        .set("Authorization", `Bearer ${token}`)
+        .query({ projectId: otherProjectId })
+        .expect(400);
+
+      await request(app.getHttpServer())
+        .get("/api/threads")
+        .set("Authorization", `Bearer ${token}`)
+        .set("x-project-id", otherProjectId)
+        .expect(400);
+    });
+
+    it("returns 400 for project mismatch between claims and route params", async () => {
+      const otherProjectRes = await request(app.getHttpServer())
+        .post("/api/projects")
+        .send({ name: `E3 JWT Route ${Date.now().toString(36)}` })
+        .expect(201);
+      const otherProjectId = otherProjectRes.body.data.id as string;
+
+      await request(app.getHttpServer())
+        .get(`/api/projects/${otherProjectId}/issues`)
+        .set("Authorization", `Bearer ${token}`)
         .expect(400);
     });
   });
