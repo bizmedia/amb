@@ -13,6 +13,7 @@ import { RateLimitGuard } from "./common/rate-limit.guard";
 import { TenantsModule } from "./tenants/tenants.module";
 import { ObservabilityModule } from "./observability/observability.module";
 import { ObservabilityInterceptor } from "./observability/observability.interceptor";
+import { HealthModule } from "./health/health.module";
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { ObservabilityInterceptor } from "./observability/observability.intercep
     AuthModule,
     TenantsModule,
     ObservabilityModule,
+    HealthModule,
   ],
   providers: [
     {

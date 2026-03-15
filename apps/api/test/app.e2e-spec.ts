@@ -769,4 +769,13 @@ describe("API (e2e)", () => {
       expect(res.headers["traceparent"]).toMatch(/^00-[a-f0-9]{32}-[a-f0-9]{16}-01$/);
     });
   });
+
+  describe("health checks (E6-S4)", () => {
+    it("returns service and db status", async () => {
+      const res = await request(app.getHttpServer()).get("/api/health").expect(200);
+      expect(res.body?.data?.status).toBeDefined();
+      expect(res.body?.data?.checks?.db?.status).toBe("up");
+      expect(typeof res.body?.data?.uptimeSec).toBe("number");
+    });
+  });
 });
