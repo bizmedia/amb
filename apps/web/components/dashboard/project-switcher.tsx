@@ -93,20 +93,22 @@ export function ProjectSwitcher() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-[320px]">
-          {projects.map((project) => (
-            <DropdownMenuItem
-              key={project.id}
-              onClick={() => selectProject(project.id)}
-              className="flex items-center justify-between gap-2"
-            >
-              <span className="truncate">{project.name}</span>
-              {selectedProject?.id === project.id && (
-                <Badge variant="secondary" className="text-[10px] px-1.5">
-                  {t("current")}
-                </Badge>
-              )}
-            </DropdownMenuItem>
-          ))}
+          <div className="max-h-[280px] overflow-y-auto overflow-x-hidden p-1">
+            {projects.map((project) => (
+              <DropdownMenuItem
+                key={project.id}
+                onClick={() => selectProject(project.id)}
+                className="flex items-center justify-between gap-2"
+              >
+                <span className="truncate">{project.name}</span>
+                {selectedProject?.id === project.id && (
+                  <Badge variant="secondary" className="text-[10px] px-1.5">
+                    {t("current")}
+                  </Badge>
+                )}
+              </DropdownMenuItem>
+            ))}
+          </div>
           <DropdownMenuSeparator />
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
