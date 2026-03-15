@@ -48,7 +48,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.defineExtension = exports.NullsOrder = exports.JsonNullValueFilter = exports.QueryMode = exports.JsonNullValueInput = exports.NullableJsonNullValueInput = exports.SortOrder = exports.IssueScalarFieldEnum = exports.ProjectScalarFieldEnum = exports.MessageScalarFieldEnum = exports.ThreadScalarFieldEnum = exports.AgentScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.prismaVersion = exports.getExtensionContext = exports.Decimal = exports.Sql = exports.raw = exports.join = exports.empty = exports.sql = exports.PrismaClientValidationError = exports.PrismaClientInitializationError = exports.PrismaClientRustPanicError = exports.PrismaClientUnknownRequestError = exports.PrismaClientKnownRequestError = void 0;
+exports.defineExtension = exports.NullsOrder = exports.JsonNullValueFilter = exports.QueryMode = exports.JsonNullValueInput = exports.NullableJsonNullValueInput = exports.SortOrder = exports.IssueScalarFieldEnum = exports.ProjectScalarFieldEnum = exports.TenantScalarFieldEnum = exports.MessageScalarFieldEnum = exports.ThreadScalarFieldEnum = exports.AgentScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.prismaVersion = exports.getExtensionContext = exports.Decimal = exports.Sql = exports.raw = exports.join = exports.empty = exports.sql = exports.PrismaClientValidationError = exports.PrismaClientInitializationError = exports.PrismaClientRustPanicError = exports.PrismaClientUnknownRequestError = exports.PrismaClientKnownRequestError = void 0;
 const runtime = __importStar(require("@prisma/client/runtime/client"));
 /**
  * Prisma Errors
@@ -106,6 +106,7 @@ exports.ModelName = {
     Agent: 'Agent',
     Thread: 'Thread',
     Message: 'Message',
+    Tenant: 'Tenant',
     Project: 'Project',
     Issue: 'Issue'
 };
@@ -147,8 +148,15 @@ exports.MessageScalarFieldEnum = {
     parentId: 'parentId',
     createdAt: 'createdAt'
 };
+exports.TenantScalarFieldEnum = {
+    id: 'id',
+    name: 'name',
+    slug: 'slug',
+    createdAt: 'createdAt'
+};
 exports.ProjectScalarFieldEnum = {
     id: 'id',
+    tenantId: 'tenantId',
     name: 'name',
     slug: 'slug',
     createdAt: 'createdAt'

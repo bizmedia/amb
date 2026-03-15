@@ -1,0 +1,11 @@
+# MCP-серверы для Codex (аналог .cursor/mcp.json)
+# Документация: https://developers.openai.com/codex/mcp/
+
+[mcp_servers.message-bus]
+command = "node"
+args = ["/Users/anatolijtukov/Developer/amb-app/packages/mcp-server/dist/index.js"]
+cwd = "/Users/anatolijtukov/Developer/amb-app"
+
+[mcp_servers.message-bus.env]
+MESSAGE_BUS_URL = "http://localhost:3333"
+MESSAGE_BUS_PROJECT_ID = "f63a9a8d-a31b-4898-9fc2-d80cfc409717"

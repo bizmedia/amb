@@ -67,8 +67,19 @@ model Message {
   @@index([createdAt])
 }
 
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+
+  projects Project[]
+}
+
 model Project {
   id        String   @id @default(uuid())
+  tenantId  String?
+  tenant    Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   name      String
   slug      String   @unique
   createdAt DateTime @default(now())
@@ -77,6 +88,8 @@ model Project {
   threads  Thread[]
   messages Message[]
   issues   Issue[]
+
+  @@index([tenantId])
 }
 
 enum IssueState {

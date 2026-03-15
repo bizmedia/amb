@@ -2,7 +2,7 @@
 
 **Версия:** 1.0  
 **Дата:** 2026-01-28  
-**Последняя проверка статуса:** 2026-03-15 (Orchestrator). Тред: 10 сообщений. E1-S1…E1-S5 — Done; E1-S6 — Planned (миграция apps/web на HTTP-клиент к apps/api).  
+**Последняя проверка статуса:** 2026-03-15 (Orchestrator). Epic 1 завершён. Epic 2 запущен: тред `66ddc5d9-…`, E2-S1 в работе.  
 **Автор:** Product Owner Agent  
 **Статус:** Актуально
 
@@ -13,8 +13,8 @@
 
 | Epic                                                                   | Приоритет | Статус         | Sprint     |
 | ---------------------------------------------------------------------- | --------- | -------------- | ---------- |
-| [E1: Архитектурная миграция](#epic-1-архитектурная-миграция)           | P0        | 🚧 In Progress | Sprint 1-2 |
-| [E2: Multi-tenant инфраструктура](#epic-2-multi-tenant-инфраструктура) | P0        | 📋 Planned     | Sprint 2-3 |
+| [E1: Архитектурная миграция](#epic-1-архитектурная-миграция)           | P0        | ✅ Done        | Sprint 1-2 |
+| [E2: Multi-tenant инфраструктура](#epic-2-multi-tenant-инфраструктура) | P0        | 🚧 In Progress | Sprint 2-3 |
 | [E3: JWT авторизация](#epic-3-jwt-авторизация)                         | P0        | 📋 Planned     | Sprint 3-4 |
 | [E4: Dashboard как продукт](#epic-4-dashboard-как-продукт)             | P0        | 📋 Planned     | Sprint 4-5 |
 | [E5: Developer Experience](#epic-5-developer-experience)               | P1        | 📋 Planned     | Sprint 5-6 |
@@ -59,7 +59,7 @@
 
 | ID    | Story                                         | Приоритет | Статус     | Acceptance Criteria                                                                                                                     |
 | ----- | --------------------------------------------- | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| E2-S1 | Добавить Tenant и Project модели              | P0        | 📋 Planned | • Prisma модели `Tenant` и `Project` • Миграция создана • Relations настроены                                                           |
+| E2-S1 | Добавить Tenant и Project модели              | P0        | 🚧 In Progress | • Prisma модели `Tenant` и `Project` • Миграция создана • Relations настроены                                                           |
 | E2-S2 | Добавить tenantId/projectId в рабочие таблицы | P0        | 📋 Planned | • `Agent`, `Thread`, `Message` имеют `tenantId` и `projectId` • Индексы добавлены • Миграция создана                                    |
 | E2-S3 | Backfill существующих данных                  | P0        | 📋 Planned | • Создан default tenant + default project • Все существующие записи получили tenantId/projectId • Миграция данных выполнена             |
 | E2-S4 | Project-scoped API endpoints                  | P0        | 📋 Planned | • Все endpoints фильтруют по projectId из контекста • Cross-project доступ невозможен • Тесты изоляции проходят                         |

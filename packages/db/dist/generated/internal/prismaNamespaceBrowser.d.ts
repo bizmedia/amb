@@ -29,6 +29,7 @@ export declare const ModelName: {
     readonly Agent: "Agent";
     readonly Thread: "Thread";
     readonly Message: "Message";
+    readonly Tenant: "Tenant";
     readonly Project: "Project";
     readonly Issue: "Issue";
 };
@@ -72,8 +73,16 @@ export declare const MessageScalarFieldEnum: {
     readonly createdAt: "createdAt";
 };
 export type MessageScalarFieldEnum = (typeof MessageScalarFieldEnum)[keyof typeof MessageScalarFieldEnum];
+export declare const TenantScalarFieldEnum: {
+    readonly id: "id";
+    readonly name: "name";
+    readonly slug: "slug";
+    readonly createdAt: "createdAt";
+};
+export type TenantScalarFieldEnum = (typeof TenantScalarFieldEnum)[keyof typeof TenantScalarFieldEnum];
 export declare const ProjectScalarFieldEnum: {
     readonly id: "id";
+    readonly tenantId: "tenantId";
     readonly name: "name";
     readonly slug: "slug";
     readonly createdAt: "createdAt";

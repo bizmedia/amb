@@ -145,6 +145,17 @@ export interface PrismaClient<in LogOpts extends Prisma.LogLevel = never, in out
         omit: OmitOpts;
     }>;
     /**
+     * `prisma.tenant`: Exposes CRUD operations for the **Tenant** model.
+      * Example usage:
+      * ```ts
+      * // Fetch zero or more Tenants
+      * const tenants = await prisma.tenant.findMany()
+      * ```
+      */
+    get tenant(): Prisma.TenantDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
+    /**
      * `prisma.project`: Exposes CRUD operations for the **Project** model.
       * Example usage:
       * ```ts

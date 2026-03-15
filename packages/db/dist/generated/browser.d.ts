@@ -18,6 +18,11 @@ export type Thread = Prisma.ThreadModel;
  */
 export type Message = Prisma.MessageModel;
 /**
+ * Model Tenant
+ *
+ */
+export type Tenant = Prisma.TenantModel;
+/**
  * Model Project
  *
  */
