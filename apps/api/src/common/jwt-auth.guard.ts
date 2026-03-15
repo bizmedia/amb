@@ -29,6 +29,7 @@ type JwtPayload = {
 
 const UUID_LIKE_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const ALLOWED_SUBJECTS = new Set(["user", "project"]);
 
 function toBase64Url(input: Buffer): string {
   return input
@@ -145,6 +146,9 @@ export class JwtAuthGuard implements CanActivate {
 
     if (!payload.sub || typeof payload.sub !== "string") {
       throw new UnauthorizedException("JWT claim 'sub' is required");
+    }
+    if (!ALLOWED_SUBJECTS.has(payload.sub)) {
+      throw new UnauthorizedException("JWT claim 'sub' must be 'user' or 'project'");
     }
 
     if (typeof payload.tenantId !== "string" || !UUID_LIKE_RE.test(payload.tenantId)) {

@@ -367,7 +367,8 @@ describe("API (e2e)", () => {
       const now = Math.floor(Date.now() / 1000);
       token = signJwt(
         {
-          sub: "e2e-user",
+          sub: "user",
+          userId: "00000000-0000-0000-0000-0000000000c1",
           tenantId: DEFAULT_TENANT_ID,
           projectId,
           roles: ["tenant-admin"],
@@ -489,6 +490,98 @@ describe("API (e2e)", () => {
         .get("/api/agents")
         .set("Authorization", `Bearer ${token}`)
         .set("x-project-id", projectId)
+        .expect(200);
+    });
+  });
+
+  describe("project tokens (E3-S3)", () => {
+    it("issues project token for tenant-admin user", async () => {
+      const projectRes = await request(app.getHttpServer())
+        .post("/api/projects")
+        .send({ name: `E3 Project Token ${Date.now().toString(36)}` })
+        .expect(201);
+      const projectId = projectRes.body.data.id as string;
+
+      const loginRes = await request(app.getHttpServer())
+        .post("/api/auth/login")
+        .send({ email: "admin@local.test", password: "ChangeMe123!" })
+        .expect(200);
+      const userToken = loginRes.body.data?.accessToken as string;
+
+      const issueRes = await request(app.getHttpServer())
+        .post("/api/auth/project-tokens")
+        .set("Authorization", `Bearer ${userToken}`)
+        .send({ projectId })
+        .expect(201);
+
+      const projectToken = issueRes.body.data?.accessToken as string;
+      expect(typeof projectToken).toBe("string");
+      expect(projectToken.split(".")).toHaveLength(3);
+      expect(issueRes.body.data?.claims?.sub).toBe("project");
+      expect(issueRes.body.data?.claims?.projectId).toBe(projectId);
+      expect(issueRes.body.data?.claims?.tenantId).toBe(DEFAULT_TENANT_ID);
+      expect(typeof issueRes.body.data?.claims?.jti).toBe("string");
+
+      const payload = JSON.parse(
+        Buffer.from(projectToken.split(".")[1] ?? "", "base64url").toString("utf8")
+      ) as { sub: string; projectId: string; tenantId: string; type: string };
+
+      expect(payload.sub).toBe("project");
+      expect(payload.type).toBe("project");
+      expect(payload.projectId).toBe(projectId);
+      expect(payload.tenantId).toBe(DEFAULT_TENANT_ID);
+    });
+
+    it("returns 403 for non-admin user token", async () => {
+      const projectRes = await request(app.getHttpServer())
+        .post("/api/projects")
+        .send({ name: `E3 Project Token Reader ${Date.now().toString(36)}` })
+        .expect(201);
+      const projectId = projectRes.body.data.id as string;
+
+      const now = Math.floor(Date.now() / 1000);
+      const readerToken = signJwt(
+        {
+          sub: "user",
+          userId: "00000000-0000-0000-0000-0000000000b1",
+          tenantId: DEFAULT_TENANT_ID,
+          roles: ["reader"],
+          iat: now,
+          exp: now + 3600,
+        },
+        process.env.JWT_SECRET!
+      );
+
+      await request(app.getHttpServer())
+        .post("/api/auth/project-tokens")
+        .set("Authorization", `Bearer ${readerToken}`)
+        .send({ projectId })
+        .expect(403);
+    });
+
+    it("allows using issued project token on project-scoped endpoint", async () => {
+      const projectRes = await request(app.getHttpServer())
+        .post("/api/projects")
+        .send({ name: `E3 Project Token Use ${Date.now().toString(36)}` })
+        .expect(201);
+      const projectId = projectRes.body.data.id as string;
+
+      const loginRes = await request(app.getHttpServer())
+        .post("/api/auth/login")
+        .send({ email: "admin@local.test", password: "ChangeMe123!" })
+        .expect(200);
+      const userToken = loginRes.body.data?.accessToken as string;
+
+      const issueRes = await request(app.getHttpServer())
+        .post("/api/auth/project-tokens")
+        .set("Authorization", `Bearer ${userToken}`)
+        .send({ projectId })
+        .expect(201);
+      const projectToken = issueRes.body.data?.accessToken as string;
+
+      await request(app.getHttpServer())
+        .get("/api/threads")
+        .set("Authorization", `Bearer ${projectToken}`)
         .expect(200);
     });
   });

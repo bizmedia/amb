@@ -1,9 +1,11 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { createHmac } from "node:crypto";
+import { createHmac, randomUUID } from "node:crypto";
 import { verifyPassword } from "./password";
+import type { AuthContext } from "../common/auth-context";
 
 const USER_TOKEN_TTL_SECONDS = 60 * 60;
+const PROJECT_TOKEN_TTL_SECONDS = 60 * 60 * 24 * 30;
 
 function toBase64Url(input: Buffer): string {
   return input
@@ -68,6 +70,59 @@ export class AuthService {
         displayName: user.displayName,
         tenantId: user.tenantId,
         roles: user.roles,
+      },
+    };
+  }
+
+  async issueProjectToken(
+    auth: AuthContext | undefined,
+    projectId: string,
+    expiresIn?: number
+  ) {
+    if (!auth || auth.subject !== "user") {
+      throw new UnauthorizedException("User token is required");
+    }
+
+    const roles = auth.roles ?? [];
+    if (!roles.includes("tenant-admin")) {
+      throw new ForbiddenException("Only tenant-admin can issue project tokens");
+    }
+
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      select: { id: true, tenantId: true },
+    });
+    if (!project || !project.tenantId || project.tenantId !== auth.tenantId) {
+      throw new ForbiddenException("Project is not available in tenant scope");
+    }
+
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new UnauthorizedException("JWT_SECRET is not configured");
+    }
+
+    const ttl = expiresIn ?? PROJECT_TOKEN_TTL_SECONDS;
+    const now = Math.floor(Date.now() / 1000);
+    const payload = {
+      sub: "project",
+      tenantId: auth.tenantId,
+      projectId: project.id,
+      type: "project",
+      jti: randomUUID(),
+      iat: now,
+      exp: now + ttl,
+    };
+    const accessToken = signHs256(payload, secret);
+    return {
+      accessToken,
+      tokenType: "Bearer",
+      expiresIn: ttl,
+      claims: {
+        sub: payload.sub,
+        tenantId: payload.tenantId,
+        projectId: payload.projectId,
+        type: payload.type,
+        jti: payload.jti,
       },
     };
   }
