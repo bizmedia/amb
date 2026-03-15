@@ -5,7 +5,10 @@
  * ```ts
  * import { createClient } from "@amb-app/sdk";
  *
- * const client = createClient({ baseUrl: "http://localhost:3333" });
+ * const client = createClient({
+ *   baseUrl: "http://localhost:3333",
+ *   token: process.env.AMB_TOKEN,
+ * });
  * const agent = await client.registerAgent({ name: "my-agent", role: "worker" });
  * const thread = await client.createThread({ title: "Task #1" });
  * await client.sendMessage({

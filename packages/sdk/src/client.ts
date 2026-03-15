@@ -40,6 +40,22 @@ export class MessageBusClient {
     this.token = config.token;
   }
 
+  setToken(token?: string | null): void {
+    this.token = token ?? undefined;
+  }
+
+  getToken(): string | undefined {
+    return this.token;
+  }
+
+  setProjectId(projectId?: string | null): void {
+    this.projectId = projectId ?? undefined;
+  }
+
+  getProjectId(): string | undefined {
+    return this.projectId;
+  }
+
   private async fetch<T>(path: string, options: RequestInit = {}): Promise<T> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
@@ -60,11 +76,19 @@ export class MessageBusClient {
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
+        const codeFromBody = (error as { error?: { code?: string } }).error?.code;
+        const fallbackCode =
+          response.status === 401
+            ? "unauthorized"
+            : response.status === 403
+              ? "forbidden"
+              : "http_error";
         throw new MessageBusError(
           (error as { error?: { message?: string } }).error?.message ??
             `HTTP ${response.status}`,
-          (error as { error?: { code?: string } }).error?.code ?? "http_error",
-          response.status
+          codeFromBody ?? fallbackCode,
+          response.status,
+          (error as { error?: { details?: unknown } }).error?.details
         );
       }
 
@@ -379,10 +403,23 @@ export class MessageBusError extends Error {
   constructor(
     message: string,
     public code: string,
-    public status: number
+    public status: number,
+    public details?: unknown
   ) {
     super(message);
     this.name = "MessageBusError";
+  }
+
+  get isUnauthorized(): boolean {
+    return this.status === 401 || this.code === "unauthorized";
+  }
+
+  get isForbidden(): boolean {
+    return this.status === 403 || this.code === "forbidden";
+  }
+
+  get isAuthError(): boolean {
+    return this.isUnauthorized || this.isForbidden;
   }
 }
 

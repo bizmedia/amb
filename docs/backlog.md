@@ -2,7 +2,7 @@
 
 **Версия:** 1.0  
 **Дата:** 2026-01-28  
-**Последняя проверка статуса:** 2026-03-16 (Orchestrator). Epic 1–4 завершены. Epic 5: E5-S1 — в работе (react-next-engineer).  
+**Последняя проверка статуса:** 2026-03-16 (Orchestrator). Epic 1–4 завершены. Epic 5: E5-S1 — Done (react-next-engineer), E5-S2…E5-S5 — planned.  
 **Автор:** Product Owner Agent  
 **Статус:** Актуально
 
@@ -137,7 +137,7 @@
 
 | ID    | Story                                   | Приоритет | Статус     | Acceptance Criteria                                                                        |
 | ----- | --------------------------------------- | --------- | ---------- | ------------------------------------------------------------------------------------------ |
-| E5-S1 | Обновить SDK с JWT поддержкой           | P1        | 🚧 In Progress | • `createClient({ baseUrl, token })` • Автоматическая передача JWT • Обработка ошибок auth |
+| E5-S1 | Обновить SDK с JWT поддержкой           | P1        | ✅ Done    | • `createClient({ baseUrl, token })` • Authorization Bearer + x-project-id • MessageBusError: isUnauthorized/isForbidden/isAuthError |
 | E5-S2 | Документация по интеграции              | P1        | 📋 Planned      | • Quick start guide • API reference • Примеры кода                                         |
 | E5-S3 | Docker Compose для локальной разработки | P1        | 📋 Planned      | • `docker compose up` запускает все • DB + API + Web • Seed данные                         |
 | E5-S4 | Migration guide                         | P1        | 📋 Planned      | • Guide для v1 → vNext • SDK migration steps • Breaking changes список                     |
