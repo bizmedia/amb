@@ -21,6 +21,8 @@
     "db:migrate": "pnpm --filter @amb-app/db run db:migrate",
     "db:migrate:deploy": "pnpm --filter @amb-app/db run db:migrate:deploy",
     "db:studio": "pnpm --filter @amb-app/db run db:studio",
+    "backup:db": "./scripts/backup/postgres-backup.sh",
+    "restore:db": "./scripts/backup/postgres-restore.sh",
     "seed:agents": "pnpm --filter mcp-message-bus run seed:agents",
     "seed:threads": "pnpm --filter mcp-message-bus run seed:threads",
     "seed:all": "pnpm --filter mcp-message-bus run seed:all",
