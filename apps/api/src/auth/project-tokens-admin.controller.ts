@@ -51,6 +51,25 @@ export class ProjectTokensAdminController {
     return { data };
   }
 
+  @Get(":tokenId/audit")
+  async listAudit(
+    @Req() req: RequestWithAuth,
+    @Param() params: Record<string, string>
+  ) {
+    const parsedParams = projectTokenParamsSchema.safeParse({
+      projectId: params.projectId,
+      tokenId: params.tokenId,
+    });
+    if (!parsedParams.success) throw parsedParams.error;
+
+    const data = await this.authService.listProjectTokenAudit(
+      req.auth,
+      parsedParams.data.projectId,
+      parsedParams.data.tokenId
+    );
+    return { data };
+  }
+
   @Delete(":tokenId")
   async delete(
     @Req() req: RequestWithAuth,

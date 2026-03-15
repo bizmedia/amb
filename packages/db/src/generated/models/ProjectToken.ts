@@ -232,6 +232,7 @@ export type ProjectTokenWhereInput = {
   revokedAt?: Prisma.DateTimeNullableFilter<"ProjectToken"> | Date | string | null
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
+  auditEvents?: Prisma.ProjectTokenAuditListRelationFilter
 }
 
 export type ProjectTokenOrderByWithRelationInput = {
@@ -248,6 +249,7 @@ export type ProjectTokenOrderByWithRelationInput = {
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
   project?: Prisma.ProjectOrderByWithRelationInput
+  auditEvents?: Prisma.ProjectTokenAuditOrderByRelationAggregateInput
 }
 
 export type ProjectTokenWhereUniqueInput = Prisma.AtLeast<{
@@ -267,6 +269,7 @@ export type ProjectTokenWhereUniqueInput = Prisma.AtLeast<{
   revokedAt?: Prisma.DateTimeNullableFilter<"ProjectToken"> | Date | string | null
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
+  auditEvents?: Prisma.ProjectTokenAuditListRelationFilter
 }, "id" | "tokenHash">
 
 export type ProjectTokenOrderByWithAggregationInput = {
@@ -315,6 +318,7 @@ export type ProjectTokenCreateInput = {
   revokedAt?: Date | string | null
   tenant: Prisma.TenantCreateNestedOneWithoutProjectTokensInput
   project: Prisma.ProjectCreateNestedOneWithoutProjectTokensInput
+  auditEvents?: Prisma.ProjectTokenAuditCreateNestedManyWithoutTokenInput
 }
 
 export type ProjectTokenUncheckedCreateInput = {
@@ -329,6 +333,7 @@ export type ProjectTokenUncheckedCreateInput = {
   lastUsedAt?: Date | string | null
   expiresAt?: Date | string | null
   revokedAt?: Date | string | null
+  auditEvents?: Prisma.ProjectTokenAuditUncheckedCreateNestedManyWithoutTokenInput
 }
 
 export type ProjectTokenUpdateInput = {
@@ -343,6 +348,7 @@ export type ProjectTokenUpdateInput = {
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenant?: Prisma.TenantUpdateOneRequiredWithoutProjectTokensNestedInput
   project?: Prisma.ProjectUpdateOneRequiredWithoutProjectTokensNestedInput
+  auditEvents?: Prisma.ProjectTokenAuditUpdateManyWithoutTokenNestedInput
 }
 
 export type ProjectTokenUncheckedUpdateInput = {
@@ -357,6 +363,7 @@ export type ProjectTokenUncheckedUpdateInput = {
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditEvents?: Prisma.ProjectTokenAuditUncheckedUpdateManyWithoutTokenNestedInput
 }
 
 export type ProjectTokenCreateManyInput = {
@@ -451,6 +458,11 @@ export type ProjectTokenMinOrderByAggregateInput = {
   revokedAt?: Prisma.SortOrder
 }
 
+export type ProjectTokenScalarRelationFilter = {
+  is?: Prisma.ProjectTokenWhereInput
+  isNot?: Prisma.ProjectTokenWhereInput
+}
+
 export type ProjectTokenCreateNestedManyWithoutTenantInput = {
   create?: Prisma.XOR<Prisma.ProjectTokenCreateWithoutTenantInput, Prisma.ProjectTokenUncheckedCreateWithoutTenantInput> | Prisma.ProjectTokenCreateWithoutTenantInput[] | Prisma.ProjectTokenUncheckedCreateWithoutTenantInput[]
   connectOrCreate?: Prisma.ProjectTokenCreateOrConnectWithoutTenantInput | Prisma.ProjectTokenCreateOrConnectWithoutTenantInput[]
@@ -535,6 +547,20 @@ export type ProjectTokenUncheckedUpdateManyWithoutProjectNestedInput = {
   deleteMany?: Prisma.ProjectTokenScalarWhereInput | Prisma.ProjectTokenScalarWhereInput[]
 }
 
+export type ProjectTokenCreateNestedOneWithoutAuditEventsInput = {
+  create?: Prisma.XOR<Prisma.ProjectTokenCreateWithoutAuditEventsInput, Prisma.ProjectTokenUncheckedCreateWithoutAuditEventsInput>
+  connectOrCreate?: Prisma.ProjectTokenCreateOrConnectWithoutAuditEventsInput
+  connect?: Prisma.ProjectTokenWhereUniqueInput
+}
+
+export type ProjectTokenUpdateOneRequiredWithoutAuditEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectTokenCreateWithoutAuditEventsInput, Prisma.ProjectTokenUncheckedCreateWithoutAuditEventsInput>
+  connectOrCreate?: Prisma.ProjectTokenCreateOrConnectWithoutAuditEventsInput
+  upsert?: Prisma.ProjectTokenUpsertWithoutAuditEventsInput
+  connect?: Prisma.ProjectTokenWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectTokenUpdateToOneWithWhereWithoutAuditEventsInput, Prisma.ProjectTokenUpdateWithoutAuditEventsInput>, Prisma.ProjectTokenUncheckedUpdateWithoutAuditEventsInput>
+}
+
 export type ProjectTokenCreateWithoutTenantInput = {
   id?: string
   name: string
@@ -546,6 +572,7 @@ export type ProjectTokenCreateWithoutTenantInput = {
   expiresAt?: Date | string | null
   revokedAt?: Date | string | null
   project: Prisma.ProjectCreateNestedOneWithoutProjectTokensInput
+  auditEvents?: Prisma.ProjectTokenAuditCreateNestedManyWithoutTokenInput
 }
 
 export type ProjectTokenUncheckedCreateWithoutTenantInput = {
@@ -559,6 +586,7 @@ export type ProjectTokenUncheckedCreateWithoutTenantInput = {
   lastUsedAt?: Date | string | null
   expiresAt?: Date | string | null
   revokedAt?: Date | string | null
+  auditEvents?: Prisma.ProjectTokenAuditUncheckedCreateNestedManyWithoutTokenInput
 }
 
 export type ProjectTokenCreateOrConnectWithoutTenantInput = {
@@ -615,6 +643,7 @@ export type ProjectTokenCreateWithoutProjectInput = {
   expiresAt?: Date | string | null
   revokedAt?: Date | string | null
   tenant: Prisma.TenantCreateNestedOneWithoutProjectTokensInput
+  auditEvents?: Prisma.ProjectTokenAuditCreateNestedManyWithoutTokenInput
 }
 
 export type ProjectTokenUncheckedCreateWithoutProjectInput = {
@@ -628,6 +657,7 @@ export type ProjectTokenUncheckedCreateWithoutProjectInput = {
   lastUsedAt?: Date | string | null
   expiresAt?: Date | string | null
   revokedAt?: Date | string | null
+  auditEvents?: Prisma.ProjectTokenAuditUncheckedCreateNestedManyWithoutTokenInput
 }
 
 export type ProjectTokenCreateOrConnectWithoutProjectInput = {
@@ -656,6 +686,78 @@ export type ProjectTokenUpdateManyWithWhereWithoutProjectInput = {
   data: Prisma.XOR<Prisma.ProjectTokenUpdateManyMutationInput, Prisma.ProjectTokenUncheckedUpdateManyWithoutProjectInput>
 }
 
+export type ProjectTokenCreateWithoutAuditEventsInput = {
+  id?: string
+  name: string
+  tokenHash: string
+  issuedBy: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastUsedAt?: Date | string | null
+  expiresAt?: Date | string | null
+  revokedAt?: Date | string | null
+  tenant: Prisma.TenantCreateNestedOneWithoutProjectTokensInput
+  project: Prisma.ProjectCreateNestedOneWithoutProjectTokensInput
+}
+
+export type ProjectTokenUncheckedCreateWithoutAuditEventsInput = {
+  id?: string
+  tenantId: string
+  projectId: string
+  name: string
+  tokenHash: string
+  issuedBy: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastUsedAt?: Date | string | null
+  expiresAt?: Date | string | null
+  revokedAt?: Date | string | null
+}
+
+export type ProjectTokenCreateOrConnectWithoutAuditEventsInput = {
+  where: Prisma.ProjectTokenWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectTokenCreateWithoutAuditEventsInput, Prisma.ProjectTokenUncheckedCreateWithoutAuditEventsInput>
+}
+
+export type ProjectTokenUpsertWithoutAuditEventsInput = {
+  update: Prisma.XOR<Prisma.ProjectTokenUpdateWithoutAuditEventsInput, Prisma.ProjectTokenUncheckedUpdateWithoutAuditEventsInput>
+  create: Prisma.XOR<Prisma.ProjectTokenCreateWithoutAuditEventsInput, Prisma.ProjectTokenUncheckedCreateWithoutAuditEventsInput>
+  where?: Prisma.ProjectTokenWhereInput
+}
+
+export type ProjectTokenUpdateToOneWithWhereWithoutAuditEventsInput = {
+  where?: Prisma.ProjectTokenWhereInput
+  data: Prisma.XOR<Prisma.ProjectTokenUpdateWithoutAuditEventsInput, Prisma.ProjectTokenUncheckedUpdateWithoutAuditEventsInput>
+}
+
+export type ProjectTokenUpdateWithoutAuditEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  issuedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutProjectTokensNestedInput
+  project?: Prisma.ProjectUpdateOneRequiredWithoutProjectTokensNestedInput
+}
+
+export type ProjectTokenUncheckedUpdateWithoutAuditEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  projectId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  issuedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
 export type ProjectTokenCreateManyTenantInput = {
   id?: string
   projectId: string
@@ -680,6 +782,7 @@ export type ProjectTokenUpdateWithoutTenantInput = {
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   project?: Prisma.ProjectUpdateOneRequiredWithoutProjectTokensNestedInput
+  auditEvents?: Prisma.ProjectTokenAuditUpdateManyWithoutTokenNestedInput
 }
 
 export type ProjectTokenUncheckedUpdateWithoutTenantInput = {
@@ -693,6 +796,7 @@ export type ProjectTokenUncheckedUpdateWithoutTenantInput = {
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditEvents?: Prisma.ProjectTokenAuditUncheckedUpdateManyWithoutTokenNestedInput
 }
 
 export type ProjectTokenUncheckedUpdateManyWithoutTenantInput = {
@@ -732,6 +836,7 @@ export type ProjectTokenUpdateWithoutProjectInput = {
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenant?: Prisma.TenantUpdateOneRequiredWithoutProjectTokensNestedInput
+  auditEvents?: Prisma.ProjectTokenAuditUpdateManyWithoutTokenNestedInput
 }
 
 export type ProjectTokenUncheckedUpdateWithoutProjectInput = {
@@ -745,6 +850,7 @@ export type ProjectTokenUncheckedUpdateWithoutProjectInput = {
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  auditEvents?: Prisma.ProjectTokenAuditUncheckedUpdateManyWithoutTokenNestedInput
 }
 
 export type ProjectTokenUncheckedUpdateManyWithoutProjectInput = {
@@ -761,6 +867,35 @@ export type ProjectTokenUncheckedUpdateManyWithoutProjectInput = {
 }
 
 
+/**
+ * Count Type ProjectTokenCountOutputType
+ */
+
+export type ProjectTokenCountOutputType = {
+  auditEvents: number
+}
+
+export type ProjectTokenCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  auditEvents?: boolean | ProjectTokenCountOutputTypeCountAuditEventsArgs
+}
+
+/**
+ * ProjectTokenCountOutputType without action
+ */
+export type ProjectTokenCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectTokenCountOutputType
+   */
+  select?: Prisma.ProjectTokenCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ProjectTokenCountOutputType without action
+ */
+export type ProjectTokenCountOutputTypeCountAuditEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectTokenAuditWhereInput
+}
+
 
 export type ProjectTokenSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -776,6 +911,8 @@ export type ProjectTokenSelect<ExtArgs extends runtime.Types.Extensions.Internal
   revokedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
+  auditEvents?: boolean | Prisma.ProjectToken$auditEventsArgs<ExtArgs>
+  _count?: boolean | Prisma.ProjectTokenCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["projectToken"]>
 
 export type ProjectTokenSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -828,6 +965,8 @@ export type ProjectTokenOmit<ExtArgs extends runtime.Types.Extensions.InternalAr
 export type ProjectTokenInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
+  auditEvents?: boolean | Prisma.ProjectToken$auditEventsArgs<ExtArgs>
+  _count?: boolean | Prisma.ProjectTokenCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProjectTokenIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -843,6 +982,7 @@ export type $ProjectTokenPayload<ExtArgs extends runtime.Types.Extensions.Intern
   objects: {
     tenant: Prisma.$TenantPayload<ExtArgs>
     project: Prisma.$ProjectPayload<ExtArgs>
+    auditEvents: Prisma.$ProjectTokenAuditPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1252,6 +1392,7 @@ export interface Prisma__ProjectTokenClient<T, Null = never, ExtArgs extends run
   readonly [Symbol.toStringTag]: "PrismaPromise"
   tenant<T extends Prisma.TenantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TenantDefaultArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   project<T extends Prisma.ProjectDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectDefaultArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  auditEvents<T extends Prisma.ProjectToken$auditEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectToken$auditEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectTokenAuditPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1685,6 +1826,30 @@ export type ProjectTokenDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Limit how many ProjectTokens to delete.
    */
   limit?: number
+}
+
+/**
+ * ProjectToken.auditEvents
+ */
+export type ProjectToken$auditEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectTokenAudit
+   */
+  select?: Prisma.ProjectTokenAuditSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectTokenAudit
+   */
+  omit?: Prisma.ProjectTokenAuditOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectTokenAuditInclude<ExtArgs> | null
+  where?: Prisma.ProjectTokenAuditWhereInput
+  orderBy?: Prisma.ProjectTokenAuditOrderByWithRelationInput | Prisma.ProjectTokenAuditOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectTokenAuditWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectTokenAuditScalarFieldEnum | Prisma.ProjectTokenAuditScalarFieldEnum[]
 }
 
 /**

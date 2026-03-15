@@ -234,6 +234,16 @@ export class JwtAuthGuard implements CanActivate {
         },
         data: { lastUsedAt: new Date() },
       });
+      await (tx as any).projectTokenAudit.create({
+        data: {
+          tenantId: context.tenantId,
+          projectId: context.projectId,
+          tokenId: tokenRecord.id,
+          event: "used",
+          actorType: "project-token",
+          actorId: tokenRecord.id,
+        },
+      });
     });
   }
 }

@@ -58,6 +58,7 @@ export const ModelName = {
   User: 'User',
   Project: 'Project',
   ProjectToken: 'ProjectToken',
+  ProjectTokenAudit: 'ProjectTokenAudit',
   Issue: 'Issue'
 } as const
 
@@ -173,6 +174,21 @@ export const ProjectTokenScalarFieldEnum = {
 } as const
 
 export type ProjectTokenScalarFieldEnum = (typeof ProjectTokenScalarFieldEnum)[keyof typeof ProjectTokenScalarFieldEnum]
+
+
+export const ProjectTokenAuditScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  projectId: 'projectId',
+  tokenId: 'tokenId',
+  event: 'event',
+  actorType: 'actorType',
+  actorId: 'actorId',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectTokenAuditScalarFieldEnum = (typeof ProjectTokenAuditScalarFieldEnum)[keyof typeof ProjectTokenAuditScalarFieldEnum]
 
 
 export const IssueScalarFieldEnum = {

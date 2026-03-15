@@ -48,7 +48,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NullsOrder = exports.JsonNullValueFilter = exports.QueryMode = exports.JsonNullValueInput = exports.NullableJsonNullValueInput = exports.SortOrder = exports.IssueScalarFieldEnum = exports.ProjectTokenScalarFieldEnum = exports.ProjectScalarFieldEnum = exports.UserScalarFieldEnum = exports.TenantScalarFieldEnum = exports.MessageScalarFieldEnum = exports.ThreadScalarFieldEnum = exports.AgentScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.Decimal = void 0;
+exports.NullsOrder = exports.JsonNullValueFilter = exports.QueryMode = exports.JsonNullValueInput = exports.NullableJsonNullValueInput = exports.SortOrder = exports.IssueScalarFieldEnum = exports.ProjectTokenAuditScalarFieldEnum = exports.ProjectTokenScalarFieldEnum = exports.ProjectScalarFieldEnum = exports.UserScalarFieldEnum = exports.TenantScalarFieldEnum = exports.MessageScalarFieldEnum = exports.ThreadScalarFieldEnum = exports.AgentScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.Decimal = void 0;
 const runtime = __importStar(require("@prisma/client/runtime/index-browser"));
 exports.Decimal = runtime.Decimal;
 exports.NullTypes = {
@@ -82,6 +82,7 @@ exports.ModelName = {
     User: 'User',
     Project: 'Project',
     ProjectToken: 'ProjectToken',
+    ProjectTokenAudit: 'ProjectTokenAudit',
     Issue: 'Issue'
 };
 /*
@@ -162,6 +163,17 @@ exports.ProjectTokenScalarFieldEnum = {
     lastUsedAt: 'lastUsedAt',
     expiresAt: 'expiresAt',
     revokedAt: 'revokedAt'
+};
+exports.ProjectTokenAuditScalarFieldEnum = {
+    id: 'id',
+    tenantId: 'tenantId',
+    projectId: 'projectId',
+    tokenId: 'tokenId',
+    event: 'event',
+    actorType: 'actorType',
+    actorId: 'actorId',
+    metadata: 'metadata',
+    createdAt: 'createdAt'
 };
 exports.IssueScalarFieldEnum = {
     id: 'id',

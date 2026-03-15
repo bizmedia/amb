@@ -73,6 +73,11 @@ export type Project = Prisma.ProjectModel
  */
 export type ProjectToken = Prisma.ProjectTokenModel
 /**
+ * Model ProjectTokenAudit
+ * 
+ */
+export type ProjectTokenAudit = Prisma.ProjectTokenAuditModel
+/**
  * Model Issue
  * 
  */

@@ -391,6 +391,7 @@ export const ModelName = {
   User: 'User',
   Project: 'Project',
   ProjectToken: 'ProjectToken',
+  ProjectTokenAudit: 'ProjectTokenAudit',
   Issue: 'Issue'
 } as const
 
@@ -407,7 +408,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agent" | "thread" | "message" | "tenant" | "user" | "project" | "projectToken" | "issue"
+    modelProps: "agent" | "thread" | "message" | "tenant" | "user" | "project" | "projectToken" | "projectTokenAudit" | "issue"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -929,6 +930,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ProjectTokenAudit: {
+      payload: Prisma.$ProjectTokenAuditPayload<ExtArgs>
+      fields: Prisma.ProjectTokenAuditFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProjectTokenAuditFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectTokenAuditPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProjectTokenAuditFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectTokenAuditPayload>
+        }
+        findFirst: {
+          args: Prisma.ProjectTokenAuditFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectTokenAuditPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProjectTokenAuditFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectTokenAuditPayload>
+        }
+        findMany: {
+          args: Prisma.ProjectTokenAuditFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectTokenAuditPayload>[]
+        }
+        create: {
+          args: Prisma.ProjectTokenAuditCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectTokenAuditPayload>
+        }
+        createMany: {
+          args: Prisma.ProjectTokenAuditCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProjectTokenAuditCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectTokenAuditPayload>[]
+        }
+        delete: {
+          args: Prisma.ProjectTokenAuditDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectTokenAuditPayload>
+        }
+        update: {
+          args: Prisma.ProjectTokenAuditUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectTokenAuditPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProjectTokenAuditDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProjectTokenAuditUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProjectTokenAuditUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectTokenAuditPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProjectTokenAuditUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectTokenAuditPayload>
+        }
+        aggregate: {
+          args: Prisma.ProjectTokenAuditAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProjectTokenAudit>
+        }
+        groupBy: {
+          args: Prisma.ProjectTokenAuditGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectTokenAuditGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProjectTokenAuditCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectTokenAuditCountAggregateOutputType> | number
+        }
+      }
+    }
     Issue: {
       payload: Prisma.$IssuePayload<ExtArgs>
       fields: Prisma.IssueFieldRefs
@@ -1138,6 +1213,21 @@ export const ProjectTokenScalarFieldEnum = {
 } as const
 
 export type ProjectTokenScalarFieldEnum = (typeof ProjectTokenScalarFieldEnum)[keyof typeof ProjectTokenScalarFieldEnum]
+
+
+export const ProjectTokenAuditScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  projectId: 'projectId',
+  tokenId: 'tokenId',
+  event: 'event',
+  actorType: 'actorType',
+  actorId: 'actorId',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectTokenAuditScalarFieldEnum = (typeof ProjectTokenAuditScalarFieldEnum)[keyof typeof ProjectTokenAuditScalarFieldEnum]
 
 
 export const IssueScalarFieldEnum = {
@@ -1416,6 +1506,7 @@ export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   project?: Prisma.ProjectOmit
   projectToken?: Prisma.ProjectTokenOmit
+  projectTokenAudit?: Prisma.ProjectTokenAuditOmit
   issue?: Prisma.IssueOmit
 }
 

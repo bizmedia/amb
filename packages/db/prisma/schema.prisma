@@ -92,6 +92,7 @@ model Tenant {
   messages Message[]
   users    User[]
   projectTokens ProjectToken[]
+  projectTokenAudits ProjectTokenAudit[]
 }
 
 model User {
@@ -123,6 +124,7 @@ model Project {
   messages Message[]
   issues   Issue[]
   projectTokens ProjectToken[]
+  projectTokenAudits ProjectTokenAudit[]
 
   @@index([tenantId])
 }
@@ -141,11 +143,33 @@ model ProjectToken {
   lastUsedAt DateTime?
   expiresAt DateTime?
   revokedAt DateTime?
+  auditEvents ProjectTokenAudit[]
 
   @@index([tenantId])
   @@index([projectId])
   @@index([tenantId, projectId])
   @@index([revokedAt])
+}
+
+model ProjectTokenAudit {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tokenId   String
+  token     ProjectToken @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  event     String
+  actorType String
+  actorId   String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([tokenId])
+  @@index([event])
+  @@index([createdAt])
 }
 
 enum IssueState {

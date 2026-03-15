@@ -180,6 +180,7 @@ export type TenantWhereInput = {
   messages?: Prisma.MessageListRelationFilter
   users?: Prisma.UserListRelationFilter
   projectTokens?: Prisma.ProjectTokenListRelationFilter
+  projectTokenAudits?: Prisma.ProjectTokenAuditListRelationFilter
 }
 
 export type TenantOrderByWithRelationInput = {
@@ -193,6 +194,7 @@ export type TenantOrderByWithRelationInput = {
   messages?: Prisma.MessageOrderByRelationAggregateInput
   users?: Prisma.UserOrderByRelationAggregateInput
   projectTokens?: Prisma.ProjectTokenOrderByRelationAggregateInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditOrderByRelationAggregateInput
 }
 
 export type TenantWhereUniqueInput = Prisma.AtLeast<{
@@ -209,6 +211,7 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   messages?: Prisma.MessageListRelationFilter
   users?: Prisma.UserListRelationFilter
   projectTokens?: Prisma.ProjectTokenListRelationFilter
+  projectTokenAudits?: Prisma.ProjectTokenAuditListRelationFilter
 }, "id" | "slug">
 
 export type TenantOrderByWithAggregationInput = {
@@ -242,6 +245,7 @@ export type TenantCreateInput = {
   messages?: Prisma.MessageCreateNestedManyWithoutTenantInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
   projectTokens?: Prisma.ProjectTokenCreateNestedManyWithoutTenantInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateInput = {
@@ -255,6 +259,7 @@ export type TenantUncheckedCreateInput = {
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutTenantInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
   projectTokens?: Prisma.ProjectTokenUncheckedCreateNestedManyWithoutTenantInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUpdateInput = {
@@ -268,6 +273,7 @@ export type TenantUpdateInput = {
   messages?: Prisma.MessageUpdateManyWithoutTenantNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
   projectTokens?: Prisma.ProjectTokenUpdateManyWithoutTenantNestedInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateInput = {
@@ -281,6 +287,7 @@ export type TenantUncheckedUpdateInput = {
   messages?: Prisma.MessageUncheckedUpdateManyWithoutTenantNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
   projectTokens?: Prisma.ProjectTokenUncheckedUpdateManyWithoutTenantNestedInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateManyInput = {
@@ -427,6 +434,20 @@ export type TenantUpdateOneRequiredWithoutProjectTokensNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutProjectTokensInput, Prisma.TenantUpdateWithoutProjectTokensInput>, Prisma.TenantUncheckedUpdateWithoutProjectTokensInput>
 }
 
+export type TenantCreateNestedOneWithoutProjectTokenAuditsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutProjectTokenAuditsInput, Prisma.TenantUncheckedCreateWithoutProjectTokenAuditsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutProjectTokenAuditsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutProjectTokenAuditsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutProjectTokenAuditsInput, Prisma.TenantUncheckedCreateWithoutProjectTokenAuditsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutProjectTokenAuditsInput
+  upsert?: Prisma.TenantUpsertWithoutProjectTokenAuditsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutProjectTokenAuditsInput, Prisma.TenantUpdateWithoutProjectTokenAuditsInput>, Prisma.TenantUncheckedUpdateWithoutProjectTokenAuditsInput>
+}
+
 export type TenantCreateWithoutAgentsInput = {
   id?: string
   name: string
@@ -437,6 +458,7 @@ export type TenantCreateWithoutAgentsInput = {
   messages?: Prisma.MessageCreateNestedManyWithoutTenantInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
   projectTokens?: Prisma.ProjectTokenCreateNestedManyWithoutTenantInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutAgentsInput = {
@@ -449,6 +471,7 @@ export type TenantUncheckedCreateWithoutAgentsInput = {
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutTenantInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
   projectTokens?: Prisma.ProjectTokenUncheckedCreateNestedManyWithoutTenantInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutAgentsInput = {
@@ -477,6 +500,7 @@ export type TenantUpdateWithoutAgentsInput = {
   messages?: Prisma.MessageUpdateManyWithoutTenantNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
   projectTokens?: Prisma.ProjectTokenUpdateManyWithoutTenantNestedInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutAgentsInput = {
@@ -489,6 +513,7 @@ export type TenantUncheckedUpdateWithoutAgentsInput = {
   messages?: Prisma.MessageUncheckedUpdateManyWithoutTenantNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
   projectTokens?: Prisma.ProjectTokenUncheckedUpdateManyWithoutTenantNestedInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutThreadsInput = {
@@ -501,6 +526,7 @@ export type TenantCreateWithoutThreadsInput = {
   messages?: Prisma.MessageCreateNestedManyWithoutTenantInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
   projectTokens?: Prisma.ProjectTokenCreateNestedManyWithoutTenantInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutThreadsInput = {
@@ -513,6 +539,7 @@ export type TenantUncheckedCreateWithoutThreadsInput = {
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutTenantInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
   projectTokens?: Prisma.ProjectTokenUncheckedCreateNestedManyWithoutTenantInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutThreadsInput = {
@@ -541,6 +568,7 @@ export type TenantUpdateWithoutThreadsInput = {
   messages?: Prisma.MessageUpdateManyWithoutTenantNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
   projectTokens?: Prisma.ProjectTokenUpdateManyWithoutTenantNestedInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutThreadsInput = {
@@ -553,6 +581,7 @@ export type TenantUncheckedUpdateWithoutThreadsInput = {
   messages?: Prisma.MessageUncheckedUpdateManyWithoutTenantNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
   projectTokens?: Prisma.ProjectTokenUncheckedUpdateManyWithoutTenantNestedInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutMessagesInput = {
@@ -565,6 +594,7 @@ export type TenantCreateWithoutMessagesInput = {
   threads?: Prisma.ThreadCreateNestedManyWithoutTenantInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
   projectTokens?: Prisma.ProjectTokenCreateNestedManyWithoutTenantInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutMessagesInput = {
@@ -577,6 +607,7 @@ export type TenantUncheckedCreateWithoutMessagesInput = {
   threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutTenantInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
   projectTokens?: Prisma.ProjectTokenUncheckedCreateNestedManyWithoutTenantInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutMessagesInput = {
@@ -605,6 +636,7 @@ export type TenantUpdateWithoutMessagesInput = {
   threads?: Prisma.ThreadUpdateManyWithoutTenantNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
   projectTokens?: Prisma.ProjectTokenUpdateManyWithoutTenantNestedInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutMessagesInput = {
@@ -617,6 +649,7 @@ export type TenantUncheckedUpdateWithoutMessagesInput = {
   threads?: Prisma.ThreadUncheckedUpdateManyWithoutTenantNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
   projectTokens?: Prisma.ProjectTokenUncheckedUpdateManyWithoutTenantNestedInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutUsersInput = {
@@ -629,6 +662,7 @@ export type TenantCreateWithoutUsersInput = {
   threads?: Prisma.ThreadCreateNestedManyWithoutTenantInput
   messages?: Prisma.MessageCreateNestedManyWithoutTenantInput
   projectTokens?: Prisma.ProjectTokenCreateNestedManyWithoutTenantInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutUsersInput = {
@@ -641,6 +675,7 @@ export type TenantUncheckedCreateWithoutUsersInput = {
   threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutTenantInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutTenantInput
   projectTokens?: Prisma.ProjectTokenUncheckedCreateNestedManyWithoutTenantInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutUsersInput = {
@@ -669,6 +704,7 @@ export type TenantUpdateWithoutUsersInput = {
   threads?: Prisma.ThreadUpdateManyWithoutTenantNestedInput
   messages?: Prisma.MessageUpdateManyWithoutTenantNestedInput
   projectTokens?: Prisma.ProjectTokenUpdateManyWithoutTenantNestedInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutUsersInput = {
@@ -681,6 +717,7 @@ export type TenantUncheckedUpdateWithoutUsersInput = {
   threads?: Prisma.ThreadUncheckedUpdateManyWithoutTenantNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutTenantNestedInput
   projectTokens?: Prisma.ProjectTokenUncheckedUpdateManyWithoutTenantNestedInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutProjectsInput = {
@@ -693,6 +730,7 @@ export type TenantCreateWithoutProjectsInput = {
   messages?: Prisma.MessageCreateNestedManyWithoutTenantInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
   projectTokens?: Prisma.ProjectTokenCreateNestedManyWithoutTenantInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutProjectsInput = {
@@ -705,6 +743,7 @@ export type TenantUncheckedCreateWithoutProjectsInput = {
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutTenantInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
   projectTokens?: Prisma.ProjectTokenUncheckedCreateNestedManyWithoutTenantInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutProjectsInput = {
@@ -733,6 +772,7 @@ export type TenantUpdateWithoutProjectsInput = {
   messages?: Prisma.MessageUpdateManyWithoutTenantNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
   projectTokens?: Prisma.ProjectTokenUpdateManyWithoutTenantNestedInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutProjectsInput = {
@@ -745,6 +785,7 @@ export type TenantUncheckedUpdateWithoutProjectsInput = {
   messages?: Prisma.MessageUncheckedUpdateManyWithoutTenantNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
   projectTokens?: Prisma.ProjectTokenUncheckedUpdateManyWithoutTenantNestedInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutProjectTokensInput = {
@@ -757,6 +798,7 @@ export type TenantCreateWithoutProjectTokensInput = {
   threads?: Prisma.ThreadCreateNestedManyWithoutTenantInput
   messages?: Prisma.MessageCreateNestedManyWithoutTenantInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutProjectTokensInput = {
@@ -769,6 +811,7 @@ export type TenantUncheckedCreateWithoutProjectTokensInput = {
   threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutTenantInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutTenantInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutProjectTokensInput = {
@@ -797,6 +840,7 @@ export type TenantUpdateWithoutProjectTokensInput = {
   threads?: Prisma.ThreadUpdateManyWithoutTenantNestedInput
   messages?: Prisma.MessageUpdateManyWithoutTenantNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutProjectTokensInput = {
@@ -809,6 +853,75 @@ export type TenantUncheckedUpdateWithoutProjectTokensInput = {
   threads?: Prisma.ThreadUncheckedUpdateManyWithoutTenantNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutTenantNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
+  projectTokenAudits?: Prisma.ProjectTokenAuditUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutProjectTokenAuditsInput = {
+  id?: string
+  name: string
+  slug: string
+  createdAt?: Date | string
+  projects?: Prisma.ProjectCreateNestedManyWithoutTenantInput
+  agents?: Prisma.AgentCreateNestedManyWithoutTenantInput
+  threads?: Prisma.ThreadCreateNestedManyWithoutTenantInput
+  messages?: Prisma.MessageCreateNestedManyWithoutTenantInput
+  users?: Prisma.UserCreateNestedManyWithoutTenantInput
+  projectTokens?: Prisma.ProjectTokenCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutProjectTokenAuditsInput = {
+  id?: string
+  name: string
+  slug: string
+  createdAt?: Date | string
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutTenantInput
+  agents?: Prisma.AgentUncheckedCreateNestedManyWithoutTenantInput
+  threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutTenantInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutTenantInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
+  projectTokens?: Prisma.ProjectTokenUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutProjectTokenAuditsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutProjectTokenAuditsInput, Prisma.TenantUncheckedCreateWithoutProjectTokenAuditsInput>
+}
+
+export type TenantUpsertWithoutProjectTokenAuditsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutProjectTokenAuditsInput, Prisma.TenantUncheckedUpdateWithoutProjectTokenAuditsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutProjectTokenAuditsInput, Prisma.TenantUncheckedCreateWithoutProjectTokenAuditsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutProjectTokenAuditsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutProjectTokenAuditsInput, Prisma.TenantUncheckedUpdateWithoutProjectTokenAuditsInput>
+}
+
+export type TenantUpdateWithoutProjectTokenAuditsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUpdateManyWithoutTenantNestedInput
+  agents?: Prisma.AgentUpdateManyWithoutTenantNestedInput
+  threads?: Prisma.ThreadUpdateManyWithoutTenantNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutTenantNestedInput
+  users?: Prisma.UserUpdateManyWithoutTenantNestedInput
+  projectTokens?: Prisma.ProjectTokenUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutProjectTokenAuditsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutTenantNestedInput
+  agents?: Prisma.AgentUncheckedUpdateManyWithoutTenantNestedInput
+  threads?: Prisma.ThreadUncheckedUpdateManyWithoutTenantNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutTenantNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
+  projectTokens?: Prisma.ProjectTokenUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 
@@ -823,6 +936,7 @@ export type TenantCountOutputType = {
   messages: number
   users: number
   projectTokens: number
+  projectTokenAudits: number
 }
 
 export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -832,6 +946,7 @@ export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   messages?: boolean | TenantCountOutputTypeCountMessagesArgs
   users?: boolean | TenantCountOutputTypeCountUsersArgs
   projectTokens?: boolean | TenantCountOutputTypeCountProjectTokensArgs
+  projectTokenAudits?: boolean | TenantCountOutputTypeCountProjectTokenAuditsArgs
 }
 
 /**
@@ -886,6 +1001,13 @@ export type TenantCountOutputTypeCountProjectTokensArgs<ExtArgs extends runtime.
   where?: Prisma.ProjectTokenWhereInput
 }
 
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountProjectTokenAuditsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectTokenAuditWhereInput
+}
+
 
 export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -898,6 +1020,7 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   messages?: boolean | Prisma.Tenant$messagesArgs<ExtArgs>
   users?: boolean | Prisma.Tenant$usersArgs<ExtArgs>
   projectTokens?: boolean | Prisma.Tenant$projectTokensArgs<ExtArgs>
+  projectTokenAudits?: boolean | Prisma.Tenant$projectTokenAuditsArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tenant"]>
 
@@ -930,6 +1053,7 @@ export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   messages?: boolean | Prisma.Tenant$messagesArgs<ExtArgs>
   users?: boolean | Prisma.Tenant$usersArgs<ExtArgs>
   projectTokens?: boolean | Prisma.Tenant$projectTokensArgs<ExtArgs>
+  projectTokenAudits?: boolean | Prisma.Tenant$projectTokenAuditsArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TenantIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -944,6 +1068,7 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     messages: Prisma.$MessagePayload<ExtArgs>[]
     users: Prisma.$UserPayload<ExtArgs>[]
     projectTokens: Prisma.$ProjectTokenPayload<ExtArgs>[]
+    projectTokenAudits: Prisma.$ProjectTokenAuditPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1350,6 +1475,7 @@ export interface Prisma__TenantClient<T, Null = never, ExtArgs extends runtime.T
   messages<T extends Prisma.Tenant$messagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   users<T extends Prisma.Tenant$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   projectTokens<T extends Prisma.Tenant$projectTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$projectTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  projectTokenAudits<T extends Prisma.Tenant$projectTokenAuditsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$projectTokenAuditsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectTokenAuditPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1912,6 +2038,30 @@ export type Tenant$projectTokensArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.ProjectTokenScalarFieldEnum | Prisma.ProjectTokenScalarFieldEnum[]
+}
+
+/**
+ * Tenant.projectTokenAudits
+ */
+export type Tenant$projectTokenAuditsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectTokenAudit
+   */
+  select?: Prisma.ProjectTokenAuditSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectTokenAudit
+   */
+  omit?: Prisma.ProjectTokenAuditOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectTokenAuditInclude<ExtArgs> | null
+  where?: Prisma.ProjectTokenAuditWhereInput
+  orderBy?: Prisma.ProjectTokenAuditOrderByWithRelationInput | Prisma.ProjectTokenAuditOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectTokenAuditWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectTokenAuditScalarFieldEnum | Prisma.ProjectTokenAuditScalarFieldEnum[]
 }
 
 /**

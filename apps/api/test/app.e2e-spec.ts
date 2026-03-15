@@ -619,6 +619,11 @@ describe("API (e2e)", () => {
         )
       ).toBe(true);
 
+      await request(app.getHttpServer())
+        .get("/api/threads")
+        .set("Authorization", `Bearer ${projectToken}`)
+        .expect(200);
+
       const revokeRes = await request(app.getHttpServer())
         .post(`/api/admin/projects/${projectId}/tokens/${tokenId}/revoke`)
         .set("Authorization", `Bearer ${userToken}`)
@@ -629,6 +634,17 @@ describe("API (e2e)", () => {
         .get("/api/threads")
         .set("Authorization", `Bearer ${projectToken}`)
         .expect(401);
+
+      const auditRes = await request(app.getHttpServer())
+        .get(`/api/admin/projects/${projectId}/tokens/${tokenId}/audit`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .expect(200);
+      const auditEvents = (auditRes.body.data as Array<{ event: string }>).map(
+        (row) => row.event
+      );
+      expect(auditEvents).toContain("created");
+      expect(auditEvents).toContain("used");
+      expect(auditEvents).toContain("revoked");
 
       await request(app.getHttpServer())
         .delete(`/api/admin/projects/${projectId}/tokens/${tokenId}`)

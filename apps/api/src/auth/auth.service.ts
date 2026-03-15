@@ -116,6 +116,15 @@ export class AuthService {
           expiresAt: new Date((now + ttl) * 1000),
         },
       });
+      await this.createProjectTokenAudit(tx, {
+        tenantId: context.tenantId,
+        projectId: context.projectId,
+        tokenId: jti,
+        event: "created",
+        actorType: "user",
+        actorId: authUser.userId,
+        metadata: { name: name.trim(), expiresIn: ttl },
+      });
     });
 
     return {
@@ -152,6 +161,26 @@ export class AuthService {
     });
   }
 
+  async listProjectTokenAudit(
+    auth: AuthContext | undefined,
+    projectId: string,
+    tokenId: string
+  ) {
+    const authUser = await this.resolveAdminContext(auth, projectId);
+    return this.prisma.withProjectContext(authUser.projectId, async (tx, context) => {
+      const token = await (tx as any).projectToken.findFirst({
+        where: { id: tokenId, projectId: context.projectId },
+        select: { id: true },
+      });
+      if (!token) throw new NotFoundError("ProjectToken");
+
+      return (tx as any).projectTokenAudit.findMany({
+        where: { tokenId: token.id, projectId: context.projectId },
+        orderBy: [{ createdAt: "desc" }],
+      });
+    });
+  }
+
   async revokeProjectToken(
     auth: AuthContext | undefined,
     projectId: string,
@@ -164,7 +193,7 @@ export class AuthService {
       });
       if (!token) throw new NotFoundError("ProjectToken");
 
-      return (tx as any).projectToken.update({
+      const updated = await (tx as any).projectToken.update({
         where: { id: token.id },
         data: { revokedAt: new Date() },
         select: {
@@ -178,6 +207,15 @@ export class AuthService {
           revokedAt: true,
         },
       });
+      await this.createProjectTokenAudit(tx, {
+        tenantId: context.tenantId,
+        projectId: context.projectId,
+        tokenId: token.id,
+        event: "revoked",
+        actorType: "user",
+        actorId: authUser.userId,
+      });
+      return updated;
     });
   }
 
@@ -193,8 +231,54 @@ export class AuthService {
         select: { id: true },
       });
       if (!token) throw new NotFoundError("ProjectToken");
+      await this.createProjectTokenAudit(tx, {
+        tenantId: context.tenantId,
+        projectId: context.projectId,
+        tokenId: token.id,
+        event: "deleted",
+        actorType: "user",
+        actorId: authUser.userId,
+      });
       await (tx as any).projectToken.delete({ where: { id: token.id } });
       return { success: true };
+    });
+  }
+
+  async auditProjectTokenUsage(projectId: string, tokenId: string): Promise<void> {
+    await this.prisma.withProjectContext(projectId, async (tx, context) => {
+      await this.createProjectTokenAudit(tx, {
+        tenantId: context.tenantId,
+        projectId: context.projectId,
+        tokenId,
+        event: "used",
+        actorType: "project-token",
+        actorId: tokenId,
+      });
+    });
+  }
+
+  private async createProjectTokenAudit(
+    tx: unknown,
+    data: {
+      tenantId: string;
+      projectId: string;
+      tokenId: string;
+      event: string;
+      actorType: string;
+      actorId?: string | null;
+      metadata?: Record<string, unknown>;
+    }
+  ) {
+    await (tx as any).projectTokenAudit.create({
+      data: {
+        tenantId: data.tenantId,
+        projectId: data.projectId,
+        tokenId: data.tokenId,
+        event: data.event,
+        actorType: data.actorType,
+        actorId: data.actorId ?? null,
+        metadata: data.metadata ?? null,
+      },
     });
   }
 
