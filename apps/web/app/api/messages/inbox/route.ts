@@ -1,28 +1,23 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 
 import { jsonError, handleApiError } from "@/lib/api/errors";
 import { resolveProjectId } from "@/lib/api/project-context";
-import { getInboxMessages } from "@/lib/services/messages";
-
-const querySchema = z.object({
-  agentId: z.string().uuid(),
-});
+import { getApiClient } from "@/lib/api/client";
+import { getRequestAuthToken } from "@/lib/api/auth";
+import { inboxQuerySchema } from "@amb-app/shared";
 
 export async function GET(request: Request) {
   try {
-    const project = await resolveProjectId(request);
-    if (project.error) {
-      return project.error;
-    }
-
+    const token = getRequestAuthToken(request);
+    const project = await resolveProjectId(request, token);
+    if (project.error) return project.error;
     const agentId = new URL(request.url).searchParams.get("agentId");
-    const parsed = querySchema.safeParse({ agentId });
+    const parsed = inboxQuerySchema.safeParse({ agentId });
     if (!parsed.success) {
       return jsonError(400, "invalid_params", "Invalid agentId", parsed.error.flatten());
     }
-
-    const messages = await getInboxMessages(project.projectId, parsed.data.agentId);
+    const client = getApiClient({ projectId: project.projectId, token });
+    const messages = await client.getInbox(parsed.data.agentId);
     return NextResponse.json({ data: messages });
   } catch (error) {
     return handleApiError(error);

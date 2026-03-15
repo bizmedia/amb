@@ -114,6 +114,28 @@
         "community-and-promotion",
         "release-and-changelog"
       ]
+    },
+    {
+      "id": "nest-engineer",
+      "name": "Senior Nest.js Engineer",
+      "role": "nest-engineer",
+      "systemPromptFile": ".cursor/agents/nest-engineer.md",
+      "defaultThreads": [
+        "api-implementation",
+        "api-refactor",
+        "nest-patterns"
+      ]
+    },
+    {
+      "id": "react-next-engineer",
+      "name": "Senior React + Next.js Engineer",
+      "role": "react-next-engineer",
+      "systemPromptFile": ".cursor/agents/react-next-engineer.md",
+      "defaultThreads": [
+        "frontend-implementation",
+        "ui-components",
+        "next-optimization"
+      ]
     }
   ],
   "defaults": {

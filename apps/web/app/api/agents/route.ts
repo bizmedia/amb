@@ -1,25 +1,18 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 
 import { jsonError, handleApiError } from "@/lib/api/errors";
 import { resolveProjectId } from "@/lib/api/project-context";
-import { createAgent, listAgents } from "@/lib/services/agents";
-import { Prisma } from "../../../prisma/generated/client";
-
-const createAgentSchema = z.object({
-  name: z.string().min(1),
-  role: z.string().min(1),
-  capabilities: z.unknown().optional().nullable(),
-});
+import { getApiClient } from "@/lib/api/client";
+import { getRequestAuthToken } from "@/lib/api/auth";
+import { createAgentSchema } from "@amb-app/shared";
 
 export async function GET(request: Request) {
   try {
-    const project = await resolveProjectId(request);
-    if (project.error) {
-      return project.error;
-    }
-
-    const agents = await listAgents(project.projectId);
+    const token = getRequestAuthToken(request);
+    const project = await resolveProjectId(request, token);
+    if (project.error) return project.error;
+    const client = getApiClient({ projectId: project.projectId, token });
+    const agents = await client.listAgents();
     return NextResponse.json({ data: agents });
   } catch (error) {
     return handleApiError(error);
@@ -28,28 +21,21 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const project = await resolveProjectId(request);
-    if (project.error) {
-      return project.error;
-    }
-
+    const token = getRequestAuthToken(request);
+    const project = await resolveProjectId(request, token);
+    if (project.error) return project.error;
     const body = await request.json().catch(() => null);
-    if (!body) {
-      return jsonError(400, "invalid_json", "Request body must be valid JSON");
-    }
-
+    if (!body) return jsonError(400, "invalid_json", "Request body must be valid JSON");
     const result = createAgentSchema.safeParse(body);
     if (!result.success) {
       return jsonError(400, "invalid_request", "Invalid request body", result.error.flatten());
     }
-
-    const agent = await createAgent({
-      projectId: project.projectId,
+    const client = getApiClient({ projectId: project.projectId, token });
+    const agent = await client.registerAgent({
       name: result.data.name,
       role: result.data.role,
-      capabilities: result.data.capabilities as Prisma.InputJsonValue | null | undefined,
+      capabilities: result.data.capabilities,
     });
-
     return NextResponse.json({ data: agent }, { status: 201 });
   } catch (error) {
     return handleApiError(error);

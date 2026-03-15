@@ -16,7 +16,7 @@ RUN pnpm install --frozen-lockfile
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN pnpm turbo build --filter=mcp-message-bus
+RUN pnpm turbo build --filter=amb-web
 
 # Runner
 FROM base AS runner
@@ -28,7 +28,6 @@ WORKDIR /app
 COPY --from=builder /app/apps/web/.next/standalone ./
 COPY --from=builder /app/apps/web/.next/static ./.next/static
 COPY --from=builder /app/apps/web/public ./public
-COPY --from=builder /app/apps/web/prisma ./apps/web/prisma
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY apps ./apps

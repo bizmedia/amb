@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import type { Thread } from "@/lib/types";
 import { useProjectId } from "@/lib/context/project-context";
 import { withProjectId } from "@/lib/api/build-url";
+import { fetchApiData, isAuthError } from "@/lib/api/http";
 
 export function useThreads() {
   const projectId = useProjectId();
@@ -13,14 +14,17 @@ export function useThreads() {
 
   const fetchThreads = useCallback(async () => {
     try {
-      const res = await fetch(withProjectId(projectId, "/api/threads"));
-      const json = await res.json();
-      if (json.data) {
-        setThreads(json.data);
-      }
+      const data = await fetchApiData<Thread[]>(withProjectId(projectId, "/api/threads"));
+      setThreads(data);
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch threads");
+      setError(
+        isAuthError(err)
+          ? "Authentication required. Please log in."
+          : err instanceof Error
+            ? err.message
+            : "Failed to fetch threads"
+      );
     } finally {
       setLoading(false);
     }
@@ -40,20 +44,16 @@ export function useThreads() {
     setThreads((prev) => [optimisticThread, ...prev]);
 
     try {
-      const res = await fetch(withProjectId(projectId, "/api/threads"), {
+      const data = await fetchApiData<Thread>(withProjectId(projectId, "/api/threads"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title }),
       });
-      const json = await res.json();
-      if (!res.ok) {
-        throw new Error(json.error?.message || "Failed to create thread");
-      }
       // Replace optimistic thread with real one
       setThreads((prev) =>
-        prev.map((t) => (t.id === tempId ? json.data : t))
+        prev.map((t) => (t.id === tempId ? data : t))
       );
-      return json.data;
+      return data;
     } catch (err) {
       // Revert on error
       setThreads((prev) => prev.filter((t) => t.id !== tempId));
@@ -70,15 +70,11 @@ export function useThreads() {
       );
 
       try {
-        const res = await fetch(withProjectId(projectId, `/api/threads/${threadId}`), {
+        await fetchApiData<Thread>(withProjectId(projectId, `/api/threads/${threadId}`), {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status }),
         });
-        if (!res.ok) {
-          const json = await res.json();
-          throw new Error(json.error?.message || "Failed to update thread");
-        }
       } catch (err) {
         // Revert on error
         setThreads(previousThreads);
@@ -95,13 +91,9 @@ export function useThreads() {
       setThreads((prev) => prev.filter((t) => t.id !== threadId));
 
       try {
-        const res = await fetch(withProjectId(projectId, `/api/threads/${threadId}`), {
+        await fetchApiData<{ success: true }>(withProjectId(projectId, `/api/threads/${threadId}`), {
           method: "DELETE",
         });
-        if (!res.ok) {
-          const json = await res.json();
-          throw new Error(json.error?.message || "Failed to delete thread");
-        }
       } catch (err) {
         // Revert on error
         setThreads(previousThreads);

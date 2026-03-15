@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import type { Agent } from "@/lib/types";
 import { useProjectId } from "@/lib/context/project-context";
 import { withProjectId } from "@/lib/api/build-url";
+import { fetchApiData, isAuthError } from "@/lib/api/http";
 
 export function useAgents() {
   const projectId = useProjectId();
@@ -13,14 +14,17 @@ export function useAgents() {
 
   const fetchAgents = useCallback(async () => {
     try {
-      const res = await fetch(withProjectId(projectId, "/api/agents"));
-      const json = await res.json();
-      if (json.data) {
-        setAgents(json.data);
-      }
+      const data = await fetchApiData<Agent[]>(withProjectId(projectId, "/api/agents"));
+      setAgents(data);
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch agents");
+      setError(
+        isAuthError(err)
+          ? "Authentication required. Please log in."
+          : err instanceof Error
+            ? err.message
+            : "Failed to fetch agents"
+      );
     } finally {
       setLoading(false);
     }

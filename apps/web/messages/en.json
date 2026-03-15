@@ -22,7 +22,24 @@
     "markAsRead": "Mark as read",
     "refresh": "Refresh",
     "language": "Language",
-    "failedToCreate": "Failed to create project"
+    "failedToCreate": "Failed to create project",
+    "apiErrors": {
+      "unauthorized": "Authentication required. Please sign in.",
+      "forbidden": "Access denied for this action.",
+      "serviceUnavailable": "API service is unavailable.",
+      "invalidJson": "Invalid JSON payload.",
+      "invalidRequest": "Invalid request data.",
+      "invalidParams": "Invalid request parameters.",
+      "invalidProjectId": "Project ID must be a valid UUID.",
+      "projectNotFound": "Project not found.",
+      "authFailed": "Authentication failed.",
+      "invalidAuthResponse": "Invalid auth response from API.",
+      "notFound": "Resource not found.",
+      "conflict": "Conflict: resource state has changed.",
+      "internalError": "Unexpected server error.",
+      "httpError": "Request failed.",
+      "unknown": "Something went wrong. Please try again."
+    }
   },
   "Dashboard": {
     "title": "Agent Message Bus",
@@ -35,9 +52,19 @@
     "realtime": "Real-time",
     "lightTheme": "Light theme",
     "darkTheme": "Dark theme",
+    "logout": "Log out",
     "messages": "Messages",
     "inbox": "Inbox",
     "errors": "Errors"
+  },
+  "Auth": {
+    "title": "Sign in",
+    "subtitle": "Use your user token account to access the dashboard.",
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign in",
+    "signingIn": "Signing in...",
+    "loginFailed": "Invalid email or password"
   },
   "CommandPalette": {
     "title": "Command palette",
@@ -69,7 +96,41 @@
     "newProjectDesc": "Create a project and use its ID in the MCP settings of another repository.",
     "projectNamePlaceholder": "Project name",
     "copyProjectId": "Copy project ID",
-    "tasks": "Tasks"
+    "tasks": "Tasks",
+    "manageProjects": "Manage projects",
+    "manageTitle": "Tenant and project management",
+    "manageDesc": "View tenants and projects, switch context, and edit project names.",
+    "tenants": "Tenants",
+    "allTenants": "All tenants",
+    "projects": "Projects",
+    "switchTo": "Switch",
+    "selected": "Selected",
+    "editProject": "Edit project",
+    "noProjectsForTenant": "No projects for selected tenant",
+    "tokens": "Tokens"
+  },
+  "Tokens": {
+    "loading": "Loading...",
+    "selectProject": "Select a project in the Dashboard",
+    "toDashboard": "To Dashboard",
+    "backToDashboard": "Back to Dashboard",
+    "title": "Project tokens",
+    "projectLabel": "Project",
+    "createToken": "Create token",
+    "creatingToken": "Creating...",
+    "createTokenDesc": "Create a new project token for integrations.",
+    "tokenNamePlaceholder": "Token name",
+    "expiresInPlaceholder": "Expires in (seconds)",
+    "tokenCreated": "Token created. Copy and store it now.",
+    "copyToken": "Copy token",
+    "revoke": "Revoke",
+    "active": "Active",
+    "revoked": "Revoked",
+    "createdAt": "Created",
+    "lastUsedAt": "Last used",
+    "expiresAt": "Expires",
+    "empty": "No project tokens yet",
+    "createFailed": "Failed to create token"
   },
   "ThreadsList": {
     "threads": "Threads",
@@ -110,7 +171,14 @@
     "sendEnter": "Send (Enter)",
     "selectAgentSidebar": "Select an agent in the sidebar to send messages",
     "unknownRole": "Unknown role",
-    "broadcast": "broadcast"
+    "broadcast": "broadcast",
+    "messageStatus": "Message status: {status}",
+    "status": {
+      "pending": "Pending",
+      "delivered": "Delivered",
+      "ack": "Acknowledged",
+      "dlq": "Failed"
+    }
   },
   "DlqViewer": {
     "errorQueue": "Error queue (DLQ)",
@@ -167,7 +235,14 @@
     "inboxEmpty": "Inbox is empty",
     "newMessagesHere": "New messages addressed to {name} will appear here",
     "acknowledge": "Acknowledge",
-    "unknownRole": "Unknown role"
+    "unknownRole": "Unknown role",
+    "autoRefresh": "Auto-refreshing every {seconds} seconds",
+    "status": {
+      "pending": "Pending",
+      "delivered": "Delivered",
+      "ack": "Acknowledged",
+      "dlq": "Failed"
+    }
   },
   "Tasks": {
     "loading": "Loading...",
@@ -207,6 +282,7 @@
     "failedToCreateIssue": "Failed to create issue",
     "failedToUpdateIssue": "Failed to update issue",
     "failedToDeleteIssue": "Failed to delete issue",
+    "loadingIssues": "Loading issues...",
     "issueTitlePlaceholder": "Issue title",
     "dueDatePlaceholder": "Due date"
   },

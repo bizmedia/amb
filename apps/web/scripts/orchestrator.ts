@@ -94,7 +94,7 @@ async function runWorkflow(config: WorkflowConfig): Promise<void> {
   const results: StepResult[] = [];
 
   for (let i = 0; i < steps.length; i++) {
-    const step = steps[i];
+    const step = steps[i]!;
     const stepNum = i + 1;
 
     console.log(`\n─────────────────────────────────────────────────────────────`);
@@ -197,7 +197,7 @@ function printSummary(title: string, threadId: string, results: StepResult[]): v
   console.log("├─────┼──────────────┼────────────────────────────┼──────────┤");
 
   for (let i = 0; i < results.length; i++) {
-    const r = results[i];
+    const r = results[i]!;
     const num = String(i + 1).padStart(3);
     const agent = (r.agent?.role ?? "-").padEnd(12).slice(0, 12);
     const task = r.step.task.padEnd(26).slice(0, 26);

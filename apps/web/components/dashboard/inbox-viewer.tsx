@@ -21,39 +21,11 @@ import {
   Loader2Icon,
   MailIcon,
   ClockIcon,
-  AlertTriangleIcon,
 } from "lucide-react";
 import { JsonViewer } from "@/components/ui/json-viewer";
 
 type Props = {
   agentId: string | null;
-};
-
-const statusConfig = {
-  pending: {
-    icon: ClockIcon,
-    color: "text-yellow-500",
-    label: "Pending",
-    variant: "outline" as const,
-  },
-  delivered: {
-    icon: CheckIcon,
-    color: "text-blue-500",
-    label: "Delivered",
-    variant: "secondary" as const,
-  },
-  ack: {
-    icon: CheckCheckIcon,
-    color: "text-green-500",
-    label: "Acknowledged",
-    variant: "default" as const,
-  },
-  dlq: {
-    icon: AlertTriangleIcon,
-    color: "text-destructive",
-    label: "Failed",
-    variant: "destructive" as const,
-  },
 };
 
 export function InboxViewer({ agentId }: Props) {
@@ -250,7 +222,7 @@ export function InboxViewer({ agentId }: Props) {
                     </div>
 
                     {/* Footer */}
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
                       <div className="flex items-center gap-1.5">
                         <ClockIcon className="size-3" />
                         <span>
@@ -263,7 +235,7 @@ export function InboxViewer({ agentId }: Props) {
                         </span>
                       </div>
                       <Badge variant="secondary" className="text-[10px]">
-                        {msg.status}
+                        {t(`status.${msg.status}`)}
                       </Badge>
                     </div>
                   </div>
@@ -277,7 +249,7 @@ export function InboxViewer({ agentId }: Props) {
       {/* Footer with polling indicator */}
       <div className="px-4 py-2 border-t bg-muted/30 flex items-center justify-center gap-2 text-xs text-muted-foreground">
         <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-        Auto-refreshing every 3 seconds
+        {t("autoRefresh", { seconds: 3 })}
       </div>
     </div>
   );

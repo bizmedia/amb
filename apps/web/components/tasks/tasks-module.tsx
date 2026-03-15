@@ -26,6 +26,7 @@ import { ISSUE_PRIORITIES, ISSUE_PRIORITY_LABELS, ISSUE_STATES, ISSUE_STATE_LABE
 import { useIssues, type IssueFilters } from "@/lib/hooks/use-issues";
 import { useProjectMembers } from "@/lib/hooks/use-project-members";
 import type { Issue, IssuePriority, IssueState } from "@/lib/types";
+import { getLocalizedApiErrorMessage } from "@/lib/api/error-i18n";
 
 type TasksModuleProps = {
   projectId: string;
@@ -172,7 +173,7 @@ export function TasksModule({ projectId, projectName }: TasksModuleProps) {
       });
       closeDialogs();
     } catch (submitError) {
-      setFormError(submitError instanceof Error ? submitError.message : t("failedToCreateIssue"));
+      setFormError(getLocalizedApiErrorMessage(submitError, tCommon));
     } finally {
       setSubmitting(false);
     }
@@ -200,7 +201,7 @@ export function TasksModule({ projectId, projectName }: TasksModuleProps) {
       });
       closeDialogs();
     } catch (submitError) {
-      setFormError(submitError instanceof Error ? submitError.message : t("failedToUpdateIssue"));
+      setFormError(getLocalizedApiErrorMessage(submitError, tCommon));
     } finally {
       setSubmitting(false);
     }
@@ -215,7 +216,7 @@ export function TasksModule({ projectId, projectName }: TasksModuleProps) {
       await deleteIssue(deleteIssueId);
       setDeleteIssueId(null);
     } catch (deleteError) {
-      setFormError(deleteError instanceof Error ? deleteError.message : t("failedToDeleteIssue"));
+      setFormError(getLocalizedApiErrorMessage(deleteError, tCommon));
     }
   };
 
@@ -375,7 +376,7 @@ export function TasksModule({ projectId, projectName }: TasksModuleProps) {
 
         {error && <p className="mb-4 text-sm text-destructive">{error}</p>}
 
-        {loading ? <p className="text-sm text-muted-foreground">Loading issues...</p> : null}
+        {loading ? <p className="text-sm text-muted-foreground">{t("loadingIssues")}</p> : null}
 
         {!loading && viewMode === "list" ? (
           <Card className="overflow-x-auto">

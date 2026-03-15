@@ -1,12 +1,16 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useTranslations } from "next-intl";
 import type { Message } from "@/lib/types";
 import { useSSE } from "./use-sse";
 import { useProjectId } from "@/lib/context/project-context";
 import { withProjectId } from "@/lib/api/build-url";
+import { fetchApiData } from "@/lib/api/http";
+import { getLocalizedApiErrorMessage } from "@/lib/api/error-i18n";
 
 export function useThreadMessages(threadId: string | null) {
+  const tCommon = useTranslations("Common");
   const projectId = useProjectId();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
@@ -17,18 +21,17 @@ export function useThreadMessages(threadId: string | null) {
     
     setLoading(true);
     try {
-      const res = await fetch(withProjectId(projectId, `/api/threads/${threadId}/messages`));
-      const json = await res.json();
-      if (json.data) {
-        setMessages(json.data);
-      }
+      const data = await fetchApiData<Message[]>(
+        withProjectId(projectId, `/api/threads/${threadId}/messages`)
+      );
+      setMessages(data);
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch messages");
+      setError(getLocalizedApiErrorMessage(err, tCommon));
     } finally {
       setLoading(false);
     }
-  }, [threadId, projectId]);
+  }, [threadId, projectId, tCommon]);
 
   const sendMessage = useCallback(async (params: {
     fromAgentId: string;
@@ -38,7 +41,7 @@ export function useThreadMessages(threadId: string | null) {
   }) => {
     if (!threadId) return;
 
-    const res = await fetch(withProjectId(projectId, "/api/messages/send"), {
+    const data = await fetchApiData<Message>(withProjectId(projectId, "/api/messages/send"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -46,12 +49,8 @@ export function useThreadMessages(threadId: string | null) {
         ...params,
       }),
     });
-    const json = await res.json();
-    if (!res.ok) {
-      throw new Error(json.error?.message || "Failed to send message");
-    }
     await fetchMessages();
-    return json.data;
+    return data;
   }, [threadId, fetchMessages, projectId]);
 
   useEffect(() => {
@@ -75,11 +74,10 @@ export function useInbox(agentId: string | null, pollInterval = 3000) {
     if (!agentId) return;
     
     try {
-      const res = await fetch(withProjectId(projectId, `/api/messages/inbox?agentId=${agentId}`));
-      const json = await res.json();
-      if (json.data) {
-        setMessages(json.data);
-      }
+      const data = await fetchApiData<Message[]>(
+        withProjectId(projectId, `/api/messages/inbox?agentId=${agentId}`)
+      );
+      setMessages(data);
     } catch {
       // Silent fail for polling
     } finally {
@@ -88,13 +86,9 @@ export function useInbox(agentId: string | null, pollInterval = 3000) {
   }, [agentId, projectId]);
 
   const ackMessage = useCallback(async (messageId: string) => {
-    const res = await fetch(withProjectId(projectId, `/api/messages/${messageId}/ack`), {
+    await fetchApiData<Message>(withProjectId(projectId, `/api/messages/${messageId}/ack`), {
       method: "POST",
     });
-    if (!res.ok) {
-      const json = await res.json();
-      throw new Error(json.error?.message || "Failed to ack message");
-    }
     await fetchInbox();
   }, [fetchInbox, projectId]);
 
@@ -119,6 +113,7 @@ export function useInbox(agentId: string | null, pollInterval = 3000) {
 }
 
 export function useDlq() {
+  const tCommon = useTranslations("Common");
   const projectId = useProjectId();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
@@ -126,31 +121,24 @@ export function useDlq() {
 
   const fetchDlq = useCallback(async () => {
     try {
-      const res = await fetch(withProjectId(projectId, "/api/dlq"));
-      const json = await res.json();
-      if (json.data) {
-        setMessages(json.data);
-      }
+      const data = await fetchApiData<Message[]>(withProjectId(projectId, "/api/dlq"));
+      setMessages(data);
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch DLQ");
+      setError(getLocalizedApiErrorMessage(err, tCommon));
     } finally {
       setLoading(false);
     }
-  }, [projectId]);
+  }, [projectId, tCommon]);
 
   const retryMessage = useCallback(async (messageId: string) => {
     // Optimistic update
     setMessages((prev) => prev.filter((m) => m.id !== messageId));
     
     try {
-      const res = await fetch(withProjectId(projectId, `/api/dlq/${messageId}/retry`), {
+      await fetchApiData<Message>(withProjectId(projectId, `/api/dlq/${messageId}/retry`), {
         method: "POST",
       });
-      if (!res.ok) {
-        const json = await res.json();
-        throw new Error(json.error?.message || "Failed to retry message");
-      }
     } catch (err) {
       // Revert on error
       await fetchDlq();
@@ -163,14 +151,9 @@ export function useDlq() {
     setMessages([]);
     
     try {
-      const res = await fetch(withProjectId(projectId, "/api/dlq/retry-all"), {
+      return await fetchApiData<{ count: number }>(withProjectId(projectId, "/api/dlq/retry-all"), {
         method: "POST",
       });
-      if (!res.ok) {
-        const json = await res.json();
-        throw new Error(json.error?.message || "Failed to retry all messages");
-      }
-      return await res.json();
     } catch (err) {
       setMessages(previousMessages);
       throw err;

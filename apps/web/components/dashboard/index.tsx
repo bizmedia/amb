@@ -24,10 +24,11 @@ import {
   GripVerticalIcon,
   BookOpenIcon,
   HelpCircleIcon,
+  LogOutIcon,
 } from "lucide-react"
 import { Link } from "@/i18n/navigation"
 import { useTheme } from "@/components/theme-provider"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 
 type TabValue = "messages" | "inbox" | "dlq"
 
@@ -102,6 +103,7 @@ export function Dashboard() {
   // Theme
   const { resolvedTheme, setTheme } = useTheme()
   const t = useTranslations("Dashboard")
+  const locale = useLocale()
   
   const toggleTheme = useCallback(() => {
     // Переключаем на явную тему (не "system")
@@ -115,6 +117,49 @@ export function Dashboard() {
   const handleRefresh = useCallback(() => {
     window.location.reload()
   }, [])
+
+  const redirectToLogin = useCallback(() => {
+    const nextPath = `${window.location.pathname}${window.location.search}`
+    window.location.href = `/${locale}/login?next=${encodeURIComponent(nextPath)}`
+  }, [locale])
+
+  const handleLogout = useCallback(async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" })
+    } finally {
+      redirectToLogin()
+    }
+  }, [redirectToLogin])
+
+  useEffect(() => {
+    let isMounted = true
+
+    const checkSession = async () => {
+      try {
+        const response = await fetch("/api/auth/session", { cache: "no-store" })
+        if (!response.ok) {
+          if (isMounted) redirectToLogin()
+          return
+        }
+        const json = await response.json().catch(() => null)
+        if (!json?.data?.authenticated && isMounted) {
+          redirectToLogin()
+        }
+      } catch {
+        // ignore transient network errors in session polling
+      }
+    }
+
+    void checkSession()
+    const intervalId = setInterval(() => {
+      void checkSession()
+    }, 60_000)
+
+    return () => {
+      isMounted = false
+      clearInterval(intervalId)
+    }
+  }, [redirectToLogin])
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
@@ -203,6 +248,16 @@ export function Dashboard() {
               <kbd className="hidden sm:inline-flex ml-1 h-5 items-center gap-0.5 rounded border bg-muted px-1.5 font-mono text-[10px]">
                 <span className="text-xs">⌘</span>K
               </kbd>
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLogout}
+              className="gap-2 text-muted-foreground"
+            >
+              <LogOutIcon className="size-4" />
+              <span className="hidden sm:inline">{t("logout")}</span>
             </Button>
           </div>
         </div>

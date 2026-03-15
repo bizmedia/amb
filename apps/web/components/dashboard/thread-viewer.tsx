@@ -39,25 +39,21 @@ const statusConfig = {
   pending: {
     icon: ClockIcon,
     color: "text-yellow-500",
-    label: "Pending",
     variant: "outline" as const,
   },
   delivered: {
     icon: CheckIcon,
     color: "text-blue-500",
-    label: "Delivered",
     variant: "secondary" as const,
   },
   ack: {
     icon: CheckCheckIcon,
     color: "text-green-500",
-    label: "Acknowledged",
     variant: "default" as const,
   },
   dlq: {
     icon: AlertTriangleIcon,
     color: "text-destructive",
-    label: "Failed",
     variant: "destructive" as const,
   },
 };
@@ -87,6 +83,12 @@ function groupMessagesByDate(messages: Message[]) {
 
 export function ThreadViewer({ threadId, currentAgentId }: Props) {
   const t = useTranslations("ThreadViewer");
+  const statusLabels = {
+    pending: t("status.pending"),
+    delivered: t("status.delivered"),
+    ack: t("status.ack"),
+    dlq: t("status.dlq"),
+  } as const;
   const { messages, loading, sendMessage, refetch } = useThreadMessages(threadId);
   const { agents } = useAgents();
   const [messageText, setMessageText] = useState("");
@@ -295,7 +297,9 @@ export function ThreadViewer({ threadId, currentAgentId }: Props) {
                       : null;
                     const isOwn = msg.fromAgentId === currentAgentId;
                     const payload = msg.payload as { text?: string; type?: string } | null;
-                    const status = statusConfig[msg.status as keyof typeof statusConfig] || statusConfig.pending;
+                    const statusKey = msg.status as keyof typeof statusConfig;
+                    const status = statusConfig[statusKey] || statusConfig.pending;
+                    const statusLabel = statusLabels[statusKey] ?? statusLabels.pending;
                     const StatusIcon = status.icon;
                     const isBroadcast = !msg.toAgentId;
 
@@ -375,11 +379,11 @@ export function ThreadViewer({ threadId, currentAgentId }: Props) {
                             <div 
                               className="flex items-center gap-1"
                               role="status"
-                              aria-label={`Message status: ${status.label}`}
+                              aria-label={t("messageStatus", { status: statusLabel })}
                             >
                               <StatusIcon className={`size-3 ${status.color}`} aria-hidden="true" />
                               <span className={`text-xs font-medium ${status.color}`}>
-                                {status.label}
+                                {statusLabel}
                               </span>
                             </div>
                             {msg.retries > 0 && (

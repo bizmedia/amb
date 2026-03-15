@@ -1,8 +1,10 @@
 # Sprint 1-2: Foundation - Action Plan
 
 **Дата:** 2026-01-28  
-**Статус:** ✅ Готов к старту  
-**Ответственный:** Dev Agent
+**Последнее обновление:** 2026-03-15 (Orchestrator)  
+**Статус:** 🚧 В работе (Epic 1, тред feature-workflow)  
+**Ответственный:** Dev Agent  
+**Тред:** [feature-workflow-epic-1.md](./feature-workflow-epic-1.md)
 
 ---
 
@@ -74,7 +76,7 @@
 
 ### E1-S3: Выделить `packages/shared`
 **Приоритет:** P0  
-**Статус:** 📋 Ready to Start
+**Статус:** 🚧 In Progress (старт 2026-03-15)
 
 **Задачи:**
 1. Создать структуру `packages/shared/`

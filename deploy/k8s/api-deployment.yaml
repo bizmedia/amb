@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amb-api
+  labels:
+    app: amb-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: amb-api
+  template:
+    metadata:
+      labels:
+        app: amb-api
+    spec:
+      containers:
+        - name: api
+          image: bizmedia/amb-api:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "3334"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: amb-api-secrets
+                  key: DATABASE_URL
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: amb-api-secrets
+                  key: JWT_SECRET
+          ports:
+            - containerPort: 3334
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10

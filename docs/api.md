@@ -10,6 +10,21 @@
 http://localhost:3333/api
 ```
 
+## Аутентификация
+
+Для vNext API используйте project JWT:
+
+- `Authorization: Bearer <JWT>`
+- `x-project-id: <PROJECT_ID>` (рекомендуется для явного project context)
+
+Пример:
+
+```bash
+curl -X GET http://localhost:3333/api/threads \
+  -H "Authorization: Bearer $AMB_TOKEN" \
+  -H "x-project-id: $AMB_PROJECT_ID"
+```
+
 ## Формат ответа
 
 Все endpoints возвращают JSON со следующей структурой:

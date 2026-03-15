@@ -31,6 +31,10 @@ Design a developer-friendly interface for managing agents, threads, inbox, and D
 * DLQ panel
 * Retry actions
 
+## MCP Message Bus (when available)
+
+When the **message-bus** MCP server is available (its tools appear in your tool list), follow **`.cursor/rules/mcp-message-bus.md`**: coordinate via threads and messages, use project issues for backlog, check inbox/DLQ as needed. If the server is not connected or tools fail, work without it.
+
 ## Output Style
 
 * Structured markdown

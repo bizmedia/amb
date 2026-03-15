@@ -1,39 +1,96 @@
 services:
-  # PostgreSQL database
   postgres:
     image: postgres:16-alpine
-    container_name: messagebus-db
+    container_name: amb-postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: messagebus
+      POSTGRES_DB: amb
     ports:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d amb"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 20
 
-  # Next.js app
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: messagebus-app
-    ports:
-      - "3333:3333"
+  api:
+    image: node:20-alpine
+    container_name: amb-api
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+      - /workspace/node_modules
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/messagebus
-      # Слушать на всех интерфейсах, чтобы exec (seed:agents и т.д.) мог достучаться до API
-      HOSTNAME: "0.0.0.0"
-      # Для скриптов внутри контейнера — явно IPv4
-      MESSAGE_BUS_URL: http://127.0.0.1:3333
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/amb
+      JWT_SECRET: change-me-for-local-dev
+      PORT: 3334
+      CI: "true"
+    command: >
+      sh -lc "corepack enable &&
+      pnpm install --frozen-lockfile &&
+      pnpm db:migrate:deploy &&
+      pnpm --filter amb-api build &&
+      pnpm --filter amb-api start"
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
+    ports:
+      - "${API_PORT:-3334}:3334"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 3334"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  web:
+    image: node:20-alpine
+    container_name: amb-web
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+      - /workspace/node_modules
+    environment:
+      API_URL: http://api:3334
+      PORT: 3333
+      CI: "true"
+    command: >
+      sh -lc "corepack enable &&
+      pnpm install --frozen-lockfile &&
+      pnpm --filter amb-web build &&
+      pnpm --filter amb-web start"
+    depends_on:
+      - api
+    ports:
+      - "${WEB_PORT:-3333}:3333"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 3333"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  seed:
+    image: node:20-alpine
+    container_name: amb-seed
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+      - /workspace/node_modules
+    environment:
+      API_URL: http://api:3334
+      AMB_SEED_EMAIL: admin@local.test
+      AMB_SEED_PASSWORD: ChangeMe123!
+      CI: "true"
+    command: >
+      sh -lc "corepack enable &&
+      pnpm install --frozen-lockfile &&
+      until nc -z api 3334; do echo 'waiting for api...'; sleep 2; done &&
+      until nc -z web 3333; do echo 'waiting for web...'; sleep 2; done &&
+      pnpm --filter amb-web run seed:docker"
+    depends_on:
+      - web
+    restart: "no"
 
 volumes:
   postgres_data:

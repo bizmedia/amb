@@ -1,17 +1,15 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 
 import { jsonError, handleApiError } from "@/lib/api/errors";
-import { createProject, ensureDefaultProject, listProjects } from "@/lib/services/projects";
+import { getApiClient } from "@/lib/api/client";
+import { getRequestAuthToken } from "@/lib/api/auth";
+import { createProjectSchema } from "@amb-app/shared";
 
-const createProjectSchema = z.object({
-  name: z.string().min(1).max(80),
-});
-
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    await ensureDefaultProject();
-    const projects = await listProjects();
+    const token = getRequestAuthToken(request);
+    const client = getApiClient({ token });
+    const projects = await client.listProjects();
     return NextResponse.json({ data: projects });
   } catch (error) {
     return handleApiError(error);
@@ -20,17 +18,15 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const token = getRequestAuthToken(request);
     const body = await request.json().catch(() => null);
-    if (!body) {
-      return jsonError(400, "invalid_json", "Request body must be valid JSON");
-    }
-
+    if (!body) return jsonError(400, "invalid_json", "Request body must be valid JSON");
     const result = createProjectSchema.safeParse(body);
     if (!result.success) {
       return jsonError(400, "invalid_request", "Invalid request body", result.error.flatten());
     }
-
-    const project = await createProject({ name: result.data.name });
+    const client = getApiClient({ token });
+    const project = await client.createProject({ name: result.data.name });
     return NextResponse.json({ data: project }, { status: 201 });
   } catch (error) {
     return handleApiError(error);

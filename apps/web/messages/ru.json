@@ -22,7 +22,24 @@
     "markAsRead": "Отметить прочитанным",
     "refresh": "Обновить",
     "language": "Язык",
-    "failedToCreate": "Не удалось создать проект"
+    "failedToCreate": "Не удалось создать проект",
+    "apiErrors": {
+      "unauthorized": "Требуется авторизация. Выполните вход.",
+      "forbidden": "Недостаточно прав для этого действия.",
+      "serviceUnavailable": "API временно недоступен.",
+      "invalidJson": "Некорректный JSON в запросе.",
+      "invalidRequest": "Некорректные данные запроса.",
+      "invalidParams": "Некорректные параметры запроса.",
+      "invalidProjectId": "Project ID должен быть валидным UUID.",
+      "projectNotFound": "Проект не найден.",
+      "authFailed": "Ошибка авторизации.",
+      "invalidAuthResponse": "Некорректный ответ авторизации от API.",
+      "notFound": "Ресурс не найден.",
+      "conflict": "Конфликт состояния ресурса.",
+      "internalError": "Непредвиденная ошибка сервера.",
+      "httpError": "Запрос завершился ошибкой.",
+      "unknown": "Что-то пошло не так. Повторите попытку."
+    }
   },
   "Dashboard": {
     "title": "Agent Message Bus",
@@ -35,9 +52,19 @@
     "realtime": "В реальном времени",
     "lightTheme": "Светлая тема",
     "darkTheme": "Тёмная тема",
+    "logout": "Выйти",
     "messages": "Сообщения",
     "inbox": "Входящие",
     "errors": "Ошибки"
+  },
+  "Auth": {
+    "title": "Вход",
+    "subtitle": "Войдите под пользовательским токеном для доступа к панели.",
+    "email": "Email",
+    "password": "Пароль",
+    "signIn": "Войти",
+    "signingIn": "Вход...",
+    "loginFailed": "Неверный email или пароль"
   },
   "CommandPalette": {
     "title": "Командная палитра",
@@ -69,7 +96,41 @@
     "newProjectDesc": "Создайте проект и укажите его ID в настройках MCP другого репозитория.",
     "projectNamePlaceholder": "Название проекта",
     "copyProjectId": "Копировать ID проекта",
-    "tasks": "Задачи"
+    "tasks": "Задачи",
+    "manageProjects": "Управление проектами",
+    "manageTitle": "Управление tenant и проектами",
+    "manageDesc": "Просмотр tenant'ов и проектов, переключение контекста и редактирование названий проектов.",
+    "tenants": "Tenant'ы",
+    "allTenants": "Все tenant'ы",
+    "projects": "Проекты",
+    "switchTo": "Переключить",
+    "selected": "Выбран",
+    "editProject": "Редактировать проект",
+    "noProjectsForTenant": "Для выбранного tenant нет проектов",
+    "tokens": "Токены"
+  },
+  "Tokens": {
+    "loading": "Загрузка...",
+    "selectProject": "Выберите проект в панели управления",
+    "toDashboard": "На главную",
+    "backToDashboard": "Назад в панель",
+    "title": "Токены проекта",
+    "projectLabel": "Проект",
+    "createToken": "Создать токен",
+    "creatingToken": "Создание...",
+    "createTokenDesc": "Создайте новый project token для интеграций.",
+    "tokenNamePlaceholder": "Название токена",
+    "expiresInPlaceholder": "Срок жизни (секунды)",
+    "tokenCreated": "Токен создан. Скопируйте и сохраните его сейчас.",
+    "copyToken": "Копировать токен",
+    "revoke": "Отозвать",
+    "active": "Активен",
+    "revoked": "Отозван",
+    "createdAt": "Создан",
+    "lastUsedAt": "Последнее использование",
+    "expiresAt": "Истекает",
+    "empty": "Токенов проекта пока нет",
+    "createFailed": "Не удалось создать токен"
   },
   "ThreadsList": {
     "threads": "Треды",
@@ -110,7 +171,14 @@
     "sendEnter": "Отправить (Enter)",
     "selectAgentSidebar": "Выберите агента в боковой панели для отправки сообщений",
     "unknownRole": "Неизвестная роль",
-    "broadcast": "рассылка"
+    "broadcast": "рассылка",
+    "messageStatus": "Статус сообщения: {status}",
+    "status": {
+      "pending": "В ожидании",
+      "delivered": "Доставлено",
+      "ack": "Подтверждено",
+      "dlq": "Ошибка"
+    }
   },
   "DlqViewer": {
     "errorQueue": "Очередь ошибок (DLQ)",
@@ -167,7 +235,14 @@
     "inboxEmpty": "Входящие пусты",
     "newMessagesHere": "Сообщения для {name} появятся здесь",
     "acknowledge": "Подтвердить",
-    "unknownRole": "Неизвестная роль"
+    "unknownRole": "Неизвестная роль",
+    "autoRefresh": "Автообновление каждые {seconds} сек.",
+    "status": {
+      "pending": "В ожидании",
+      "delivered": "Доставлено",
+      "ack": "Подтверждено",
+      "dlq": "Ошибка"
+    }
   },
   "Tasks": {
     "loading": "Загрузка...",
@@ -207,6 +282,7 @@
     "failedToCreateIssue": "Не удалось создать задачу",
     "failedToUpdateIssue": "Не удалось обновить задачу",
     "failedToDeleteIssue": "Не удалось удалить задачу",
+    "loadingIssues": "Загрузка задач...",
     "issueTitlePlaceholder": "Название задачи",
     "dueDatePlaceholder": "Срок"
   },

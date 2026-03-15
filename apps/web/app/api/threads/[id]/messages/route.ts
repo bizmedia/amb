@@ -1,32 +1,25 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 
 import { jsonError, handleApiError } from "@/lib/api/errors";
 import { resolveProjectId } from "@/lib/api/project-context";
-import { listThreadMessages } from "@/lib/services/threads";
+import { getApiClient } from "@/lib/api/client";
+import { getRequestAuthToken } from "@/lib/api/auth";
+import { threadIdParamsSchema } from "@amb-app/shared";
 
-const paramsSchema = z.object({
-  id: z.string().uuid(),
-});
-
-type RouteContext = {
-  params: Promise<{ id: string }>;
-};
+type RouteContext = { params: Promise<{ id: string }> };
 
 export async function GET(request: Request, context: RouteContext) {
   try {
-    const project = await resolveProjectId(request);
-    if (project.error) {
-      return project.error;
-    }
-
+    const token = getRequestAuthToken(request);
+    const project = await resolveProjectId(request, token);
+    if (project.error) return project.error;
     const params = await context.params;
-    const parsed = paramsSchema.safeParse(params);
+    const parsed = threadIdParamsSchema.safeParse(params);
     if (!parsed.success) {
       return jsonError(400, "invalid_params", "Invalid thread id", parsed.error.flatten());
     }
-
-    const messages = await listThreadMessages(project.projectId, parsed.data.id);
+    const client = getApiClient({ projectId: project.projectId, token });
+    const messages = await client.getThreadMessages(parsed.data.id);
     return NextResponse.json({ data: messages });
   } catch (error) {
     return handleApiError(error);
