@@ -6,6 +6,8 @@ import type {
   Agent,
   Thread,
   Message,
+  Project,
+  Issue,
   ApiResponse,
   CreateAgentInput,
   CreateThreadInput,
@@ -14,6 +16,10 @@ import type {
   PollOptions,
   UpdateThreadInput,
   WaitForResponseOptions,
+  CreateProjectInput,
+  CreateIssueInput,
+  UpdateIssueInput,
+  ListIssuesQuery,
 } from "./types";
 
 export class MessageBusClient {
@@ -122,6 +128,13 @@ export class MessageBusClient {
       }
     );
     return res.data;
+  }
+
+  async deleteThread(threadId: string): Promise<void> {
+    await this.fetch<ApiResponse<{ success: true }>>(
+      `/api/threads/${threadId}`,
+      { method: "DELETE" }
+    );
   }
 
   async closeThread(threadId: string): Promise<Thread> {
@@ -242,6 +255,76 @@ export class MessageBusClient {
       { method: "POST" }
     );
     return res.data;
+  }
+
+  async listProjects(): Promise<Project[]> {
+    const res = await this.fetch<ApiResponse<Project[]>>("/api/projects");
+    return res.data;
+  }
+
+  async createProject(input: CreateProjectInput): Promise<Project> {
+    const res = await this.fetch<ApiResponse<Project>>("/api/projects", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+    return res.data;
+  }
+
+  async listIssues(
+    projectId: string,
+    query?: ListIssuesQuery
+  ): Promise<Issue[]> {
+    const params = new URLSearchParams();
+    if (query?.state) params.set("state", query.state);
+    if (query?.priority) params.set("priority", query.priority);
+    if (query?.assignee) params.set("assignee", query.assignee);
+    if (query?.dueFrom) params.set("dueFrom", String(query.dueFrom));
+    if (query?.dueTo) params.set("dueTo", String(query.dueTo));
+    const qs = params.toString();
+    const res = await this.fetch<ApiResponse<Issue[]>>(
+      `/api/projects/${projectId}/issues${qs ? `?${qs}` : ""}`
+    );
+    return res.data;
+  }
+
+  async createIssue(projectId: string, input: CreateIssueInput): Promise<Issue> {
+    const res = await this.fetch<ApiResponse<Issue>>(
+      `/api/projects/${projectId}/issues`,
+      {
+        method: "POST",
+        body: JSON.stringify(input),
+      }
+    );
+    return res.data;
+  }
+
+  async getIssue(projectId: string, issueId: string): Promise<Issue> {
+    const res = await this.fetch<ApiResponse<Issue>>(
+      `/api/projects/${projectId}/issues/${issueId}`
+    );
+    return res.data;
+  }
+
+  async updateIssue(
+    projectId: string,
+    issueId: string,
+    input: UpdateIssueInput
+  ): Promise<Issue> {
+    const res = await this.fetch<ApiResponse<Issue>>(
+      `/api/projects/${projectId}/issues/${issueId}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(input),
+      }
+    );
+    return res.data;
+  }
+
+  async deleteIssue(projectId: string, issueId: string): Promise<void> {
+    await this.fetch<ApiResponse<{ success: true }>>(
+      `/api/projects/${projectId}/issues/${issueId}`,
+      { method: "DELETE" }
+    );
   }
 }
 

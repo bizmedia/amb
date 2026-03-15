@@ -39,12 +39,17 @@
 
 ---
 
-### Текущая задача: E1-S5 — apps/api (Nest.js)
+### ✅ E1-S5 — apps/api (Nest.js) (завершено)
 
-**Статус:** 🚧 In Progress  
-**Сделано:** Каркас Nest.js (apps/api), PrismaModule/PrismaService с @amb-app/db, ProjectGuard и ProjectParamGuard, глобальный AllExceptionsFilter (NotFoundError, ConflictError, ZodError). Модули: Projects, Agents, Threads, Messages, Issues (projects/:projectId/issues), DLQ. Эндпоинты 1:1 с текущим API. Запуск: `pnpm --filter amb-api run start:dev`, порт 3334.
+**Статус:** ✅ Done  
+**Итог:** Каркас Nest.js, все модули, integration-тесты (Jest/supertest, 14 e2e). Порт 3334.
 
-**Очередь (после E1-S5)**
+### ✅ E1-S6 — Миграция apps/web на HTTP-клиент (завершено)
+
+**Статус:** ✅ Done  
+**Итог:** SDK дополнен (projects, issues, deleteThread). В apps/web: getApiClient(), все API-роуты и stream переведены на вызовы apps/api. resolveProjectId/resolveProjectIdParam через listProjects. Prisma остаётся для скриптов.
+
+**Очередь (Epic 1 завершён)**
 
 | Story   | Задача | Зависимость   |
 |--------|--------|----------------|

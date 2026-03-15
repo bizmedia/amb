@@ -1,5 +1,5 @@
-import { prisma } from "@/lib/prisma";
 import { resolveProjectId } from "@/lib/api/project-context";
+import { getApiClient } from "@/lib/api/client";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,24 +11,14 @@ type SSEData =
   | { type: "new_message"; data: { messageId: string; threadId: string; fromAgentId: string; toAgentId: string | null; timestamp: string } };
 
 async function getInboxCounts(projectId: string): Promise<Record<string, number>> {
-  const agents = await prisma.agent.findMany({
-    where: { projectId },
-    select: { id: true },
-  });
-  
+  const client = getApiClient(projectId);
+  const agents = await client.listAgents();
   const counts = await Promise.all(
     agents.map(async (agent) => {
-      const count = await prisma.message.count({
-        where: {
-          projectId,
-          toAgentId: agent.id,
-          status: { in: ["pending", "delivered"] },
-        },
-      });
-      return { agentId: agent.id, count };
+      const messages = await client.getInbox(agent.id);
+      return { agentId: agent.id, count: messages.length };
     })
   );
-
   return counts.reduce(
     (acc, { agentId, count }) => {
       acc[agentId] = count;
@@ -39,9 +29,9 @@ async function getInboxCounts(projectId: string): Promise<Record<string, number>
 }
 
 async function getDlqCount(projectId: string): Promise<number> {
-  return prisma.message.count({
-    where: { projectId, status: "dlq" },
-  });
+  const client = getApiClient(projectId);
+  const messages = await client.getDLQ();
+  return messages.length;
 }
 
 export async function GET(req: Request) {

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 
 import { ConflictError, NotFoundError } from "@amb-app/shared";
+import { MessageBusError } from "@amb-app/sdk";
 
 type ErrorBody = {
   error: {
@@ -30,6 +31,10 @@ export function handleApiError(error: unknown) {
 
   if (error instanceof ConflictError) {
     return jsonError(409, "conflict", error.message);
+  }
+
+  if (error instanceof MessageBusError) {
+    return jsonError(error.status, error.code, error.message);
   }
 
   if (error instanceof ZodError) {

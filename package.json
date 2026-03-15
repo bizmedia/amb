@@ -15,6 +15,7 @@
     "dev:api": "pnpm --filter amb-api run dev",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
     "start": "turbo run start --filter=mcp-message-bus",
     "lint": "turbo run lint --filter=mcp-message-bus",
     "db:migrate": "pnpm --filter @amb-app/db run db:migrate",

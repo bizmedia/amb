@@ -2,7 +2,7 @@
 
 **Версия:** 1.0  
 **Дата:** 2026-01-28  
-**Последняя проверка статуса:** 2026-03-15 (Orchestrator). Тред Epic 1 проверен: E1-S3, E1-S1, E1-S2 — Done по отчётам Dev.  
+**Последняя проверка статуса:** 2026-03-15 (Orchestrator). Тред: 10 сообщений. E1-S1…E1-S5 — Done; E1-S6 — Planned (миграция apps/web на HTTP-клиент к apps/api).  
 **Автор:** Product Owner Agent  
 **Статус:** Актуально
 
@@ -37,8 +37,8 @@
 | E1-S2 | Выделить `packages/db`          | P0        | ✅ Done    | • Prisma schema + migrations • Prisma client export • RLS helpers (готовность к RLS)                                    |
 | E1-S3 | Выделить `packages/shared`      | P0        | ✅ Done        | • Общие типы/ошибки/схемы (Zod) • Константы • Используется в core/db/sdk                                                |
 | E1-S4 | Выделить `packages/sdk`         | P0        | ✅ Done    | • TS SDK для внешних проектов • `createClient({ baseUrl, token })` • Использует `packages/shared`                       |
-| E1-S5 | Создать `apps/api` (Nest.js)    | P0        | 📋 Planned | • Nest.js приложение • Endpoints 1:1 с текущим API • Использует packages/core/db/shared • Временный доступ без RLS      |
-| E1-S6 | Миграция endpoints в `apps/api` | P0        | 📋 Planned | • Все текущие endpoints работают • Project scoping в коде (пока без RLS) • Integration тесты проходят                   |
+| E1-S5 | Создать `apps/api` (Nest.js)    | P0        | ✅ Done    | • Nest.js приложение • Endpoints 1:1 с текущим API • Использует packages/core/db/shared • Integration-тесты (14 e2e) проходят • Порт 3334      |
+| E1-S6 | Миграция endpoints в `apps/api` | P0        | ✅ Done    | • apps/web переведён на HTTP-клиент к apps/api (getApiClient, @amb-app/sdk) • Все API-роуты и stream используют API • Project scoping в коде |
 
 
 **Definition of Done:**

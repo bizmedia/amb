@@ -1,5 +1,5 @@
 import { jsonError } from "@/lib/api/errors";
-import { ensureDefaultProject, getProjectById } from "@/lib/services/projects";
+import { getApiClient } from "@/lib/api/client";
 import { projectIdSchema } from "@amb-app/shared";
 
 function getProjectIdFromRequest(request: Request): string | null {
@@ -15,10 +15,18 @@ type ProjectContextResult =
 
 export async function resolveProjectId(request: Request): Promise<ProjectContextResult> {
   const rawProjectId = getProjectIdFromRequest(request);
+  const client = getApiClient();
 
   if (!rawProjectId) {
-    const defaultProject = await ensureDefaultProject();
-    return { projectId: defaultProject.id, error: null };
+    const projects = await client.listProjects();
+    const first = projects[0];
+    if (!first) {
+      return {
+        projectId: null,
+        error: jsonError(404, "project_not_found", "No projects found"),
+      };
+    }
+    return { projectId: first.id, error: null };
   }
 
   const parsed = projectIdSchema.safeParse(rawProjectId);
@@ -29,13 +37,13 @@ export async function resolveProjectId(request: Request): Promise<ProjectContext
     };
   }
 
-  try {
-    const project = await getProjectById(parsed.data);
-    return { projectId: project.id, error: null };
-  } catch {
+  const projects = await client.listProjects();
+  const project = projects.find((p) => p.id === parsed.data);
+  if (!project) {
     return {
       projectId: null,
       error: jsonError(404, "project_not_found", "Project not found"),
     };
   }
+  return { projectId: project.id, error: null };
 }

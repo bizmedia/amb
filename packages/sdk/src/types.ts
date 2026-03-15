@@ -3,9 +3,45 @@
  * Entity types from shared; API/transport types defined here.
  */
 
-import type { Agent, Message, Thread } from "@amb-app/shared";
+import type { Agent, Message, Thread, Issue } from "@amb-app/shared";
 
-export type { Agent, Thread, Message };
+export type { Agent, Thread, Message, Issue };
+
+export interface Project {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export interface CreateProjectInput {
+  name: string;
+}
+
+export interface CreateIssueInput {
+  title: string;
+  description?: string | null;
+  state?: string;
+  priority?: string;
+  assigneeId?: string | null;
+  dueDate?: Date | string | null;
+}
+
+export interface UpdateIssueInput {
+  title?: string;
+  description?: string | null;
+  state?: string;
+  priority?: string;
+  assigneeId?: string | null;
+  dueDate?: Date | string | null;
+}
+
+export interface ListIssuesQuery {
+  state?: string;
+  priority?: string;
+  assignee?: string;
+  dueFrom?: Date | string;
+  dueTo?: Date | string;
+}
 
 export interface ApiResponse<T> {
   data: T;

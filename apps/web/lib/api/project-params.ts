@@ -1,5 +1,5 @@
 import { jsonError } from "@/lib/api/errors";
-import { getProjectById } from "@/lib/services/projects";
+import { getApiClient } from "@/lib/api/client";
 import { projectIdSchema } from "@amb-app/shared";
 
 type ProjectParamResult =
@@ -15,13 +15,14 @@ export async function resolveProjectIdParam(rawProjectId: string): Promise<Proje
     };
   }
 
-  try {
-    const project = await getProjectById(parsed.data);
-    return { projectId: project.id, error: null };
-  } catch {
+  const client = getApiClient();
+  const projects = await client.listProjects();
+  const project = projects.find((p) => p.id === parsed.data);
+  if (!project) {
     return {
       projectId: null,
       error: jsonError(404, "project_not_found", "Project not found"),
     };
   }
+  return { projectId: project.id, error: null };
 }

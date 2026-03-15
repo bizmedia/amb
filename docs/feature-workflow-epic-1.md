@@ -3,8 +3,8 @@
 **Тред:** feature-workflow  
 **Открыт:** 2026-03-15  
 **Оркестратор:** orchestrator  
-**Статус:** 🚧 In Progress  
-**Последняя проверка тредов:** 2026-03-15. Тред Epic 1: 6 сообщений; E1-S3, E1-S1, E1-S2 — Done; E1-S4 — In Progress.  
+**Статус:** ✅ Done  
+**Последняя проверка тредов:** 2026-03-15. Тред Epic 1: E1-S1…E1-S6 — Done. apps/web переведён на HTTP-клиент к apps/api.  
 
 **Message Bus (MCP):** тред создан, задачи разосланы агентам.  
 - **Thread ID:** `1c0afd9c-cdad-4f50-bcd6-080232702c3e`  
@@ -27,8 +27,8 @@
 | 2   | E1-S1 | packages/core   | Dev   | ✅ Done        |
 | 3   | E1-S2 | packages/db     | Dev   | ✅ Done        |
 | 4   | E1-S4 | packages/sdk    | Dev   | ✅ Done        |
-| 5   | E1-S5 | apps/api (Nest) | Dev   | 🚧 In Progress |
-| 6   | E1-S6 | Миграция API    | Dev   | 📋 Planned     |
+| 5   | E1-S5 | apps/api (Nest) | Dev   | ✅ Done        |
+| 6   | E1-S6 | Миграция API    | Dev   | ✅ Done        |
 
 
 ---
@@ -49,8 +49,8 @@
 | Dev       | packages/core | E1-S1  | ✅ Done     | после E1-S3 |
 | Dev       | packages/db   | E1-S2  | ✅ Done     | после E1-S3 |
 | Dev       | packages/sdk  | E1-S4  | ✅ Done     | после E1-S3 |
-| **Dev**   | apps/api      | E1-S5  | 🚧 In Progress | после E1-S2 |
-| Dev       | Миграция API  | E1-S6  | 📋 Queued   | после E1-S5 |
+| Dev       | apps/api      | E1-S5  | ✅ Done     | после E1-S2 |
+| **Dev**   | Миграция API  | E1-S6  | ✅ Done     | после E1-S5 |
 | Architect | Интерфейсы (storage, RLS) | — | 📋 On demand | при блокерах |
 | QA        | Проверки после каждой story | — | 📋 После Dev | см. agent-tasks |
 
@@ -58,11 +58,21 @@
 
 ---
 
+## E1-S5 завершён (по треду 2026-03-15)
+
+**Сделано:** каркас Nest.js, модули 1:1, ESM/CJS, @repo/typescript-config, @repo/eslint-config, turbo typecheck; apps/api (3334) и apps/web (3333). Добавлены integration-тесты: Jest + supertest, 14 e2e-тестов (projects, agents, threads, messages, inbox/ack, issues, dlq) — все проходят.
+
+## E1-S6 завершён (2026-03-15)
+
+**Сделано:** SDK дополнен (listProjects, createProject, listIssues, createIssue, getIssue, updateIssue, deleteIssue, deleteThread). В apps/web: lib/api/client.ts (getApiClient с API_URL, по умолчанию http://localhost:3334), handleApiError обрабатывает MessageBusError. Все API-роуты и stream переведены на HTTP-клиент; resolveProjectId и resolveProjectIdParam используют listProjects через API. Prisma/lib/services остаются для скриптов (retry-worker, cleanup и т.д.).
+
+---
+
 ## Диспетчеризация
 
-**Сейчас:** Dev — завершить **E1-S5 (apps/api)**: Nest.js приложение создано, endpoints 1:1 с текущим API (projects, agents, threads, messages, inbox, ack, issues, dlq). Порт по умолчанию 3334.
+**Сейчас:** E1-S5 и E1-S6 завершены. apps/web использует HTTP-клиент (getApiClient, @amb-app/sdk) к apps/api; все роуты и stream переведены.
 
-**После E1-S3 (done):** Dev — E1-S1 → E1-S2 → E1-S4. Architect — по запросу (интерфейсы, RLS). QA — проверки после завершения stories.
+**Next actions:** QA: проверка после E1-S5/S6.
 
 ---
 
