@@ -2,23 +2,21 @@
 
 FROM node:20-alpine AS base
 
-# Install pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
 # Dependencies
 FROM base AS deps
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY prisma ./prisma/
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+COPY apps ./apps
 RUN pnpm install --frozen-lockfile
 
 # Builder
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN pnpm prisma generate
-RUN pnpm build
+RUN pnpm turbo build --filter=amb-web
 
 # Runner
 FROM base AS runner
@@ -27,12 +25,15 @@ ENV PORT=3333
 
 WORKDIR /app
 
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/apps/web/.next/standalone ./
+COPY --from=builder /app/apps/web/.next/static ./.next/static
+COPY --from=builder /app/apps/web/public ./public
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+COPY apps ./apps
+COPY --from=builder /app/.cursor ./.cursor
+RUN pnpm install --frozen-lockfile
 
 EXPOSE 3333
 
-CMD ["node", "server.js"]
+CMD ["node", "apps/web/server.js"]

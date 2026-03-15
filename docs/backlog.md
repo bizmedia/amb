@@ -2,6 +2,7 @@
 
 **Версия:** 1.0  
 **Дата:** 2026-01-28  
+**Последняя проверка статуса:** 2026-03-16 (Orchestrator). Epic 1–6 завершены. E6-S1…E6-S6 — Done (nest-engineer).  
 **Автор:** Product Owner Agent  
 **Статус:** Актуально
 
@@ -9,15 +10,17 @@
 
 ## 📋 Epic Overview
 
-| Epic | Приоритет | Статус | Sprint |
-|------|-----------|--------|--------|
-| [E1: Архитектурная миграция](#epic-1-архитектурная-миграция) | P0 | 🚧 In Progress | Sprint 1-2 |
-| [E2: Multi-tenant инфраструктура](#epic-2-multi-tenant-инфраструктура) | P0 | 📋 Planned | Sprint 2-3 |
-| [E3: JWT авторизация](#epic-3-jwt-авторизация) | P0 | 📋 Planned | Sprint 3-4 |
-| [E4: Dashboard как продукт](#epic-4-dashboard-как-продукт) | P0 | 📋 Planned | Sprint 4-5 |
-| [E5: Developer Experience](#epic-5-developer-experience) | P1 | 📋 Planned | Sprint 5-6 |
-| [E6: Операционная готовность](#epic-6-операционная-готовность) | P1 | 📋 Planned | Sprint 6-7 |
-| [E7: Локализация (i18n)](#epic-7-локализация-i18n) | P1 | 📋 Planned | Sprint 6-7 |
+
+| Epic                                                                   | Приоритет | Статус         | Sprint     |
+| ---------------------------------------------------------------------- | --------- | -------------- | ---------- |
+| [E1: Архитектурная миграция](#epic-1-архитектурная-миграция)           | P0        | ✅ Done        | Sprint 1-2 |
+| [E2: Multi-tenant инфраструктура](#epic-2-multi-tenant-инфраструктура) | P0        | ✅ Done        | Sprint 2-3 |
+| [E3: JWT авторизация](#epic-3-jwt-авторизация)                         | P0        | ✅ Done        | Sprint 3-4 |
+| [E4: Dashboard как продукт](#epic-4-dashboard-как-продукт)             | P0        | ✅ Done        | Sprint 4-5 |
+| [E5: Developer Experience](#epic-5-developer-experience)               | P1        | 🚧 In Progress | Sprint 5-6 |
+| [E6: Операционная готовность](#epic-6-операционная-готовность)         | P1        | ✅ Done        | Sprint 6-7 |
+| [E7: Локализация (i18n)](#epic-7-локализация-i18n)                     | P1        | 🚧 In Progress | Sprint 6-7 |
+
 
 ---
 
@@ -27,16 +30,19 @@
 
 ### Stories
 
-| ID | Story | Приоритет | Статус | Acceptance Criteria |
-|----|-------|-----------|--------|---------------------|
-| E1-S1 | Выделить `packages/core` | P0 | 📋 Planned | • Доменная логика (threads/messages/inbox/dlq) без Nest/Next<br>• Интерфейс к хранилищу (без Prisma)<br>• Unit тесты проходят |
-| E1-S2 | Выделить `packages/db` | P0 | 📋 Planned | • Prisma schema + migrations<br>• Prisma client export<br>• RLS helpers (готовность к RLS) |
-| E1-S3 | Выделить `packages/shared` | P0 | 📋 Planned | • Общие типы/ошибки/схемы (Zod)<br>• Константы<br>• Используется в core/db/sdk |
-| E1-S4 | Выделить `packages/sdk` | P0 | 📋 Planned | • TS SDK для внешних проектов<br>• `createClient({ baseUrl, token })`<br>• Использует `packages/shared` |
-| E1-S5 | Создать `apps/api` (Nest.js) | P0 | 📋 Planned | • Nest.js приложение<br>• Endpoints 1:1 с текущим API<br>• Использует packages/core/db/shared<br>• Временный доступ без RLS |
-| E1-S6 | Миграция endpoints в `apps/api` | P0 | 📋 Planned | • Все текущие endpoints работают<br>• Project scoping в коде (пока без RLS)<br>• Integration тесты проходят |
+
+| ID    | Story                           | Приоритет | Статус     | Acceptance Criteria                                                                                                     |
+| ----- | ------------------------------- | --------- | ---------- | ----------------------------------------------------------------------------------------------------------------------- |
+| E1-S1 | Выделить `packages/core`        | P0        | ✅ Done    | • Доменная логика (threads/messages/inbox/dlq) без Nest/Next • Интерфейс к хранилищу (без Prisma) • Unit тесты проходят |
+| E1-S2 | Выделить `packages/db`          | P0        | ✅ Done    | • Prisma schema + migrations • Prisma client export • RLS helpers (готовность к RLS)                                    |
+| E1-S3 | Выделить `packages/shared`      | P0        | ✅ Done    | • Общие типы/ошибки/схемы (Zod) • Константы • Используется в core/db/sdk                                                |
+| E1-S4 | Выделить `packages/sdk`         | P0        | ✅ Done    | • TS SDK для внешних проектов • `createClient({ baseUrl, token })` • Использует `packages/shared`                       |
+| E1-S5 | Создать `apps/api` (Nest.js)    | P0        | ✅ Done    | • Nest.js приложение • Endpoints 1:1 с текущим API • Использует packages/core/db/shared • Integration-тесты (14 e2e) проходят • Порт 3334      |
+| E1-S6 | Миграция endpoints в `apps/api` | P0        | ✅ Done    | • apps/web переведён на HTTP-клиент к apps/api (getApiClient, @amb-app/sdk) • Все API-роуты и stream используют API • Project scoping в коде |
+
 
 **Definition of Done:**
+
 - ✅ Все packages выделены и работают
 - ✅ `apps/api` запускается и отвечает на запросы
 - ✅ Все существующие endpoints мигрированы
@@ -50,16 +56,19 @@
 
 ### Stories
 
-| ID | Story | Приоритет | Статус | Acceptance Criteria |
-|----|-------|-----------|--------|---------------------|
-| E2-S1 | Добавить Tenant и Project модели | P0 | 📋 Planned | • Prisma модели `Tenant` и `Project`<br>• Миграция создана<br>• Relations настроены |
-| E2-S2 | Добавить tenantId/projectId в рабочие таблицы | P0 | 📋 Planned | • `Agent`, `Thread`, `Message` имеют `tenantId` и `projectId`<br>• Индексы добавлены<br>• Миграция создана |
-| E2-S3 | Backfill существующих данных | P0 | 📋 Planned | • Создан default tenant + default project<br>• Все существующие записи получили tenantId/projectId<br>• Миграция данных выполнена |
-| E2-S4 | Project-scoped API endpoints | P0 | 📋 Planned | • Все endpoints фильтруют по projectId из контекста<br>• Cross-project доступ невозможен<br>• Тесты изоляции проходят |
-| E2-S5 | RLS политики в PostgreSQL | P0 | 📋 Planned | • RLS включен на всех таблицах<br>• Политики USING/WITH CHECK созданы<br>• Тесты RLS проходят |
-| E2-S6 | Контекст tenant/project в запросах | P0 | 📋 Planned | • `SET LOCAL app.tenant_id` и `app.project_id` в транзакциях<br>• Prisma middleware для автоматической установки<br>• Все запросы изолированы |
+
+| ID    | Story                                         | Приоритет | Статус     | Acceptance Criteria                                                                                                                     |
+| ----- | --------------------------------------------- | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| E2-S1 | Добавить Tenant и Project модели              | P0        | ✅ Done    | • Prisma модели `Tenant` и `Project` • Миграция создана • Relations настроены (Project→Tenant)                                           |
+| E2-S2 | Добавить tenantId/projectId в рабочие таблицы | P0        | ✅ Done    | • `Agent`, `Thread`, `Message` имеют `tenantId` и `projectId` • Индексы добавлены • Миграция создана                                    |
+| E2-S3 | Backfill существующих данных                  | P0        | ✅ Done    | • Создан default tenant + default project • Все существующие записи получили tenantId/projectId • Миграция 20260315190000_backfill_tenant_ids применена             |
+| E2-S4 | Project-scoped API endpoints                  | P0        | ✅ Done    | • Все endpoints фильтруют по projectId из контекста • Project guard, e2e изоляции (21/21)                                               |
+| E2-S5 | RLS политики в PostgreSQL                     | P0        | ✅ Done    | • RLS включен на Agent/Thread/Message/Issue • Миграция 20260315194000_enable_rls_policies • Политики USING/WITH CHECK                    |
+| E2-S6 | Контекст tenant/project в запросах            | P0        | ✅ Done    | • PrismaService.withProjectContext (set_config) • Сервисы переведены на контекст • RLS helpers в packages/db • e2e 21/21 green           |
+
 
 **Definition of Done:**
+
 - ✅ Tenant/Project модель работает
 - ✅ Все данные project-scoped
 - ✅ RLS включен и тестирован
@@ -73,16 +82,19 @@
 
 ### Stories
 
-| ID | Story | Приоритет | Статус | Acceptance Criteria |
-|----|-------|-----------|--------|---------------------|
-| E3-S1 | JWT guard в Nest.js | P0 | 📋 Planned | • JWT guard middleware<br>• Валидация токенов<br>• Извлечение tenantId/projectId из claims |
-| E3-S2 | User tokens (для Dashboard) | P0 | 📋 Planned | • JWT с `sub: "user"`<br>• Claims: tenantId, roles (tenant-admin, project-admin, reader)<br>• Login endpoint<br>• Собственная users table (ADR-010) |
-| E3-S3 | Project tokens (для интеграций) | P0 | 📋 Planned | • JWT с `sub: "project"`<br>• Claims: tenantId, projectId<br>• Выдача токенов tenant admin'ом |
-| E3-S4 | Admin API для управления токенами | P0 | 📋 Planned | • CRUD для project tokens<br>• Rotation (несколько активных токенов)<br>• Revocation<br>• RBAC проверки (tenant-admin, project-admin) |
-| E3-S5 | Token rotation и revocation | P0 | 📋 Planned | • Поддержка нескольких активных токенов на проект<br>• Revocation через blacklist или DB<br>• Audit логирование |
-| E3-S6 | Audit логирование | P1 | 📋 Planned | • Логирование создания токенов<br>• Логирование использования (lastUsedAt)<br>• Логирование revocation |
+
+| ID    | Story                             | Приоритет | Статус     | Acceptance Criteria                                                                                                                        |
+| ----- | --------------------------------- | --------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| E3-S1 | JWT guard в Nest.js               | P0        | ✅ Done    | • JWT guard (Bearer, HS256, claims) • Auth context в request • ProjectGuard/ProjectParamGuard • e2e 25/25                                                       |
+| E3-S2 | User tokens (для Dashboard)       | P0        | ✅ Done    | • users table + миграция/seed • POST /api/auth/login • user JWT (sub:user, tenantId, roles) • public routes • e2e 28/28 |
+| E3-S3 | Project tokens (для интеграций)   | P0        | ✅ Done    | • POST /api/auth/project-tokens • sub:project, tenantId/projectId • выдача только tenant-admin • e2e 31/31                              |
+| E3-S4 | Admin API для управления токенами | P0        | ✅ Done    | • /api/admin/projects/:projectId/tokens • CRUD, revoke, RBAC • ProjectToken + RLS • e2e 33/33                                             |
+| E3-S5 | Token rotation и revocation       | P0        | ✅ Done    | • DB-backed revocation в JwtAuthGuard • lastUsedAt • rotation + мгновенный revoke • e2e 33/33                                            |
+| E3-S6 | Audit логирование                 | P1        | ✅ Done    | • ProjectTokenAudit + RLS • created/used/revoked/deleted • GET .../tokens/:tokenId/audit • e2e 33/33                                      |
+
 
 **Definition of Done:**
+
 - ✅ JWT guard работает на всех endpoints
 - ✅ User и project tokens поддерживаются
 - ✅ Admin API для управления токенами
@@ -96,16 +108,19 @@
 
 ### Stories
 
-| ID | Story | Приоритет | Статус | Acceptance Criteria |
-|----|-------|-----------|--------|---------------------|
-| E4-S1 | Создать `apps/web` (Next.js Dashboard) | P0 | 📋 Planned | • Next.js приложение<br>• Структура компонентов сохранена<br>• Использует HTTP клиент к `apps/api` |
-| E4-S2 | HTTP клиент к `apps/api` | P0 | 📋 Planned | • Типизированный клиент<br>• Обработка ошибок<br>• JWT token management |
-| E4-S3 | Удалить прямой доступ к БД | P0 | 📋 Planned | • Prisma удален из `apps/web`<br>• Все запросы через HTTP<br>• Тесты проходят |
-| E4-S4 | User authentication flow | P0 | 📋 Planned | • Login страница<br>• JWT token storage (httpOnly cookies)<br>• Refresh flow |
-| E4-S5 | Tenant/Project management UI | P0 | 📋 Planned | • Список tenant'ов и проектов<br>• Создание/редактирование<br>• Переключение контекста |
-| E4-S6 | Token management UI | P0 | 📋 Planned | • Список project tokens<br>• Создание токенов<br>• Revocation токенов<br>• Копирование токенов |
+
+| ID    | Story                                  | Приоритет | Статус     | Acceptance Criteria                                                                          |
+| ----- | -------------------------------------- | --------- | ---------- | -------------------------------------------------------------------------------------------- |
+| E4-S1 | Создать `apps/web` (Next.js Dashboard) | P0        | ✅ Done    | • Next.js Dashboard • Структура сохранена • HTTP клиент к apps/api (getApiClient, @amb-app/sdk) |
+| E4-S2 | HTTP клиент к `apps/api`               | P0        | ✅ Done    | • auth.ts JWT/cookie • login/logout/session routes • client token+projectId • http.ts ApiHttpError • typecheck pass |
+| E4-S3 | Удалить прямой доступ к БД             | P0        | ✅ Done    | • Prisma/@amb-app/db удалены из apps/web • scripts/DB-слой убраны • build/typecheck pass     |
+| E4-S4 | User authentication flow               | P0        | ✅ Done    | • /[locale]/login • protected routes (middleware + server auth gate) • session check + re-login on 401 • httpOnly • build/typecheck pass |
+| E4-S5 | Tenant/Project management UI           | P0        | ✅ Done    | • ProjectSwitcher: список tenant/project • создание и редактирование проекта • переключение контекста и сохранение projectId |
+| E4-S6 | Token management UI                    | P0        | ✅ Done    | • /[locale]/tokens + TokensModule • список project tokens • создание, revoke и копирование токена |
+
 
 **Definition of Done:**
+
 - ✅ Dashboard работает через HTTP
 - ✅ Нет прямого доступа к БД
 - ✅ User auth flow работает
@@ -119,15 +134,18 @@
 
 ### Stories
 
-| ID | Story | Приоритет | Статус | Acceptance Criteria |
-|----|-------|-----------|--------|---------------------|
-| E5-S1 | Обновить SDK с JWT поддержкой | P1 | 📋 Planned | • `createClient({ baseUrl, token })`<br>• Автоматическая передача JWT<br>• Обработка ошибок auth |
-| E5-S2 | Документация по интеграции | P1 | 📋 Planned | • Quick start guide<br>• API reference<br>• Примеры кода |
-| E5-S3 | Docker Compose для локальной разработки | P1 | 📋 Planned | • `docker compose up` запускает все<br>• DB + API + Web<br>• Seed данные |
-| E5-S4 | Migration guide | P1 | 📋 Planned | • Guide для v1 → vNext<br>• SDK migration steps<br>• Breaking changes список |
-| E5-S5 | Примеры интеграций | P1 | 📋 Planned | • Примеры для разных языков<br>• Best practices<br>• Common patterns |
+
+| ID    | Story                                   | Приоритет | Статус     | Acceptance Criteria                                                                        |
+| ----- | --------------------------------------- | --------- | ---------- | ------------------------------------------------------------------------------------------ |
+| E5-S1 | Обновить SDK с JWT поддержкой           | P1        | ✅ Done    | • `createClient({ baseUrl, token })` • Authorization Bearer + x-project-id • MessageBusError: isUnauthorized/isForbidden/isAuthError |
+| E5-S2 | Документация по интеграции              | P1        | ✅ Done    | • Quick start: docs/integration-guide.md • API reference: docs/api.md (+ auth headers) • Примеры кода: README + docs/getting-started.md |
+| E5-S3 | Docker Compose для локальной разработки | P1        | ✅ Done    | • docker-compose: postgres + api + web + seed • auth-aware seed script • проверка `compose up` (api/web healthy, seed exit 0) |
+| E5-S4 | Migration guide                         | P1        | ✅ Done    | • `docs/migration-guide-v1-vnext.md` • SDK migration steps • breaking changes и checklist  |
+| E5-S5 | Примеры интеграций                      | P1        | ✅ Done    | • `docs/integration-examples.md` (TypeScript/Python/curl) • best practices • common patterns |
+
 
 **Definition of Done:**
+
 - ✅ SDK обновлен и документирован
 - ✅ Документация полная и актуальная
 - ✅ Docker Compose работает
@@ -141,16 +159,19 @@
 
 ### Stories
 
-| ID | Story | Приоритет | Статус | Acceptance Criteria |
-|----|-------|-----------|--------|---------------------|
-| E6-S1 | Rate limiting | P1 | 📋 Planned | • Rate limits на endpoints<br>• Per-project limits<br>• 429 responses |
-| E6-S2 | Observability (логи/метрики) | P1 | 📋 Planned | • Structured logging<br>• Metrics (Prometheus format)<br>• Health checks |
-| E6-S3 | Tracing | P2 | 📋 Planned | • Distributed tracing<br>• Request correlation IDs<br>• Performance monitoring |
-| E6-S4 | Health checks | P1 | 📋 Planned | • `/health` endpoint<br>• DB connectivity check<br>• Dependency checks |
-| E6-S5 | Deployment automation | P1 | 📋 Planned | • CI/CD pipeline<br>• Docker images (Podman)<br>• Kubernetes manifests<br>• Migration automation |
-| E6-S6 | Backup и disaster recovery | P1 | 📋 Planned | • Backup strategy<br>• Recovery procedures<br>• Testing |
+
+| ID    | Story                        | Приоритет | Статус     | Acceptance Criteria                                                                     |
+| ----- | ---------------------------- | --------- | ---------- | --------------------------------------------------------------------------------------- |
+| E6-S1 | Rate limiting                | P1        | ✅ Done    | • RateLimitGuard (APP_GUARD) • per-project key (tenantId/projectId/ip/method) • 429 • e2e 34/34 |
+| E6-S2 | Observability (логи/метрики) | P1        | ✅ Done    | • ObservabilityInterceptor • GET /api/observability/metrics • e2e 35/35                |
+| E6-S3 | Tracing                      | P2        | ✅ Done    | • x-request-id, traceparent • traceId/spanId в логах • e2e 37/37                        |
+| E6-S4 | Health checks                | P1        | ✅ Done    | • GET /api/health • liveness/readiness, DB check • e2e 38/38                            |
+| E6-S5 | Deployment automation        | P1        | ✅ Done    | • api-ci.yml • production-deploy.sh • deploy/k8s (Deployment, Service, migrate Job)     |
+| E6-S6 | Backup и disaster recovery   | P1        | ✅ Done    | • postgres-backup/restore.sh • disaster-recovery-runbook.md • backup:db/restore:db      |
+
 
 **Definition of Done:**
+
 - ✅ Rate limiting работает
 - ✅ Observability настроена
 - ✅ Health checks работают
@@ -164,26 +185,30 @@
 
 ### Scope
 
-* **Dashboard UI** (`apps/web`): заголовки, кнопки, подписи, сообщения об ошибках, пустые состояния, уведомления.
-* **Сообщения API, отображаемые в UI:** ошибки валидации и бизнес-логики, которые показываются пользователю в Dashboard (через ключи или переводимые строки).
-* **Выбор языка:** переключатель/настройка языка в UI; язык сохраняется (например, в настройках пользователя или localStorage до появления user preferences в API).
+- **Dashboard UI** (`apps/web`): заголовки, кнопки, подписи, сообщения об ошибках, пустые состояния, уведомления.
+- **Сообщения API, отображаемые в UI:** ошибки валидации и бизнес-логики, которые показываются пользователю в Dashboard (через ключи или переводимые строки).
+- **Выбор языка:** переключатель/настройка языка в UI; язык сохраняется (например, в настройках пользователя или localStorage до появления user preferences в API).
 
 ### Stories
 
-| ID | Story | Приоритет | Статус | Acceptance Criteria |
-|----|-------|-----------|--------|---------------------|
-| E7-S1 | Инфраструктура i18n в Dashboard | P1 | 📋 Planned | • Выбрана и подключена библиотека i18n (решение — Architect/Dev)<br>• Все тексты UI вынесены в ключи переводов<br>• Есть как минимум 2 языка (напр. en + ru) с полным набором ключей |
-| E7-S2 | Переключатель языка и персистенция | P1 | 📋 Planned | • В UI есть переключатель языка<br>• Выбранный язык сохраняется между сессиями (localStorage или user prefs)<br>• Приложение при загрузке отображает сохранённый язык |
-| E7-S3 | Перевод сообщений API в UI | P1 | 📋 Planned | • Ошибки и сообщения от API, показываемые в Dashboard, переводимы<br>• Используются ключи или маппинг к переводам в UI<br>• Нет «сырых» непереведённых строк от API в интерфейсе |
-| E7-S4 | Документация для переводчиков | P2 | 📋 Planned | • Описан процесс добавления нового языка<br>• Формат файлов переводов и конвенции ключей задокументированы<br>• При необходимости — инструкция для внешних переводчиков |
+
+| ID    | Story                              | Приоритет | Статус     | Acceptance Criteria                                                                                                                                                            |
+| ----- | ---------------------------------- | --------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| E7-S1 | Инфраструктура i18n в Dashboard    | P1        | ✅ Done         | • Выбрана и подключена библиотека i18n (решение — Architect/Dev) • Все тексты UI вынесены в ключи переводов • Есть как минимум 2 языка (напр. en + ru) с полным набором ключей |
+| E7-S2 | Переключатель языка и персистенция | P1        | ✅ Done         | • В UI есть переключатель языка • Выбранный язык сохраняется между сессиями (localStorage или user prefs) • Приложение при загрузке отображает сохранённый язык                |
+| E7-S3 | Перевод сообщений API в UI         | P1        | ✅ Done         | • Ошибки и сообщения от API, показываемые в Dashboard, переводимы • Используются ключи или маппинг к переводам в UI • Нет «сырых» непереведённых строк от API в интерфейсе     |
+| E7-S4 | Документация для переводчиков      | P2        | ✅ Done         | • Описан процесс добавления нового языка • Формат файлов переводов и конвенции ключей задокументированы • При необходимости — инструкция для внешних переводчиков (`docs/i18n-translator-guide.md`) |
+
 
 **Definition of Done:**
+
 - ✅ Все видимые пользователю тексты в Dashboard переводимы через i18n
 - ✅ Пользователь может выбрать язык и он сохраняется
 - ✅ Ошибки/сообщения от API, показываемые в UI, отображаются на выбранном языке
 - ✅ Минимум 2 языка (en + один дополнительный) с полным покрытием
 
 **Вне scope (на текущий момент):**
+
 - Локализация дат/чисел по локали (можно добавить отдельной story позже)
 - Локализация документации (README, QUICKSTART) — отдельная задача при необходимости
 - Локализация сообщений SDK/API для разработчиков (опционально, P2+)
@@ -193,22 +218,26 @@
 ## 📊 Sprint Planning
 
 ### Sprint 1-2: Foundation
+
 - E1-S1: packages/core
 - E1-S2: packages/db
 - E1-S3: packages/shared
 - E1-S4: packages/sdk
 
 ### Sprint 2-3: API Migration
+
 - E1-S5: apps/api создание
 - E1-S6: Endpoints миграция
 - E2-S1: Tenant/Project модели
 
 ### Sprint 3-4: Multi-tenant
+
 - E2-S2: tenantId/projectId в таблицах
 - E2-S3: Backfill данных
 - E2-S4: Project-scoped endpoints
 
 ### Sprint 4-5: Security
+
 - E3-S1: JWT guard
 - E3-S2: User tokens
 - E3-S3: Project tokens
@@ -216,12 +245,14 @@
 - E2-S6: Контекст в запросах
 
 ### Sprint 5-6: Dashboard
+
 - E4-S1: apps/web создание
 - E4-S2: HTTP клиент
 - E4-S3: Удаление DB доступа
 - E4-S4: User auth flow
 
 ### Sprint 6-7: Management & DX
+
 - E4-S5: Tenant/Project UI
 - E4-S6: Token management UI
 - E5-S1: SDK обновление
@@ -231,6 +262,7 @@
 - E7-S3: Перевод сообщений API в UI
 
 ### Sprint 7-8: Operations
+
 - E6-S1: Rate limiting
 - E6-S2: Observability
 - E6-S4: Health checks

@@ -1,0 +1,210 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated"
+  moduleFormat = "cjs"
+}
+model Agent {
+  id           String   @id @default(uuid())
+  tenantId     String?
+  tenant       Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name         String
+  role         String
+  status       String   @default("online")
+  capabilities Json?
+
+  createdAt DateTime @default(now())
+  lastSeen  DateTime?
+  issuesAssigned Issue[] @relation("IssueAssignee")
+
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([tenantId, projectId])
+}
+
+model Thread {
+  id        String   @id @default(uuid())
+  tenantId  String?
+  tenant    Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title     String
+  status    String   @default("open")
+  createdAt DateTime @default(now())
+
+  messages Message[]
+
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([tenantId, projectId])
+}
+
+model Message {
+  id String @id @default(uuid())
+
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  threadId String
+  thread   Thread @relation(fields: [threadId], references: [id])
+
+  fromAgentId String
+  toAgentId   String?
+
+  payload Json
+
+  status  String @default("pending")
+  retries Int    @default(0)
+
+  parentId String?
+  parent   Message? @relation("Replies", fields: [parentId], references: [id])
+  replies  Message[] @relation("Replies")
+
+  createdAt DateTime @default(now())
+
+  @@index([threadId])
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([tenantId, projectId])
+  @@index([toAgentId])
+  @@index([fromAgentId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+
+  projects Project[]
+  agents   Agent[]
+  threads  Thread[]
+  messages Message[]
+  users    User[]
+  projectTokens ProjectToken[]
+  projectTokenAudits ProjectTokenAudit[]
+}
+
+model User {
+  id           String   @id @default(uuid())
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  email        String   @unique
+  passwordHash String
+  displayName  String?
+  roles        String[]
+  isActive     Boolean  @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([tenantId])
+}
+
+model Project {
+  id        String   @id @default(uuid())
+  tenantId  String?
+  tenant    Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+
+  agents   Agent[]
+  threads  Thread[]
+  messages Message[]
+  issues   Issue[]
+  projectTokens ProjectToken[]
+  projectTokenAudits ProjectTokenAudit[]
+
+  @@index([tenantId])
+}
+
+model ProjectToken {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name      String
+  tokenHash String   @unique
+  issuedBy  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastUsedAt DateTime?
+  expiresAt DateTime?
+  revokedAt DateTime?
+  auditEvents ProjectTokenAudit[]
+
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([tenantId, projectId])
+  @@index([revokedAt])
+}
+
+model ProjectTokenAudit {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tokenId   String
+  token     ProjectToken @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  event     String
+  actorType String
+  actorId   String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([tokenId])
+  @@index([event])
+  @@index([createdAt])
+}
+
+enum IssueState {
+  BACKLOG
+  TODO
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+enum IssuePriority {
+  NONE
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model Issue {
+  id          String        @id @default(uuid())
+  projectId   String
+  project     Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  state       IssueState    @default(BACKLOG)
+  priority    IssuePriority @default(NONE)
+  assigneeId  String?
+  assignee    Agent?        @relation("IssueAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  dueDate     DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([projectId])
+  @@index([state])
+  @@index([priority])
+  @@index([assigneeId])
+  @@index([dueDate])
+}

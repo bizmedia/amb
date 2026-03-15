@@ -1,6 +1,7 @@
 # 📥 Inbox Status - Product Owner
 
 **Дата проверки:** 2026-01-28  
+**Последнее обновление статуса:** 2026-03-15 (Orchestrator)  
 **Статус:** Обработано
 
 ---
@@ -39,17 +40,20 @@
 
 ### Epic 1: Архитектурная миграция
 
-**Статус:** Готов к началу
+**Статус:** 🚧 В работе (тред открыт 2026-03-15)
 
-**Stories для Sprint 1-2:**
-1. E1-S1: Выделить `packages/core` — ✅ Готов
-2. E1-S2: Выделить `packages/db` — ✅ Готов
-3. E1-S3: Выделить `packages/shared` — ✅ Готов
-4. E1-S4: Выделить `packages/sdk` — ✅ Готов
+**Раздача задач:** [docs/agent-tasks-epic-1.md](./agent-tasks-epic-1.md) | Тред: [docs/feature-workflow-epic-1.md](./feature-workflow-epic-1.md)
 
-**Блокеры:** Нет
+| Story   | Назначено | Статус     |
+|---------|-----------|------------|
+| E1-S3   | Dev       | 🚧 In Progress (packages/shared) |
+| E1-S1   | Dev       | 📋 Queued (packages/core) |
+| E1-S2   | Dev       | 📋 Queued (packages/db) |
+| E1-S4   | Dev       | 📋 Queued (packages/sdk) |
+| E1-S5–S6| Dev       | 📋 Queued (apps/api, миграция) |
 
-**Зависимости:** Нет
+**Блокеры:** Нет  
+**Зависимости:** E1-S3 первым, затем E1-S1, E1-S2, E1-S4; E1-S5–S6 после.
 
 ---
 

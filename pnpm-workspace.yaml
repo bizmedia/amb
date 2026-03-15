@@ -1,6 +1,6 @@
 packages:
-  - "."
-  - "mcp-server"
+  - "apps/*"
+  - "packages/*"
 
 ignoredBuiltDependencies:
   - sharp

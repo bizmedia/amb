@@ -306,9 +306,13 @@ curl -X PATCH http://localhost:3333/api/threads/<id> \
 ## Рецепт 1: Регистрация и запуск агента
 
 ```typescript
-import { createClient } from "./lib/sdk";
+import { createClient, MessageBusError } from "@amb-app/sdk";
 
-const client = createClient("http://localhost:3333");
+const client = createClient({
+  baseUrl: "http://localhost:3333",
+  token: process.env.AMB_TOKEN,
+  projectId: process.env.AMB_PROJECT_ID,
+});
 
 // Регистрация с возможностями
 const agent = await client.registerAgent({
@@ -321,6 +325,14 @@ const agent = await client.registerAgent({
 });
 
 console.log("Agent ID:", agent.id);
+
+try {
+  await client.listThreads();
+} catch (error) {
+  if (error instanceof MessageBusError && error.isAuthError) {
+    console.error("AMB auth error: check token/project scope");
+  }
+}
 ```
 
 ## Рецепт 2: Отправка задачи конкретному агенту
@@ -491,12 +503,12 @@ const closedThreads = allThreads.filter(t => t.status === "closed");
 console.log(`Open: ${openThreads.length}, Closed: ${closedThreads.length}`);
 ```
 
-## Рецепт 10: MCP из Cursor
+## Рецепт 10: MCP из Cursor (или другого MCP-клиента)
 
-После настройки `.cursor/mcp.json`:
+После настройки `.cursor/mcp.json` в Cursor или конфига MCP в Codex, Claude Code и т.д.:
 
 ```
-# В чате Cursor:
+# В чате Cursor (или в другом MCP-клиенте):
 
 "Create thread 'bugfix-api' and send task to dev agent:
  fix timeout in /api/users"

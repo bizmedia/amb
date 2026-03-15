@@ -823,6 +823,15 @@ services:
 | ADR-002 | Thread-based Messaging Model | Accepted |
 | ADR-003 | ACK/Retry/DLQ Pattern | Accepted |
 | ADR-004 | MCP Integration via stdio | Accepted |
+| ADR-005 | Выделение backend в Nest.js | Accepted |
+| ADR-006 | Multi-Tenant (Tenant → Projects), изоляция по проекту | Accepted |
+| ADR-007 | JWT Auth с project-scoped токенами | Accepted |
+| ADR-008 | PostgreSQL RLS для изоляции по тенанту/проекту | Accepted |
+| ADR-009 | Инфраструктура хостинга (Kubernetes + Podman) | Accepted |
+| ADR-010 | Аутентификация пользователей (таблица users) | Accepted |
+| ADR-011 | RBAC (tenant-admin, project-admin, reader) | Accepted |
+| ADR-012 | Механика выдачи project-токенов | Accepted |
+| ADR-013 | Архитектура фоновых воркеров | Accepted |
 
 ### 12.2 Ссылки на ADR
 
@@ -830,6 +839,65 @@ services:
 - [ADR-002: Thread-based Messaging](./adr/ADR-002-thread-messaging.md)
 - [ADR-003: ACK/Retry/DLQ Pattern](./adr/ADR-003-ack-retry-dlq.md)
 - [ADR-004: MCP Integration](./adr/ADR-004-mcp-integration.md)
+- [ADR-005: Nest.js Backend](./adr/ADR-005-nestjs-backend.md)
+- [ADR-006: Multi-Tenant Model](./adr/ADR-006-multi-tenant-model.md)
+- [ADR-007: JWT and Project Tokens](./adr/ADR-007-jwt-and-project-tokens.md)
+- [ADR-008: PostgreSQL RLS](./adr/ADR-008-postgres-rls.md)
+- [ADR-009: Hosting and Infrastructure](./adr/ADR-009-hosting-and-infrastructure.md)
+- [ADR-010: User Authentication](./adr/ADR-010-user-authentication.md)
+- [ADR-011: RBAC Model](./adr/ADR-011-rbac-model.md)
+- [ADR-012: Project Token Issuance](./adr/ADR-012-project-token-issuance.md)
+- [ADR-013: Workers Architecture](./adr/ADR-013-workers-architecture.md)
+
+### 12.3 Уточнения архитектора (Epic 1–6)
+
+Ниже — зафиксированные контракты и указатели для разработки по эпам.
+
+#### Интерфейс хранилища (Epic 1, packages/core)
+
+Единый контракт персистентности — **`MessageBusStorage`** (`packages/core/src/storage/interface.ts`). Все операции принимают `projectId`; реализация (Prisma в `packages/db` или in-memory для тестов) обеспечивает изоляцию по проекту.
+
+- **Agents:** `listAgents`, `createAgent`, `searchAgents`, `getAgentById`
+- **Threads:** `listThreads`, `createThread`, `getThreadById`, `listThreadMessages`, `updateThreadStatus`, `deleteThread`
+- **Messages:** `createMessage`, `getMessageById`, `updateMessageStatus`, `findMessages`, `getInboxAndMarkDelivered`, `updateManyMessages`, `updateManyMessagesToStatus`, `deleteManyMessages`
+
+Типы входов: `CreateAgentInput`, `CreateThreadInput`, `SendMessageInput` — в том же файле. Расширять интерфейс только с учётом обратной совместимости существующих реализаций.
+
+#### Контракт RLS helpers (Epic 1, packages/db)
+
+В `packages/db/src/rls.ts` экспортируются две функции для установки контекста **в рамках одной SQL-транзакции** (`SET LOCAL` через `set_config(..., true)`):
+
+- **`setTenantContext(tx, tenantId)`** — устанавливает `app.tenant_id`
+- **`setProjectContext(tx, projectId)`** — устанавливает `app.project_id`
+
+Вызывать в начале транзакции до любых чтений/записей; политики RLS (ADR-008) опираются на эти переменные. Не использовать вне транзакции Prisma.
+
+#### Epic 2–5 (указатели)
+
+| Эпик | Контекст | Документы |
+|------|----------|-----------|
+| E2 | Tenant/Project, RLS, контекст в запросах | ADR-006, ADR-008 |
+| E3 | JWT/claims, users, RBAC | ADR-010, ADR-011 |
+| E4 | Dashboard, auth flow, UI | feature-workflow-epic-4, ADR-010/011 |
+| E5 | Структура документации, DX | docs/ в репозитории, ADR-013 при workers |
+| E6 | Операционная готовность: rate limiting, observability, health, deployment, backup | Разделы 10.2, 11; при необходимости — отдельный ADR по production-readiness |
+| E7 | Локализация (i18n): библиотека, конвенции ключей, перевод сообщений API в UI | Раздел ниже; apps/web — next-intl |
+
+#### Локализация (Epic 7)
+
+- **Библиотека:** [next-intl](https://next-intl-docs.vercel.app/) (уже в use: `apps/web`, Next.js App Router). Плагин в `next.config.ts`, конфиг в `i18n/request.ts`, `i18n/routing.ts`, `i18n/navigation.ts`. Локали: `en`, `ru`, `de` (расширяемо в `routing.locales`).
+- **Файлы переводов:** `apps/web/messages/{locale}.json` — один JSON на язык; ключи — namespace.key или плоские в рамках namespace.
+- **Конвенции ключей:** использовать неймспейсы по экрану/модулю (например `Dashboard`, `Tokens`, `Login`, `Common`). Формат ключей: `PascalCase` для неймспейсов, `camelCase` для ключей внутри (например `Dashboard.agentsList`, `Common.save`). Сообщения API, показываемые в UI: маппинг кода ошибки → ключ перевода в `lib/api/error-i18n` (или аналог); не хранить сырые строки от API в переводах, только ключи.
+- **Персистенция языка:** переключатель в UI; сохранение в `localStorage` (`amb:locale`) до появления user preferences в API — допустимо (уже используется в `locale-switcher`).
+
+#### Operational readiness (Epic 6)
+
+По запросу при реализации Epic 6 уточнять:
+
+- **Rate limiting** — ограничение запросов по API (на уровне приложения или reverse proxy); пороги и стратегия (по IP, по токену, по endpoint) — в конфигурации или ADR.
+- **Observability** — метрики (раздел 11.2), логирование структурированное, трассировка при масштабировании; health endpoint (`/health` или аналог) для readiness/liveness.
+- **Deployment** — ADR-009 (Kubernetes + Podman); процесс сборки, миграции БД до старта приложения, откат.
+- **Backup** — стратегия бэкапов PostgreSQL (периодичность, хранение, восстановление); согласовать с хостингом (ADR-009).
 
 ---
 
@@ -848,36 +916,26 @@ services:
 | MCP SDK | @modelcontextprotocol/sdk | 1.x |
 | Package Manager | pnpm | 8+ |
 
-### B. Структура проекта
+### B. Структура проекта (актуальная: монорепо после Epic 1)
 
 ```
-mcp-message-bus/
-├── app/
-│   ├── api/              # REST API routes
-│   │   ├── agents/
-│   │   ├── threads/
-│   │   ├── messages/
-│   │   └── dlq/
-│   ├── page.tsx          # Dashboard
-│   └── layout.tsx
-├── components/
-│   ├── dashboard/        # Dashboard components
-│   └── ui/               # shadcn components
-├── lib/
-│   ├── sdk/              # TypeScript SDK
-│   ├── services/         # Business logic
-│   ├── hooks/            # React hooks
-│   └── prisma.ts         # Prisma client
-├── mcp-server/           # MCP server
-├── prisma/
-│   ├── schema.prisma     # Database schema
-│   └── migrations/
-├── scripts/              # Automation
-│   ├── retry-worker.ts
-│   ├── orchestrator.ts
-│   └── cleanup.ts
+amb-app/
+├── apps/
+│   ├── api/              # Nest.js backend (ADR-005), порт 3334
+│   │   ├── src/          # Модули agents, threads, messages, dlq, projects, issues
+│   │   └── test/
+│   └── web/              # Next.js Dashboard, MCP server, скрипты
+│       ├── app/          # API routes (legacy/скрипты), page, layout
+│       ├── components/   # dashboard, ui
+│       ├── mcp-server/   # MCP (stdio → HTTP к apps/api)
+│       └── scripts/     # retry-worker, orchestrator, cleanup
+├── packages/
+│   ├── core/             # MessageBusStorage, сервисы agents/threads/messages, in-memory
+│   ├── db/               # Prisma schema, migrations, client, RLS helpers
+│   ├── shared/           # Типы, ошибки, схемы, константы
+│   └── sdk/              # TypeScript SDK (createClient, API)
 └── docs/
-    ├── architecture.md   # This document
+    ├── architecture.md   # Этот документ
     └── adr/              # Architecture Decision Records
 ```
 
@@ -888,3 +946,6 @@ mcp-message-bus/
 | Версия | Дата | Автор | Изменения |
 |--------|------|-------|-----------|
 | 1.0 | 27.01.2026 | Architect Agent | Первоначальная версия |
+| 1.1 | 15.03.2026 | Architect Agent | ADR-005..013 в раздел 12; раздел 12.3 — уточнения по storage, RLS, эпам 2–5; структура проекта — монорепо |
+| 1.2 | 15.03.2026 | Architect Agent | Epic 6 в раздел 12.3: операционная готовность (rate limiting, observability, health, deployment, backup) |
+| 1.3 | 16.03.2026 | Architect Agent | Epic 7 в раздел 12.3: i18n (next-intl), конвенции ключей, персистенция языка |

@@ -41,6 +41,10 @@ Implement API routes, DB models, retry workers, and UI.
 * UX → UX agent
 * Infra → DevOps
 
+## MCP Message Bus (when available)
+
+When the **message-bus** MCP server is available (its tools appear in your tool list), follow **`.cursor/rules/mcp-message-bus.md`**: coordinate via threads and messages, use project issues for backlog, check inbox/DLQ as needed. If the server is not connected or tools fail, work without it.
+
 ## Default Threads
 
 * implementation
