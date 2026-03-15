@@ -18,7 +18,7 @@ function isAuthPath(pathname: string, locale: string): boolean {
   return pathname === `/${locale}/login`;
 }
 
-export default function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const segments = pathname.split("/");
   const maybeLocale = segments[1];
