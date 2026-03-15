@@ -33,7 +33,7 @@
 
 | ID    | Story                           | Приоритет | Статус     | Acceptance Criteria                                                                                                     |
 | ----- | ------------------------------- | --------- | ---------- | ----------------------------------------------------------------------------------------------------------------------- |
-| E1-S1 | Выделить `packages/core`        | P0        | 📋 Planned | • Доменная логика (threads/messages/inbox/dlq) без Nest/Next • Интерфейс к хранилищу (без Prisma) • Unit тесты проходят |
+| E1-S1 | Выделить `packages/core`        | P0        | ✅ Done    | • Доменная логика (threads/messages/inbox/dlq) без Nest/Next • Интерфейс к хранилищу (без Prisma) • Unit тесты проходят |
 | E1-S2 | Выделить `packages/db`          | P0        | 📋 Planned | • Prisma schema + migrations • Prisma client export • RLS helpers (готовность к RLS)                                    |
 | E1-S3 | Выделить `packages/shared`      | P0        | ✅ Done        | • Общие типы/ошибки/схемы (Zod) • Константы • Используется в core/db/sdk                                                |
 | E1-S4 | Выделить `packages/sdk`         | P0        | 📋 Planned | • TS SDK для внешних проектов • `createClient({ baseUrl, token })` • Использует `packages/shared`                       |

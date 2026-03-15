@@ -24,7 +24,7 @@
 | Шаг | Story | Package         | Агент | Статус         |
 | --- | ----- | --------------- | ----- | -------------- |
 | 1   | E1-S3 | packages/shared | Dev   | ✅ Done        |
-| 2   | E1-S1 | packages/core   | Dev   | 📋 Planned     |
+| 2   | E1-S1 | packages/core   | Dev   | ✅ Done        |
 | 3   | E1-S2 | packages/db     | Dev   | 📋 Planned     |
 | 4   | E1-S4 | packages/sdk    | Dev   | 📋 Planned     |
 | 5   | E1-S5 | apps/api (Nest) | Dev   | 📋 Planned     |
@@ -46,8 +46,8 @@
 | Агент     | Задача        | Story   | Статус     | Документ |
 |-----------|---------------|--------|------------|----------|
 | **Dev**   | packages/shared | E1-S3  | ✅ Done     | [agent-tasks-epic-1.md](./agent-tasks-epic-1.md) |
-| Dev       | packages/core | E1-S1  | 📋 Queued   | после E1-S3 |
-| Dev       | packages/db   | E1-S2  | 📋 Queued   | после E1-S3 |
+| Dev       | packages/core | E1-S1  | ✅ Done     | после E1-S3 |
+| **Dev**   | packages/db   | E1-S2  | 🚧 In Progress | после E1-S3 |
 | Dev       | packages/sdk  | E1-S4  | 📋 Queued   | после E1-S3 |
 | Dev       | apps/api      | E1-S5  | 📋 Queued   | после E1-S2 |
 | Dev       | Миграция API  | E1-S6  | 📋 Queued   | после E1-S5 |
@@ -60,7 +60,7 @@
 
 ## Диспетчеризация
 
-**Сейчас:** Dev — выполнить **E1-S1 (packages/core)** по [agent-tasks-epic-1.md](./agent-tasks-epic-1.md) и [sprint-1-2-action-plan.md](./sprint-1-2-action-plan.md).
+**Сейчас:** Dev — выполнить **E1-S2 (packages/db)** по [agent-tasks-epic-1.md](./agent-tasks-epic-1.md) и [sprint-1-2-action-plan.md](./sprint-1-2-action-plan.md).
 
 **После E1-S3 (done):** Dev — E1-S1 → E1-S2 → E1-S4. Architect — по запросу (интерфейсы, RLS). QA — проверки после завершения stories.
 

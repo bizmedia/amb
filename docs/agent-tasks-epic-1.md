@@ -18,13 +18,20 @@
 
 ---
 
-### Текущая задача: E1-S1 — packages/core
+### ✅ E1-S1 — packages/core (завершено)
 
-**Статус:** 📋 Ready to Start (после E1-S3)
+**Статус:** ✅ Done  
+**Итог:** интерфейс MessageBusStorage, InMemoryMessageBusStorage, сервисы agents/threads/messages, unit-тесты (vitest).
 
-**Сделать:** см. [sprint-1-2-action-plan.md](./sprint-1-2-action-plan.md) — создать `packages/core/`, вынести доменную логику из `lib/services/`, интерфейс хранилища, in-memory, unit-тесты.
+---
 
-**Очередь (после E1-S1)**
+### Текущая задача: E1-S2 — packages/db
+
+**Статус:** 🚧 In Progress
+
+**Сделать:** см. [sprint-1-2-action-plan.md](./sprint-1-2-action-plan.md) — создать `packages/db/`, перенести Prisma schema и migrations из `apps/web/prisma/`, экспорт client, RLS helpers (заглушки).
+
+**Очередь (после E1-S2)**
 
 | Story   | Задача | Зависимость   |
 |--------|--------|----------------|

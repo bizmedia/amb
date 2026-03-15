@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ISSUE_PRIORITIES, ISSUE_STATES } from "../constants.js";
+import { ISSUE_PRIORITIES, ISSUE_STATES } from "../constants";
 export const issueStateSchema = z.enum(ISSUE_STATES);
 export const issuePrioritySchema = z.enum(ISSUE_PRIORITIES);
 export const createIssueSchema = z.object({
