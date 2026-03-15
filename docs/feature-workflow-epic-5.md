@@ -8,7 +8,7 @@
 **Message Bus (MCP):** тред создан; задачи разосланы **Dev**.  
 
 - **Thread ID:** `c7a52a0e-fa39-4f05-9109-3fd740c74125`  
-- **Статус треда:** open  
+- **Статус треда:** closed  
 - E5-S1…E5-S5 Done | Architect (on_demand) | QA (queued)
 
 ---

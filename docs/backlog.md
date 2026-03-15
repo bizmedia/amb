@@ -2,7 +2,7 @@
 
 **Версия:** 1.0  
 **Дата:** 2026-01-28  
-**Последняя проверка статуса:** 2026-03-16 (Orchestrator). Инбокс пуст. Epic 1–5 завершены; E5-S1…E5-S5 — Done (react-next-engineer).  
+**Последняя проверка статуса:** 2026-03-16 (Orchestrator). Epic 1–5 завершены. Epic 6: E6-S1 — Done (nest-engineer), E6-S2 — в работе.  
 **Автор:** Product Owner Agent  
 **Статус:** Актуально
 
@@ -18,7 +18,7 @@
 | [E3: JWT авторизация](#epic-3-jwt-авторизация)                         | P0        | ✅ Done        | Sprint 3-4 |
 | [E4: Dashboard как продукт](#epic-4-dashboard-как-продукт)             | P0        | ✅ Done        | Sprint 4-5 |
 | [E5: Developer Experience](#epic-5-developer-experience)               | P1        | 🚧 In Progress | Sprint 5-6 |
-| [E6: Операционная готовность](#epic-6-операционная-готовность)         | P1        | 📋 Planned     | Sprint 6-7 |
+| [E6: Операционная готовность](#epic-6-операционная-готовность)         | P1        | 🚧 In Progress | Sprint 6-7 |
 | [E7: Локализация (i18n)](#epic-7-локализация-i18n)                     | P1        | 📋 Planned     | Sprint 6-7 |
 
 
@@ -162,8 +162,8 @@
 
 | ID    | Story                        | Приоритет | Статус     | Acceptance Criteria                                                                     |
 | ----- | ---------------------------- | --------- | ---------- | --------------------------------------------------------------------------------------- |
-| E6-S1 | Rate limiting                | P1        | 📋 Planned      | • Rate limits на endpoints • Per-project limits • 429 responses                         |
-| E6-S2 | Observability (логи/метрики) | P1        | 📋 Planned      | • Structured logging • Metrics (Prometheus format) • Health checks                      |
+| E6-S1 | Rate limiting                | P1        | ✅ Done    | • RateLimitGuard (APP_GUARD) • per-project key (tenantId/projectId/ip/method) • 429 • e2e 34/34 |
+| E6-S2 | Observability (логи/метрики) | P1        | 🚧 In Progress | • Structured logging • Metrics (Prometheus) • Health checks (в работе)                  |
 | E6-S3 | Tracing                      | P2        | 📋 Planned      | • Distributed tracing • Request correlation IDs • Performance monitoring                |
 | E6-S4 | Health checks                | P1        | 📋 Planned      | • `/health` endpoint • DB connectivity check • Dependency checks                        |
 | E6-S5 | Deployment automation        | P1        | 📋 Planned      | • CI/CD pipeline • Docker images (Podman) • Kubernetes manifests • Migration automation |

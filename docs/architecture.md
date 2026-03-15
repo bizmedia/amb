@@ -849,7 +849,7 @@ services:
 - [ADR-012: Project Token Issuance](./adr/ADR-012-project-token-issuance.md)
 - [ADR-013: Workers Architecture](./adr/ADR-013-workers-architecture.md)
 
-### 12.3 Уточнения архитектора (Epic 1–5)
+### 12.3 Уточнения архитектора (Epic 1–6)
 
 Ниже — зафиксированные контракты и указатели для разработки по эпам.
 
@@ -880,6 +880,16 @@ services:
 | E3 | JWT/claims, users, RBAC | ADR-010, ADR-011 |
 | E4 | Dashboard, auth flow, UI | feature-workflow-epic-4, ADR-010/011 |
 | E5 | Структура документации, DX | docs/ в репозитории, ADR-013 при workers |
+| E6 | Операционная готовность: rate limiting, observability, health, deployment, backup | Разделы 10.2, 11; при необходимости — отдельный ADR по production-readiness |
+
+#### Operational readiness (Epic 6)
+
+По запросу при реализации Epic 6 уточнять:
+
+- **Rate limiting** — ограничение запросов по API (на уровне приложения или reverse proxy); пороги и стратегия (по IP, по токену, по endpoint) — в конфигурации или ADR.
+- **Observability** — метрики (раздел 11.2), логирование структурированное, трассировка при масштабировании; health endpoint (`/health` или аналог) для readiness/liveness.
+- **Deployment** — ADR-009 (Kubernetes + Podman); процесс сборки, миграции БД до старта приложения, откат.
+- **Backup** — стратегия бэкапов PostgreSQL (периодичность, хранение, восстановление); согласовать с хостингом (ADR-009).
 
 ---
 
@@ -929,3 +939,4 @@ amb-app/
 |--------|------|-------|-----------|
 | 1.0 | 27.01.2026 | Architect Agent | Первоначальная версия |
 | 1.1 | 15.03.2026 | Architect Agent | ADR-005..013 в раздел 12; раздел 12.3 — уточнения по storage, RLS, эпам 2–5; структура проекта — монорепо |
+| 1.2 | 15.03.2026 | Architect Agent | Epic 6 в раздел 12.3: операционная готовность (rate limiting, observability, health, deployment, backup) |
