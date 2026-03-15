@@ -13,7 +13,7 @@ CREATE UNIQUE INDEX "Project_slug_key" ON "Project"("slug");
 
 -- Seed default project
 INSERT INTO "Project" ("id", "name", "slug")
-VALUES ('00000000-0000-0000-0000-000000000001', 'Default Project', 'default')
+VALUES ('22222222-2222-4222-8222-222222222222', 'Default Project', 'default')
 ON CONFLICT ("slug") DO NOTHING;
 
 -- Add projectId columns (nullable for backfill)
@@ -22,9 +22,9 @@ ALTER TABLE "Thread" ADD COLUMN "projectId" TEXT;
 ALTER TABLE "Message" ADD COLUMN "projectId" TEXT;
 
 -- Backfill existing rows into default project
-UPDATE "Agent" SET "projectId" = '00000000-0000-0000-0000-000000000001' WHERE "projectId" IS NULL;
-UPDATE "Thread" SET "projectId" = '00000000-0000-0000-0000-000000000001' WHERE "projectId" IS NULL;
-UPDATE "Message" SET "projectId" = '00000000-0000-0000-0000-000000000001' WHERE "projectId" IS NULL;
+UPDATE "Agent" SET "projectId" = '22222222-2222-4222-8222-222222222222' WHERE "projectId" IS NULL;
+UPDATE "Thread" SET "projectId" = '22222222-2222-4222-8222-222222222222' WHERE "projectId" IS NULL;
+UPDATE "Message" SET "projectId" = '22222222-2222-4222-8222-222222222222' WHERE "projectId" IS NULL;
 
 -- Make projectId required
 ALTER TABLE "Agent" ALTER COLUMN "projectId" SET NOT NULL;

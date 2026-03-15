@@ -15,7 +15,7 @@ type Bucket = {
 const DEFAULT_WINDOW_MS = 60_000;
 /** Большой запас: 20k req/min на бакет. Отключить: RATE_LIMIT_MAX_REQUESTS=0 */
 const DEFAULT_MAX_REQUESTS = 20_000;
-const DEFAULT_TENANT_KEY = "00000000-0000-0000-0000-000000000001";
+const DEFAULT_TENANT_KEY = "11111111-1111-4111-8111-111111111111";
 
 @Injectable()
 export class RateLimitGuard implements CanActivate {

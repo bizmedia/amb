@@ -1,6 +1,6 @@
 -- Ensure default tenant exists
 INSERT INTO "Tenant" ("id", "name", "slug")
-VALUES ('00000000-0000-0000-0000-000000000001', 'Default Tenant', 'default')
+VALUES ('11111111-1111-4111-8111-111111111111', 'Default Tenant', 'default')
 ON CONFLICT ("slug") DO NOTHING;
 
 -- CreateTable
@@ -29,8 +29,8 @@ ALTER TABLE "User" ADD CONSTRAINT "User_tenantId_fkey" FOREIGN KEY ("tenantId") 
 -- Seed default dashboard user
 INSERT INTO "User" ("id", "tenantId", "email", "passwordHash", "displayName", "roles", "isActive")
 VALUES (
-  '00000000-0000-0000-0000-0000000000a1',
-  '00000000-0000-0000-0000-000000000001',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1',
+  '11111111-1111-4111-8111-111111111111',
   'admin@local.test',
   'scrypt$default-user-salt-v1$bf6e2bad2e2ed878d45bd4efa34a0ebb92c55eb1073321b3d5dd8919d1de806c3875c29fe28e82d3cd3535c16265244aeeaceb41d34af2f0157561efc9ec5a4f',
   'Default Admin',

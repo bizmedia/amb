@@ -6,7 +6,7 @@ import { createHmac } from "node:crypto";
 import { AppModule } from "../src/app.module";
 import { AllExceptionsFilter } from "../src/common/http-exception.filter";
 
-const DEFAULT_TENANT_ID = "00000000-0000-0000-0000-000000000001";
+const DEFAULT_TENANT_ID = "11111111-1111-4111-8111-111111111111";
 
 function base64Url(input: string) {
   return Buffer.from(input)

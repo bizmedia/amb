@@ -1,11 +1,11 @@
 -- Seed default tenant
 INSERT INTO "Tenant" ("id", "name", "slug")
-VALUES ('00000000-0000-0000-0000-000000000001', 'Default Tenant', 'default')
+VALUES ('11111111-1111-4111-8111-111111111111', 'Default Tenant', 'default')
 ON CONFLICT ("slug") DO NOTHING;
 
 -- Backfill projects without tenant
 UPDATE "Project"
-SET "tenantId" = '00000000-0000-0000-0000-000000000001'
+SET "tenantId" = '11111111-1111-4111-8111-111111111111'
 WHERE "tenantId" IS NULL;
 
 -- Backfill core tables tenantId from related project
