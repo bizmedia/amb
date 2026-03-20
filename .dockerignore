@@ -25,7 +25,11 @@ CODE_OF_CONDUCT.md
 *.md
 docs
 examples
-packages
+
+# Workspace packages are required for amb-web (e.g. @amb-app/shared); exclude only nested artifacts
+packages/**/node_modules
+packages/**/.turbo
+packages/**/dist
 
 # Tests and misc
 coverage

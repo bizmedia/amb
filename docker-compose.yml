@@ -32,7 +32,7 @@ services:
       sh -lc "corepack enable &&
       pnpm install --frozen-lockfile &&
       pnpm db:migrate:deploy &&
-      pnpm --filter amb-api build &&
+      pnpm turbo build --filter=amb-api &&
       pnpm --filter amb-api start"
     depends_on:
       - postgres
@@ -58,7 +58,7 @@ services:
     command: >
       sh -lc "corepack enable &&
       pnpm install --frozen-lockfile &&
-      pnpm --filter amb-web build &&
+      pnpm turbo build --filter=amb-web &&
       pnpm --filter amb-web start"
     depends_on:
       - api

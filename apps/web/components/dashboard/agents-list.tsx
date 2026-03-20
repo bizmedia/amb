@@ -80,7 +80,8 @@ export function AgentsList({ selectedAgentId, onSelectAgent, searchInputRef, inb
       const remaining = agents.filter((a) => a.id !== agentToDelete.id);
       await deleteAgent(agentToDelete.id);
       if (selectedAgentId === agentToDelete.id && remaining.length > 0) {
-        onSelectAgent(remaining[0].id);
+        const next = remaining[0];
+        if (next) onSelectAgent(next.id);
       }
       setDeleteDialogOpen(false);
       setAgentToDelete(null);
