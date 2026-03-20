@@ -1,6 +1,48 @@
 # Quickstart — Agent Message Bus (AMB)
 
-Запуск и первое сообщение за 5 минут. Репозиторий: [github.com/bizmedia/amb](https://github.com/bizmedia/amb).
+Запуск и первое сообщение за несколько минут. Репозиторий: [github.com/bizmedia/amb](https://github.com/bizmedia/amb).
+
+---
+
+## Самый быстрый путь: готовый образ `docker.io/openaisdk/amb:latest`
+
+Образ на Docker Hub — это **собранное приложение `apps/web`** (Next.js: Dashboard и BFF-роуты `/api/*` к бэкенду). Рядом из исходников репозитория поднимаются **PostgreSQL** и **`apps/api`** (NestJS): первый запуск API собирается в контейнере; **`apps/web` из образа не пересобирается**.
+
+**Нужно:** [Docker](https://docs.docker.com/get-docker/) или [Podman](https://podman.io/) с Compose.
+
+```bash
+git clone https://github.com/bizmedia/amb.git && cd amb
+
+docker pull docker.io/openaisdk/amb:latest
+docker compose -f docker-compose.web-image.yml up -d
+```
+
+С Podman:
+
+```bash
+podman pull docker.io/openaisdk/amb:latest
+podman compose -f docker-compose.web-image.yml up -d
+```
+
+Дождитесь завершения сервиса `seed` (логин в Dashboard и базовые данные):
+
+```bash
+docker compose -f docker-compose.web-image.yml logs -f seed
+```
+
+Дальше:
+
+- Dashboard: http://localhost:3333  
+- Проверка API: `curl -s http://localhost:3334/api/health`  
+- Postgres с хоста: порт **5433** (см. `docker-compose.web-image.yml`)
+
+**Образ ещё не опубликован или pull падает** — поднимите полный стек со сборкой UI из репозитория:
+
+```bash
+docker compose up -d --build
+```
+
+Файл стека с готовым веб-образом: [`docker-compose.web-image.yml`](docker-compose.web-image.yml) (держите в уме синхронизацию с [`docker-compose.yml`](docker-compose.yml) при изменениях).
 
 ---
 
@@ -12,11 +54,9 @@
 
 | Шаг | Действие |
 |-----|----------|
-| 1 | Клонировать репо, `pnpm install` |
-| 2 | Поднять PostgreSQL: `docker compose up -d postgres` |
-| 3 | `cp .env.example .env`, затем `pnpm db:migrate` |
-| 4 | Запустить сервер: `pnpm dev` (Dashboard: http://localhost:3333) |
-| 5 | В отдельном терминале: `pnpm seed:agents` — создать агентов (po, architect, dev и др.) |
+| **A (быстрее всего)** | Клонировать репо → `docker pull docker.io/openaisdk/amb:latest` → `docker compose -f docker-compose.web-image.yml up -d` → дождаться `seed` |
+| **B (без Hub)** | Клонировать репо → `docker compose up -d --build` |
+| **C (код на хосте)** | Клонировать → `docker compose up -d postgres` → скопировать `apps/api/.env.example` и `apps/web/.env.example` в `.env`, `DATABASE_URL` с портом **5433** → `pnpm install` → `pnpm db:migrate` → `pnpm dev` → в другом терминале `pnpm seed:agents` |
 
 После этого AMB уже работает: можно слать сообщения по API или через SDK.
 
@@ -24,7 +64,7 @@
 
 Чтобы агенты в Cursor могли пользоваться шиной:
 
-1. Собрать MCP-сервер: `pnpm mcp:build`
+1. Собрать MCP-сервер: `pnpm install && pnpm mcp:build`
 2. В Cursor: **Settings → MCP** добавить конфиг (подставьте свой путь к репо):
 
    ```json
@@ -57,20 +97,19 @@
 
 | Цель | Минимум |
 |------|---------|
-| Только API/SDK | Шаги 1–5 выше (сервер + seed). |
-| Разработка с ИИ-агентами в Cursor | Шаги 1–5 + сборка MCP и настройка Cursor (п. 2). |
+| Только API/SDK | Вариант A, B или C из таблицы выше (в A/B seed идёт из compose). |
+| Разработка с ИИ-агентами в Cursor | Запуск стека + сборка MCP и настройка Cursor (п. 2). |
 
 ---
 
 ## Требования
 
-- Node.js 20+
-- pnpm 9+
-- Docker (для PostgreSQL)
+- **Путь A/B:** Docker или Podman + Compose; клон репозитория.
+- **Путь C:** Node.js 20+, pnpm (версия в `package.json` → `packageManager`), Docker только для PostgreSQL.
 
 ---
 
-## 1. Установка
+## 1. Установка (путь с кодом на хосте)
 
 ```bash
 git clone https://github.com/bizmedia/amb.git && cd amb
@@ -79,27 +118,29 @@ pnpm install
 
 ---
 
-## 2. База данных
+## 2. База данных (путь C)
 
 ```bash
 docker compose up -d postgres
-cp .env.example .env
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
+# Убедитесь, что DATABASE_URL указывает на localhost:5433 при Postgres из compose
 pnpm db:migrate
 ```
 
 ---
 
-## 3. Запуск сервера
+## 3. Запуск сервера (путь C)
 
 ```bash
 pnpm dev
 ```
 
-Откройте http://localhost:3333 — должен открыться Dashboard.
+Откройте http://localhost:3333 — должен открыться Dashboard (в терминале также подскажут URL Swagger, если включён).
 
 ---
 
-## 4. Seed агентов
+## 4. Seed агентов (путь C)
 
 > Выполняйте в **отдельном терминале** — сервер должен быть запущен.
 
@@ -173,9 +214,13 @@ curl -s -X POST http://localhost:3333/api/messages/<MESSAGE_ID>/ack | jq '.data.
 ## 6. TypeScript SDK (опционально)
 
 ```typescript
-import { createClient } from "./lib/sdk";
+import { createClient } from "@amb-app/sdk";
 
-const client = createClient("http://localhost:3333");
+const client = createClient({
+  baseUrl: "http://localhost:3333",
+  token: process.env.AMB_TOKEN,
+  projectId: process.env.AMB_PROJECT_ID,
+});
 
 const agent = await client.registerAgent({ name: "my-agent", role: "worker" });
 const thread = await client.createThread({ title: "Task" });
@@ -194,7 +239,7 @@ for await (const messages of client.pollInbox(agent.id)) {
 }
 ```
 
-Запуск примеров:
+Запуск примеров из корня монорепо:
 
 ```bash
 pnpm example:simple    # регистрация агента + отправка сообщения
@@ -235,37 +280,40 @@ pnpm mcp:build
 
 | Команда | Описание |
 |---|---|
-| `pnpm dev` | Запустить сервер разработки |
-| `pnpm db:migrate` | Применить миграции |
-| `pnpm db:studio` | Открыть Prisma Studio (GUI для БД) |
+| `pnpm dev` | Next + Nest в dev-режиме |
+| `pnpm db:migrate` | Миграции (dev) |
+| `pnpm db:studio` | Prisma Studio |
 | `pnpm seed:all` | Засеять агентов и треды |
-| `pnpm reset-db` | Сбросить БД и пересеять |
-| `pnpm worker:retry` | Запустить retry-воркер |
-| `pnpm cleanup` | Очистить старые сообщения |
+| `pnpm --filter @amb-app/db exec prisma generate` | Сгенерировать Prisma Client |
+| `pnpm --filter @amb-app/db exec prisma migrate reset` | Сброс БД (удаляет данные) |
 
 ---
 
 ## Устранение неполадок
 
 **`ECONNREFUSED` при `pnpm seed:agents`**
-→ Сервер не запущен. Сначала выполните `pnpm dev`.
+→ Сервер не запущен. Сначала выполните `pnpm dev` (путь C) или проверьте `docker compose ps` (путь A/B).
 
 **`DATABASE_URL` не найден**
-→ Выполните `cp .env.example .env`.
+→ Скопируйте `apps/api/.env.example` → `apps/api/.env` и `apps/web/.env.example` → `apps/web/.env`.
 
 **Ошибка подключения к PostgreSQL**
-→ Проверьте: `docker compose ps`. Если контейнер не запущен: `docker compose up -d postgres`.
+→ Проверьте: `docker compose ps`. Если контейнер не запущен: `docker compose up -d postgres`. С хоста используйте порт **5433**.
 
 **Порт 3333 занят**
 → `lsof -i :3333` — найдите процесс, `kill -9 <PID>` — завершите его.
 
 **Prisma client не сгенерирован**
-→ `pnpm prisma generate`
+→ `pnpm --filter @amb-app/db exec prisma generate`
+
+**Pull `openaisdk/amb:latest` не находит образ**
+→ Используйте `docker compose up -d --build` или соберите и опубликуйте образ (в репозитории: `pnpm docker:compose:publish` — по умолчанию через Podman).
 
 ---
 
 ## Документация
 
+- [README.md](README.md) — обзор и запуск в Docker/Podman
 - [Getting Started](docs/getting-started.md) — подробное руководство + cookbook
 - [API Reference](docs/api.md) — полная документация API
 - [Architecture](docs/architecture.md) — архитектура системы

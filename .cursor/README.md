@@ -2,34 +2,36 @@
 
 ## Project Overview
 
-This repository contains a **local-only Agent Message Bus** implemented with:
+This repository contains a **local-first Agent Message Bus** implemented as a **monorepo** (Turborepo + pnpm):
 
-* Next.js App Router
-* Prisma + SQLite
-* shadcn/ui UI
-* Thread-based messaging
-* Inbox + retry + DLQ (planned)
-* No authentication
-* Single-user dev tool
+* **`apps/web`** — Next.js (App Router): Dashboard UI and **BFF** route handlers under `app/api/*` that call the Nest backend via `API_URL` / SDK.
+* **`apps/api`** — NestJS: canonical REST API (`/api/...`), Prisma via `packages/db`, JWT-aware guards.
+* **`packages/db`** — Prisma schema and migrations (PostgreSQL).
+* **MCP server** — `packages/mcp-server` (`@openaisdk/amb-mcp`).
 
-The goal is to orchestrate multiple AI agents locally using threads and message routing.
+Thread-based messaging, inbox, ACK, retry, and DLQ are implemented on the API side. Typical local URLs: web **3333**, API **3334**.
 
 ---
 
 ## Repository Structure
 
-Root:
+Root (high level):
 
-.cursor/          → agent system prompts + registry
-scripts/          → seed & orchestration scripts
-app/              → Next.js application
+```text
+apps/
+  api/          → NestJS backend
+  web/          → Next.js dashboard + BFF routes
+packages/
+  db/           → Prisma
+  sdk/          → @amb-app/sdk
+  mcp-server/   → MCP + amb-mcp CLI
+  shared/, core/
+.cursor/        → agent prompts + registry
+```
 
-Inside `app/`:
+Inside **`apps/web`**: `app/` (routes, `app/api/*` BFF), `components/`, `lib/`, scripts for seed/examples.
 
-app/api/          → route handlers
-app/prisma/       → schema + migrations
-app/lib/          → prisma client
-app/components/   → UI panels
+Inside **`apps/api`**: Nest modules, controllers, guards, e2e tests.
 
 ---
 
@@ -37,157 +39,42 @@ app/components/   → UI panels
 
 ### ✅ Architecture
 
-* Only Next.js backend (no NestJS)
-* App Router only
-* Prisma for DB
-* SQLite for Local MVP
-* Thread-based conversations are mandatory
-* All API routes live in `app/api/*`
-* Background jobs go to `scripts/`
-
----
+* **Do not** put Prisma or direct DB access in `apps/web` for bus/domain data — use **`apps/api`** and HTTP (`getApiClient`, `@amb-app/sdk`).
+* Prefer small handlers; shared validation/types in `packages/shared` where appropriate.
+* PostgreSQL for local/dev (see `docker-compose.yml`, port **5433** on host).
 
 ### ✅ Coding Standards
 
 * TypeScript strict
 * Zod for input validation
 * No `any`
-* Small route handlers, logic in services
-* Deterministic APIs
-* Explicit error responses
+* Thin route/controller layers; non-trivial logic in services/modules (`apps/api`) or `lib/` (`apps/web`)
+
+### ✅ Testing
+
+* Prefer e2e against **`apps/api`** (`apps/api/test`) for contract-critical flows.
+* UI smoke tests for **`apps/web`** as needed.
+
+### ✅ Security & config
+
+* Secrets and `JWT_SECRET` live in env / `apps/api/.env`, not in client bundles.
+* **`apps/web`** BFF forwards to Nest using server-side `API_URL`; do not expose internal URLs to the browser unnecessarily.
 
 ---
 
-## API Responsibilities
+## Agent System
 
-Agents must interact only through HTTP endpoints:
-
-* /api/agents
-* /api/threads
-* /api/messages/send
-* /api/threads/:id/messages
-
-Future:
-
-* /api/messages/:id/ack
-* /api/messages/inbox
-* /api/dlq
+See `.cursor/agents/` and `registry.json` for orchestration prompts. MCP connects to running **`apps/web`** (e.g. `http://localhost:3333`) with a project id from the Dashboard.
 
 ---
 
-## Workflow for Cursor Agents
+## Local commands (from repo root)
 
-All work must happen in threads:
-
-1. PO defines scope
-2. Architect produces ADR
-3. Dev implements
-4. QA validates
-5. DevOps wires scripts
-6. Orchestrator coordinates
-
-No agent skips roles.
+* `pnpm dev` — **`apps/web`** + **`apps/api`** in watch mode
+* `pnpm dev:api` — only **`apps/api`**
+* `pnpm db:migrate` — Prisma via **`packages/db`**
+* Seed/examples: `pnpm seed:agents`, `pnpm example:simple` (scripts live under **`apps/web`**)
 
 ---
 
-## Local Setup (for Cursor)
-
-From `/app`:
-
-pnpm dev
-pnpm prisma migrate dev
-pnpm seed:agents
-
----
-
-## Implementation Order
-
-Cursor should implement features in this order:
-
-1️⃣ Prisma schema
-2️⃣ Agents API
-3️⃣ Threads API
-4️⃣ Messages API
-5️⃣ Inbox + ack
-6️⃣ Retry/DLQ worker
-7️⃣ UI
-8️⃣ Orchestrator scripts
-
----
-
-## Cursor Agent Rules
-
-When acting as an agent:
-
-* Follow your system prompt in `.cursor/agents/<role>.md`
-* Do not implement outside your role
-* Ask other agents via threads
-* Update status in thread when done
-
----
-
-## Agent Routing (Mandatory)
-
-Before answering **any** user request, Cursor must:
-
-1. Determine which agent from `.cursor/agents` is the best primary match.
-2. Select exactly one primary agent.
-3. Respond in the role and constraints of that selected agent.
-
-Primary routing map:
-
-* `po` — scope, requirements, prioritization, backlog
-* `architect` — architecture decisions, ADRs, boundaries
-* `dev` — general implementation and bug fixing
-* `nest-engineer` — backend, Nest.js, API/services
-* `react-next-engineer` — frontend, React/Next.js, UI
-* `qa` — test scenarios, regression, quality validation
-* `devops` — CI/CD, infra, scripts, environment
-* `sdk` — SDK and integration contracts
-* `ux` — UX flows, interaction design, usability
-* `tech-writer` — documentation, runbooks, release notes
-* `open-source` — OSS readiness and community tasks
-
-Fallback:
-
-* If the request is ambiguous or cross-functional, use `orchestrator` as primary and route follow-up tasks to specialized agents.
-
-Response prefix requirement:
-
-* Start each answer with: `[Agent Router] primary=<agent-id>`
-
----
-
-## Non-Goals
-
-* No auth
-* No cloud infra
-* No Kubernetes
-* No multi-tenant
-* No SaaS hardening
-
----
-
-## Success Criteria
-
-* pnpm dev starts app
-* agents can be seeded
-* threads created
-* messages exchanged
-* UI shows data
-* retry + DLQ work
-
----
-
-## Escalation
-
-If blocked:
-
-* Requirements → PO
-* Architecture → Architect
-* Infra → DevOps
-* UX → UX agent
-
----
-
-End of instructions.
+*Phased build guide: [STEP_BY_STEP.md](STEP_BY_STEP.md) — часть шагов исторически про монолитный Next; фактическая кодовая база: **`apps/web` + `apps/api`**.*
