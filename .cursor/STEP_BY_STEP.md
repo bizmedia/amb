@@ -8,15 +8,13 @@ This document defines the exact execution order for Cursor and its agents.
 
 Build a working Local Agent Message Bus:
 
-* Next.js backend + UI
-* Prisma + SQLite
-* Threads
-* Messaging
-* Inbox
-* Retry + DLQ
-* UI dashboard
-* Seeded agents
-* Orchestrator flow
+* **`apps/web`** — Next.js UI + BFF (`app/api/*` → Nest)
+* **`apps/api`** — NestJS REST API
+* **`packages/db`** — Prisma + PostgreSQL
+* Threads, messaging, inbox, retry + DLQ
+* UI dashboard, seeded agents, orchestrator flow
+
+> Исторически этот документ описывал один Next-проект в `app/`. Сейчас код в **`apps/web`** и **`apps/api`** — трактуйте «API» как **`apps/api`**, UI и BFF — как **`apps/web`**.
 
 ---
 
@@ -24,12 +22,13 @@ Build a working Local Agent Message Bus:
 
 Cursor must first confirm:
 
-* app/ is a Next.js App Router project
-* Prisma is initialized
-* schema.prisma exists
-* migrations applied
-* pnpm dev runs
-* homepage loads
+* **`apps/web`** is a Next.js App Router project
+* **`apps/api`** is a NestJS project
+* Prisma is initialized under **`packages/db`**
+* `packages/db/prisma/schema.prisma` exists
+* migrations applied (`pnpm db:migrate` from root)
+* `pnpm dev` runs (**web** + **api**)
+* Dashboard homepage loads (e.g. http://localhost:3333)
 
 If any of these fail → fix before proceeding.
 
@@ -48,7 +47,7 @@ Steps:
    * Message
 2. Ensure relations & indexes exist
 3. Document schema in /docs/db.md
-4. Architect writes ADR: DB choice (SQLite)
+4. Architect documents DB choice (PostgreSQL + Prisma in **`packages/db`**)
 
 Blocking rule:
 ❌ No API before DB is stable.
@@ -59,12 +58,14 @@ Blocking rule:
 
 Responsible: Dev
 
-Implement endpoints in this order:
+Implement canonical REST in **`apps/api`** (global prefix `/api`), в таком порядке:
 
-1. /api/agents
-2. /api/threads
-3. /api/threads/:id/messages
-4. /api/messages/send
+1. `/api/agents`
+2. `/api/threads`
+3. `/api/threads/:id/messages`
+4. `/api/messages/send`
+
+Затем при необходимости зеркалируйте вызовы в BFF **`apps/web/app/api/*`** через `getApiClient` / SDK.
 
 Each endpoint must:
 

@@ -25,19 +25,19 @@ Landing-style версия для репозитория:
 
 - **Локальный dev-инструмент** — запуск на своей машине или в Docker; без облачного сервиса.
 - **Шина сообщений** — треды, inbox, ACK, retry, DLQ для оркестрации ИИ-агентов.
-- **Монолит на Next.js** — одно приложение: REST API + Dashboard UI, PostgreSQL.
+- **Монорепозиторий (Turborepo)** — **NestJS** (`apps/api`) для REST API, **Next.js** (`apps/web`) для Dashboard; общая БД PostgreSQL, Prisma в `packages/db`.
 - **SDK + MCP** — TypeScript SDK и MCP-сервер для Cursor, Codex, Claude Code и других MCP-клиентов.
-- **Без аутентификации** — открытый API для локального использования; сценарий одного пользователя / одного проекта.
+- **JWT (опционально в dev)** — глобальный guard: без заголовка `Authorization` запросы проходят, пока не задано `JWT_REQUIRED=true`. Для production-сценариев предусмотрены пользовательские и проектные токены.
 - **Ориентация на разработку** — быстрый старт, seed агентов, примеры, сценарии оркестратора.
 
 ## Чем не является (пока)
 
 - **Не облачный сервис** — вы запускаете его сами; публичного SaaS нет.
-- **Не multi-tenant** — нет тенантов, проектов и изоляции по проектам.
-- **Не production-ready** — нет auth, rate limiting и SLA; только для разработки.
+- **Не enterprise multi-tenant SaaS** — проекты в Dashboard есть, но нет модели изолированных тенантов и биллинга как у облачного multi-tenant продукта.
+- **Не production-ready** — нет managed SaaS и SLA; ориентация на разработку и self-hosted. Лимиты запросов настраиваются (`RATE_LIMIT_*` в `apps/api/.env.example`).
 - **Без i18n** — интерфейс и сообщения пока не локализованы.
 
-Дорожная карта (vNext): hosted multi-tenant сервис, API на Nest.js, JWT auth, Dashboard по HTTP — см. [docs/product-vision.md](docs/product-vision.md) и [docs/backlog.md](docs/backlog.md).
+Дорожная карта (vNext): hosted multi-tenant сервис, углублённый JWT/project scope, Dashboard (`apps/web`) по HTTP к выделенному API — см. [docs/product-vision.md](docs/product-vision.md) и [docs/backlog.md](docs/backlog.md).
 
 ## Возможности
 
@@ -48,88 +48,128 @@ Landing-style версия для репозитория:
 - Dashboard UI
 - Сценарии оркестратора
 
-## Быстрый старт
+## Быстрый старт для разработчиков
 
-### Вариант 1: Локальная разработка (рекомендуется)
+Ниже — два рабочих пути. Код разделён на **`apps/api`** (NestJS, порт 3334) и **`apps/web`** (Next.js Dashboard и BFF-роуты к API, порт 3333). **Полный стек в контейнерах** не требует установленного Node/pnpm на машине (сборка и зависимости — внутри сервисов `docker compose`). **Гибрид** удобен, если вы правите `apps/api` и `apps/web` на хосте и хотите горячую перезагрузку.
 
-```bash
-# 1. Установить зависимости
-pnpm install
+Во всех командах `docker compose` можно заменить на **`podman compose`**, если используете [Podman](https://podman.io/) (нужен Podman 4+ и плагин Compose или `podman-compose` по инструкции дистрибутива).
 
-# 2. Запустить PostgreSQL (Docker или Podman)
-docker compose up -d postgres
-# или: podman compose up -d postgres
+### Полный стек в Docker или Podman
 
-# 3. Скопировать файл окружения
-cp .env.example .env
+| Сервис Compose | Исходники / образ | Назначение | Порт на хосте (по умолчанию) |
+|----------------|-------------------|------------|------------------------------|
+| `postgres` | — | PostgreSQL | **5433** → 5432 в контейнере |
+| `api` | `apps/api` | NestJS REST API | **3334** |
+| `web` | `apps/web` (или образ `openaisdk/amb`) | Next.js Dashboard, BFF `/api/*` → Nest | **3333** |
+| `seed` | скрипты в `apps/web` | Однократный сид (пользователь, проект, агенты) | — |
 
-# 4. Выполнить миграции БД
-pnpm db:migrate
+**Шаги**
 
-# 5. Запустить dev-сервер
-pnpm dev
-```
+1. Клонируйте репозиторий и перейдите в корень проекта.
+2. Запустите сборку и стек (первый запуск долгий: `pnpm install` и сборка **`apps/api`** и **`apps/web`** в контейнерах):
 
-Откройте [http://localhost:3333](http://localhost:3333), чтобы убедиться, что сервер запущен.
+   ```bash
+   docker compose up --build
+   ```
 
-```bash
-# 6. Засеять агентов (нужен запущенный сервер)
-pnpm seed:agents
-```
+   Фоновый режим:
 
-### Вариант 2: Полный запуск в Docker/Podman
+   ```bash
+   docker compose up -d --build
+   ```
 
-```bash
-# Предусловие: зависимости уже установлены (pnpm install)
+   **Быстрее (только UI из Docker Hub):** заранее `docker pull docker.io/openaisdk/amb:latest`, затем `docker compose -f docker-compose.web-image.yml up -d` — **`apps/web` не собирается** в контейнере, **`apps/api` по-прежнему собирается из репозитория**, см. [QUICKSTART.md](QUICKSTART.md).
 
-# Поднять полный стек: postgres + migrate + api + web + seed
-docker compose up --build
-# или: podman compose up -d --build
-```
+3. Дождитесь успешного завершения сервиса `seed` (создаётся тестовый пользователь и данные для Dashboard). Смотреть прогресс:
 
-Если порты заняты, переопределите их перед запуском:
+   ```bash
+   docker compose logs -f seed
+   ```
+
+4. Проверьте доступность:
+   - Dashboard: [http://localhost:3333](http://localhost:3333)
+   - API health: `curl -s http://localhost:3334/api/health`
+
+**Порты заняты** — задайте переменные перед запуском:
 
 ```bash
 API_PORT=4334 WEB_PORT=4333 docker compose up --build
 ```
 
-После старта:
-- Web: [http://localhost:3333](http://localhost:3333)
-- API: [http://localhost:3334](http://localhost:3334)
-- Seed-данные создаются сервисом `seed` автоматически.
-
-Если нужен фоновый режим:
+**Остановка и сброс данных БД**
 
 ```bash
-docker compose up -d --build
-docker compose logs -f seed
+docker compose down          # остановить контейнеры
+docker compose down -v       # + удалить том PostgreSQL
 ```
 
-> **Важно:** MCP-сервер запускается локально в вашем MCP-клиенте (Cursor, Codex, Claude Code и т.д.), не в Docker.
+> **Важно:** MCP-сервер не входит в `docker compose`: его запускает ваш MCP-клиент (Cursor, Codex, Claude Code и т.д.) на хосте. `MESSAGE_BUS_URL` указывайте на **`apps/web`** (по умолчанию `http://localhost:3333` — BFF к **`apps/api`**; при смене порта — `WEB_PORT`).
+
+### Гибрид: только PostgreSQL в контейнере, код на хосте
+
+Удобно для ежедневной разработки с `pnpm dev`.
+
+1. Установите на хосте **Node 20** и **pnpm** (версия зафиксирована в `package.json` → `packageManager`).
+
+2. Поднимите БД:
+
+   ```bash
+   docker compose up -d postgres
+   ```
+
+3. Создайте файлы окружения из примеров (в корне репозитория нет единого `.env`):
+
+   ```bash
+   cp apps/api/.env.example apps/api/.env
+   cp apps/web/.env.example apps/web/.env
+   ```
+
+   В шаблонах уже указан порт **5433** для Postgres из `docker-compose.yml`. Если БД у вас на стандартном `5432`, поправьте `DATABASE_URL` в обоих `.env`.
+
+4. Установите зависимости и миграции:
+
+   ```bash
+   pnpm install
+   pnpm db:migrate
+   ```
+
+5. Запустите API и веб в dev-режиме:
+
+   ```bash
+   pnpm dev
+   ```
+
+6. Откройте [http://localhost:3333](http://localhost:3333) и при необходимости засейте агентов (нужен запущенный сервер):
+
+   ```bash
+   pnpm seed:agents
+   ```
 
 ### Команды для работы с БД
 
 ```bash
 pnpm db:migrate        # Создать/применить миграции (dev)
-pnpm db:migrate:deploy # Применить миграции (prod)
+pnpm db:migrate:deploy # Применить миграции (prod / CI)
 pnpm db:studio         # Открыть Prisma Studio (GUI)
-pnpm reset-db          # Сбросить БД и засеять заново
+
+# Prisma напрямую (из корня монорепо)
+pnpm --filter @amb-app/db exec prisma generate
+pnpm --filter @amb-app/db exec prisma migrate reset  # ВНИМАНИЕ: сбрасывает данные
 ```
 
 ## Скрипты
 
 | Команда | Описание |
 |---------|----------|
-| `pnpm dev` | Запустить dev-сервер |
-| `pnpm build` | Сборка для production |
+| `pnpm dev` | Запустить dev: Next.js (3333) и Nest API параллельно |
+| `pnpm dev:api` | Только API в dev-режиме |
+| `pnpm build` | Сборка пакетов через Turbo |
 | `pnpm seed:agents` | Засеять агентов из реестра |
 | `pnpm seed:threads` | Засеять треды по умолчанию |
 | `pnpm seed:all` | Засеять агентов и треды |
-| `pnpm reset-db` | Сбросить БД и засеять заново |
-| `pnpm worker:retry` | Запустить retry-воркер |
-| `pnpm cleanup` | Очистить старые сообщения |
 | `pnpm orchestrator` | Запустить сценарий оркестратора |
-| `pnpm mcp:build` | Собрать MCP-сервер |
+| `pnpm agent:worker` | Воркер агентов (опрос inbox) |
+| `pnpm mcp:build` | Собрать MCP-пакет `@openaisdk/amb-mcp` |
 
 ## Документация API
 
@@ -195,13 +235,13 @@ try {
 2. В шапке выберите **Создать проект**.
 3. Скопируйте **ID проекта** кнопкой `ID`.
 
-1. Собрать MCP-сервер:
+4. Соберите MCP-сервер из корня репозитория:
 
 ```bash
 pnpm install && pnpm mcp:build
 ```
 
-2. Добавить в настройки Cursor:
+5. Добавьте в настройки Cursor (путь к `dist` замените на абсолютный путь к вашему клону):
 
 ```json
 {
@@ -264,12 +304,15 @@ const agent = await client.registerAgent({ name: "my-service", role: "worker" })
 
 Если AMB развёрнут в Docker и доступен на `http://localhost:3333`, а вы работаете в другом репозитории (например, `cloudpbx-ui`), можно подключить MCP **через npm-пакет** (рекомендуется) или по пути к клону AMB. Ниже — пример для Cursor; в Codex, Claude Code и других MCP-клиентах конфиг задаётся аналогично (см. документацию клиента).
 
-#### Через npm-пакет @bizmedia/amb-mcp (рекомендуется)
+#### Через npm-пакет (рекомендуется для стороннего репозитория)
 
-1. **В вашем проекте** установите пакет в dev-зависимости:
+Имя пакета на npm см. в [`packages/mcp-server/package.json`](packages/mcp-server/package.json) (поле `name`; бинарь в PATH — `amb-mcp`).
+
+1. **В вашем проекте** установите пакет в dev-зависимости, например:
    ```bash
-   pnpm add -D @bizmedia/amb-mcp
+   pnpm add -D @openaisdk/amb-mcp
    ```
+   *(если в реестре опубликовано другое имя — используйте его.)*
 
 2. **Создайте или отредактируйте** `.cursor/mcp.json` в корне проекта:
 
@@ -279,10 +322,10 @@ const agent = await client.registerAgent({ name: "my-service", role: "worker" })
        "message-bus": {
          "command": "pnpm",
          "args": ["exec", "amb-mcp"],
-       "env": {
-         "MESSAGE_BUS_URL": "http://localhost:3333",
-         "MESSAGE_BUS_PROJECT_ID": "<PROJECT_ID>"
-       }
+         "env": {
+           "MESSAGE_BUS_URL": "http://localhost:3333",
+           "MESSAGE_BUS_PROJECT_ID": "<PROJECT_ID>"
+         }
        }
      }
    }
@@ -308,10 +351,10 @@ const agent = await client.registerAgent({ name: "my-service", role: "worker" })
          "command": "node",
          "args": ["/path/to/amb/packages/mcp-server/dist/index.js"],
          "cwd": "/path/to/amb",
-       "env": {
-         "MESSAGE_BUS_URL": "http://localhost:3333",
-         "MESSAGE_BUS_PROJECT_ID": "<PROJECT_ID>"
-       }
+         "env": {
+           "MESSAGE_BUS_URL": "http://localhost:3333",
+           "MESSAGE_BUS_PROJECT_ID": "<PROJECT_ID>"
+         }
        }
      }
    }
@@ -324,24 +367,18 @@ const agent = await client.registerAgent({ name: "my-service", role: "worker" })
 ## Структура проекта
 
 ```
+apps/
+  api/                 # NestJS — REST API
+  web/                 # Next.js — Dashboard, скрипты seed/examples
+packages/
+  db/                  # Prisma (schema, миграции, клиент)
+  sdk/                 # Пакет @amb-app/sdk
+  mcp-server/          # MCP + CLI amb-mcp (имя пакета: @openaisdk/amb-mcp)
+  shared/, core/       # Общий код
 .cursor/
-  agents/         # Системные промпты агентов
-  mcp.json        # Пример конфига MCP
-app/
-  api/            # API-маршруты
-  page.tsx        # Dashboard
-components/
-  dashboard/      # UI-компоненты
-  ui/             # shadcn-компоненты
-lib/
-  sdk/            # TypeScript SDK
-  services/       # Бизнес-логика
-  hooks/          # React hooks
-packages/mcp-server/       # MCP-сервер и npm-пакет @openaisdk/amb-mcp (CLI: amb-mcp seed agents)
-scripts/          # Скрипты
-examples/         # Примеры использования SDK
-prisma/
-  schema.prisma   # Схема БД
+  agents/              # Промпты агентов, registry.json
+  mcp.json             # Пример конфига MCP
+docker-compose.yml     # Локальный стек postgres + api + web + seed
 ```
 
 ## Агенты
@@ -376,11 +413,13 @@ Agent A                    Message Bus                    Agent B
 
 | Переменная | Описание | По умолчанию |
 |------------|----------|--------------|
-| `DATABASE_URL` | Строка подключения к PostgreSQL | `postgresql://postgres:postgres@localhost:5432/amb` |
-| `PORT` | Порт сервера | `3333` |
-| `MESSAGE_BUS_PROJECT_ID` | ID проекта для CLI/MCP/SDK запросов | `00000000-0000-0000-0000-000000000001` |
+| `DATABASE_URL` | Строка подключения к PostgreSQL | см. `apps/api/.env.example` и `apps/web/.env.example` (с Postgres из **docker compose** на хосте — порт **5433**) |
+| `PORT` | Порт процесса | у API в compose — **3334**, у web — **3333** |
+| `JWT_SECRET` | Подпись JWT | обязателен для валидации токенов; в compose задан для локального запуска |
+| `JWT_REQUIRED` | Если `true` — без `Authorization: Bearer` ответ 401 | по умолчанию выключено (удобно для локальной разработки) |
+| `MESSAGE_BUS_PROJECT_ID` | ID проекта для CLI/MCP/SDK | задаётся после создания проекта в Dashboard |
 
-Полный список: `.env.example`.
+Шаблоны переменных: `apps/api/.env.example`, `apps/web/.env.example`.
 
 ## Устранение неполадок
 
@@ -402,24 +441,22 @@ docker compose logs postgres
 ### Prisma client не сгенерирован
 
 ```bash
-pnpm prisma generate
+pnpm --filter @amb-app/db exec prisma generate
 ```
 
 ### Ошибки миграций
 
 ```bash
 # Сбросить БД (ВНИМАНИЕ: удаляет все данные)
-pnpm reset-db
-
-# Или вручную
-pnpm prisma migrate reset
+pnpm --filter @amb-app/db exec prisma migrate reset
 ```
 
 ### Порт уже занят
 
 ```bash
-# Найти процесс на порту 3333
+# Найти процесс на порту (web по умолчанию 3333, API — 3334)
 lsof -i :3333
+lsof -i :3334
 
 # Завершить процесс
 kill -9 <PID>
