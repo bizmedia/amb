@@ -37,7 +37,7 @@
     "po:check-inbox": "pnpm --filter amb-web run po:check-inbox",
     "docker:compose:publish": "podman build -t docker.io/openaisdk/amb:latest . && podman push docker.io/openaisdk/amb:latest",
     "deploy:amb": "podman pull docker.io/openaisdk/amb:latest && podman compose up -d",
-    "deploy:local": "podman compose up -d --build",
+    "deploy:local": "podman compose up -d --build && bash scripts/wait-for-local-stack.sh",
     "deploy:local:down": "podman compose down -v",
     "deploy:prod": "./scripts/deploy/production-deploy.sh",
     "deploy:k8s:migrate": "kubectl apply -f deploy/k8s/api-migrate-job.yaml",

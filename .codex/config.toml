@@ -3,8 +3,8 @@
 
 [mcp_servers.message-bus]
 command = "node"
-args = ["/Users/anatolijtukov/Developer/amb-app/packages/mcp-server/dist/index.js"]
-cwd = "/Users/anatolijtukov/Developer/amb-app"
+args = ["/Users/atukov/Developer/amb/packages/mcp-server/dist/index.js"]
+cwd = "/Users/atukov/Developer/amb"
 
 [mcp_servers.message-bus.env]
 MESSAGE_BUS_URL = "http://localhost:3333"
