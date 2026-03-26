@@ -52,6 +52,16 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     reloadProjects();
   }, [reloadProjects]);
 
+  useEffect(() => {
+    if (loading) return;
+    if (projects.length === 0) {
+      setProjectIdState(null);
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+  }, [loading, projects]);
+
   const setProjectId = useCallback((id: string) => {
     setProjectIdState(id);
     if (typeof window !== "undefined") {

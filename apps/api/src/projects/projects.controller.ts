@@ -16,7 +16,6 @@ export class ProjectsController {
 
   @Get()
   async list() {
-    await this.projects.ensureDefault();
     const data = await this.projects.list();
     return { data };
   }

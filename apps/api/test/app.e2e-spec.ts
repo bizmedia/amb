@@ -84,9 +84,19 @@ describe("API (e2e)", () => {
   });
 
   describe("GET /api/agents", () => {
-    it("returns 200 and list (default project)", async () => {
+    it("returns 400 without project context", async () => {
+      await request(app.getHttpServer()).get("/api/agents").expect(400);
+    });
+
+    it("returns 200 and list with x-project-id", async () => {
+      const projectRes = await request(app.getHttpServer())
+        .post("/api/projects")
+        .send({ name: `E2E Agents List ${Date.now().toString(36)}` })
+        .expect(201);
+      const projectId = projectRes.body.data.id as string;
       const res = await request(app.getHttpServer())
         .get("/api/agents")
+        .set("x-project-id", projectId)
         .expect(200);
       expect(res.body).toHaveProperty("data");
       expect(Array.isArray(res.body.data)).toBe(true);
@@ -95,8 +105,14 @@ describe("API (e2e)", () => {
 
   describe("POST /api/agents", () => {
     it("creates agent and returns 200", async () => {
+      const projectRes = await request(app.getHttpServer())
+        .post("/api/projects")
+        .send({ name: `E2E Agent Create ${Date.now().toString(36)}` })
+        .expect(201);
+      const projectId = projectRes.body.data.id as string;
       const res = await request(app.getHttpServer())
         .post("/api/agents")
+        .set("x-project-id", projectId)
         .send({ name: "e2e-agent", role: "e2e-tester" })
         .expect(201);
       expect(res.body.data).toMatchObject({
@@ -105,12 +121,35 @@ describe("API (e2e)", () => {
       });
       expect(res.body.data.id).toBeDefined();
     });
+
+    it("returns 400 for invalid body", async () => {
+      const projectRes = await request(app.getHttpServer())
+        .post("/api/projects")
+        .send({ name: `E2E Agent Invalid ${Date.now().toString(36)}` })
+        .expect(201);
+      const projectId = projectRes.body.data.id as string;
+      await request(app.getHttpServer())
+        .post("/api/agents")
+        .set("x-project-id", projectId)
+        .send({ name: "", role: "x" })
+        .expect(400);
+    });
   });
 
   describe("GET /api/threads", () => {
-    it("returns 200 and list", async () => {
+    it("returns 400 without project context", async () => {
+      await request(app.getHttpServer()).get("/api/threads").expect(400);
+    });
+
+    it("returns 200 and list with x-project-id", async () => {
+      const projectRes = await request(app.getHttpServer())
+        .post("/api/projects")
+        .send({ name: `E2E Threads List ${Date.now().toString(36)}` })
+        .expect(201);
+      const projectId = projectRes.body.data.id as string;
       const res = await request(app.getHttpServer())
         .get("/api/threads")
+        .set("x-project-id", projectId)
         .expect(200);
       expect(res.body).toHaveProperty("data");
       expect(Array.isArray(res.body.data)).toBe(true);
@@ -119,8 +158,14 @@ describe("API (e2e)", () => {
 
   describe("POST /api/threads", () => {
     it("creates thread and returns 200", async () => {
+      const projectRes = await request(app.getHttpServer())
+        .post("/api/projects")
+        .send({ name: `E2E Thread Create ${Date.now().toString(36)}` })
+        .expect(201);
+      const projectId = projectRes.body.data.id as string;
       const res = await request(app.getHttpServer())
         .post("/api/threads")
+        .set("x-project-id", projectId)
         .send({ title: "E2E thread" })
         .expect(201);
       expect(res.body.data).toMatchObject({ title: "E2E thread" });
@@ -129,15 +174,25 @@ describe("API (e2e)", () => {
   });
 
   describe("messages (send, inbox, ack)", () => {
+    let projectId: string;
     let threadId: string;
     let fromAgentId: string;
     let toAgentId: string;
     let messageId: string;
 
     beforeAll(async () => {
+      const projectRes = await request(app.getHttpServer())
+        .post("/api/projects")
+        .send({ name: `E2E Messages ${Date.now().toString(36)}` })
+        .expect(201);
+      projectId = projectRes.body.data.id as string;
+
       const [threadRes, agentsRes] = await Promise.all([
-        request(app.getHttpServer()).post("/api/threads").send({ title: "E2E messages" }),
-        request(app.getHttpServer()).get("/api/agents"),
+        request(app.getHttpServer())
+          .post("/api/threads")
+          .set("x-project-id", projectId)
+          .send({ title: "E2E messages" }),
+        request(app.getHttpServer()).get("/api/agents").set("x-project-id", projectId),
       ]);
       threadId = threadRes.body.data.id;
       const agents = agentsRes.body.data as Array<{ id: string; role: string }>;
@@ -146,6 +201,7 @@ describe("API (e2e)", () => {
       if (!fromAgentId || !toAgentId) {
         const createRes = await request(app.getHttpServer())
           .post("/api/agents")
+          .set("x-project-id", projectId)
           .send({ name: "from-e2e", role: "from-e2e" });
         fromAgentId = createRes.body.data.id;
         toAgentId = fromAgentId;
@@ -155,6 +211,7 @@ describe("API (e2e)", () => {
     it("POST /api/messages/send returns 201", async () => {
       const res = await request(app.getHttpServer())
         .post("/api/messages/send")
+        .set("x-project-id", projectId)
         .send({
           threadId,
           fromAgentId,
@@ -169,6 +226,7 @@ describe("API (e2e)", () => {
     it("GET /api/messages/inbox returns 200", async () => {
       const res = await request(app.getHttpServer())
         .get("/api/messages/inbox")
+        .set("x-project-id", projectId)
         .query({ agentId: toAgentId })
         .expect(200);
       expect(res.body).toHaveProperty("data");
@@ -178,6 +236,7 @@ describe("API (e2e)", () => {
     it("POST /api/messages/:id/ack returns 201", async () => {
       const res = await request(app.getHttpServer())
         .post(`/api/messages/${messageId}/ack`)
+        .set("x-project-id", projectId)
         .expect(201);
       expect(res.body.data.id).toBe(messageId);
     });
@@ -226,7 +285,15 @@ describe("API (e2e)", () => {
 
   describe("GET /api/dlq", () => {
     it("returns 200 and list", async () => {
-      const res = await request(app.getHttpServer()).get("/api/dlq").expect(200);
+      const projectRes = await request(app.getHttpServer())
+        .post("/api/projects")
+        .send({ name: `E2E DLQ ${Date.now().toString(36)}` })
+        .expect(201);
+      const projectId = projectRes.body.data.id as string;
+      const res = await request(app.getHttpServer())
+        .get("/api/dlq")
+        .set("x-project-id", projectId)
+        .expect(200);
       expect(res.body).toHaveProperty("data");
       expect(Array.isArray(res.body.data)).toBe(true);
     });

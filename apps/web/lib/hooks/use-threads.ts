@@ -13,6 +13,12 @@ export function useThreads() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchThreads = useCallback(async () => {
+    if (!projectId) {
+      setThreads([]);
+      setError(null);
+      setLoading(false);
+      return;
+    }
     try {
       const data = await fetchApiData<Thread[]>(withProjectId(projectId, "/api/threads"));
       setThreads(data);

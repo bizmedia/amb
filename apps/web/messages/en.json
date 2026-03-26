@@ -57,7 +57,10 @@
     "more": "More",
     "messages": "Messages",
     "inbox": "Inbox",
-    "errors": "Errors"
+    "errors": "Errors",
+    "emptyStateTitle": "No project yet",
+    "emptyStateDescription": "Create your first project using the button in the header to register agents, threads, and messages.",
+    "emptyStateHint": "Open the project menu → Create project, enter a name, and the workspace will appear here."
   },
   "Auth": {
     "title": "Sign in",

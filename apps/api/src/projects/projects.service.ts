@@ -3,7 +3,6 @@ import { PrismaService } from "../prisma/prisma.service";
 import { NotFoundError } from "@amb-app/shared";
 import {
   DEFAULT_PROJECT_ID,
-  DEFAULT_PROJECT_SLUG,
   DEFAULT_TENANT_ID,
   DEFAULT_TENANT_SLUG,
 } from "../common/tenant-project.constants";
@@ -20,29 +19,6 @@ function toSlug(name: string): string {
 @Injectable()
 export class ProjectsService {
   constructor(private readonly prisma: PrismaService) {}
-
-  async ensureDefault() {
-    const tenant = await this.prisma.tenant.upsert({
-      where: { slug: DEFAULT_TENANT_SLUG },
-      update: {},
-      create: {
-        id: DEFAULT_TENANT_ID,
-        name: "Default Tenant",
-        slug: DEFAULT_TENANT_SLUG,
-      },
-    });
-
-    return this.prisma.project.upsert({
-      where: { slug: DEFAULT_PROJECT_SLUG },
-      update: {},
-      create: {
-        id: DEFAULT_PROJECT_ID,
-        tenantId: tenant.id,
-        name: "Default Project",
-        slug: DEFAULT_PROJECT_SLUG,
-      },
-    });
-  }
 
   async list() {
     return this.prisma.project.findMany({

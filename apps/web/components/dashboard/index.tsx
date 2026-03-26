@@ -9,6 +9,8 @@ import { ThreadViewer } from "./thread-viewer"
 import { InboxViewer } from "./inbox-viewer"
 import { DlqViewer } from "./dlq-viewer"
 import { ProjectSwitcher } from "./project-switcher"
+import { DashboardEmptyState } from "./dashboard-empty-state"
+import { useProjectContext } from "@/lib/context/project-context"
 import { CommandPalette, useCommandPalette } from "./command-palette"
 import { useKeyboardShortcuts } from "@/lib/hooks/use-keyboard-shortcuts"
 import { useSSE } from "@/lib/hooks/use-sse"
@@ -123,6 +125,8 @@ export function Dashboard() {
   const locale = useLocale()
   const router = useRouter()
   const pathname = usePathname()
+  const { projects, loading: projectsLoading } = useProjectContext()
+  const showNoProjectsEmpty = !projectsLoading && projects.length === 0
   
   const toggleTheme = useCallback(() => {
     // Переключаем на явную тему (не "system")
@@ -317,102 +321,100 @@ export function Dashboard() {
       </header>
 
       {/* Main content */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left sidebar: Agents — card-style panel like billing */}
-        <aside
-          className="flex-shrink-0 overflow-hidden border-r border-border bg-card shadow-elevation"
-          style={{ width: agentsWidth, minWidth: 200, maxWidth: 500 }}
-        >
-          <AgentsList
-            selectedAgentId={selectedAgentId}
-            onSelectAgent={setSelectedAgentId}
-            searchInputRef={searchInputRef}
-            inboxCounts={inboxCounts}
-          />
-        </aside>
-
-        {/* Resizer 1 */}
-        <ColumnResizer 
-          onResize={(delta) => setAgentsWidth(w => Math.max(200, Math.min(500, w + delta)))} 
-        />
-
-        {/* Middle sidebar: Threads — card-style panel like billing */}
-        <aside
-          className="flex-shrink-0 overflow-hidden border-r border-border bg-card shadow-elevation"
-          style={{ width: threadsWidth, minWidth: 250, maxWidth: 600 }}
-        >
-          <ThreadsList
-            selectedThreadId={selectedThreadId}
-            onSelectThread={setSelectedThreadId}
-            externalDialogOpen={showNewThreadDialog}
-            onExternalDialogChange={setShowNewThreadDialog}
-          />
-        </aside>
-
-        {/* Resizer 2 */}
-        <ColumnResizer 
-          onResize={(delta) => setThreadsWidth(w => Math.max(250, Math.min(600, w + delta)))} 
-        />
-
-        {/* Main area: Tabs — billing-style content spacing */}
-        <main className="flex flex-1 flex-col overflow-hidden bg-background">
-          <Tabs
-            value={activeTab}
-            onValueChange={(v) => setActiveTab(v as TabValue)}
-            className="flex h-full flex-col"
-          >
-            <div className="border-b px-4 pt-2">
-              <TabsList className="h-10 bg-transparent p-0 gap-1">
-                <TabsTrigger
-                  value="messages"
-                  className="relative gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-b-none border-b-2 border-transparent data-[state=active]:border-primary"
-                >
-                  <MessageSquareIcon className="size-4" />
-                  {t("messages")}
-                </TabsTrigger>
-                <TabsTrigger
-                  value="inbox"
-                  className="relative gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-b-none border-b-2 border-transparent data-[state=active]:border-primary"
-                >
-                  <InboxIcon className="size-4" />
-                  {t("inbox")}
-                  {inboxCount > 0 && (
-                    <span className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-500 px-1.5 text-[10px] font-medium text-white">
-                      {inboxCount > 99 ? "99+" : inboxCount}
-                    </span>
-                  )}
-                </TabsTrigger>
-                <TabsTrigger
-                  value="dlq"
-                  className="relative gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-b-none border-b-2 border-transparent data-[state=active]:border-primary"
-                >
-                  <AlertTriangleIcon className="size-4" />
-                  {t("errors")}
-                  {dlqCount > 0 && (
-                    <span className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 text-[10px] font-medium text-white">
-                      {dlqCount > 99 ? "99+" : dlqCount}
-                    </span>
-                  )}
-                </TabsTrigger>
-              </TabsList>
-            </div>
-
-            <TabsContent value="messages" className="m-0 flex-1 overflow-hidden p-4 md:p-6">
-              <ThreadViewer
-                threadId={selectedThreadId}
-                currentAgentId={selectedAgentId}
+      <div className="flex flex-1 overflow-hidden">
+        {showNoProjectsEmpty ? (
+          <DashboardEmptyState />
+        ) : (
+          <>
+            <aside
+              className="flex-shrink-0 overflow-hidden border-r border-border bg-card shadow-elevation"
+              style={{ width: agentsWidth, minWidth: 200, maxWidth: 500 }}
+            >
+              <AgentsList
+                selectedAgentId={selectedAgentId}
+                onSelectAgent={setSelectedAgentId}
+                searchInputRef={searchInputRef}
+                inboxCounts={inboxCounts}
               />
-            </TabsContent>
+            </aside>
 
-            <TabsContent value="inbox" className="m-0 flex-1 overflow-hidden p-4 md:p-6">
-              <InboxViewer agentId={selectedAgentId} />
-            </TabsContent>
+            <ColumnResizer
+              onResize={(delta) => setAgentsWidth((w) => Math.max(200, Math.min(500, w + delta)))}
+            />
 
-            <TabsContent value="dlq" className="m-0 flex-1 overflow-hidden p-4 md:p-6">
-              <DlqViewer />
-            </TabsContent>
-          </Tabs>
-        </main>
+            <aside
+              className="flex-shrink-0 overflow-hidden border-r border-border bg-card shadow-elevation"
+              style={{ width: threadsWidth, minWidth: 250, maxWidth: 600 }}
+            >
+              <ThreadsList
+                selectedThreadId={selectedThreadId}
+                onSelectThread={setSelectedThreadId}
+                externalDialogOpen={showNewThreadDialog}
+                onExternalDialogChange={setShowNewThreadDialog}
+              />
+            </aside>
+
+            <ColumnResizer
+              onResize={(delta) => setThreadsWidth((w) => Math.max(250, Math.min(600, w + delta)))}
+            />
+
+            <main className="flex flex-1 flex-col overflow-hidden bg-background">
+              <Tabs
+                value={activeTab}
+                onValueChange={(v) => setActiveTab(v as TabValue)}
+                className="flex h-full flex-col"
+              >
+                <div className="border-b px-4 pt-2">
+                  <TabsList className="h-10 bg-transparent p-0 gap-1">
+                    <TabsTrigger
+                      value="messages"
+                      className="relative gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-b-none border-b-2 border-transparent data-[state=active]:border-primary"
+                    >
+                      <MessageSquareIcon className="size-4" />
+                      {t("messages")}
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="inbox"
+                      className="relative gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-b-none border-b-2 border-transparent data-[state=active]:border-primary"
+                    >
+                      <InboxIcon className="size-4" />
+                      {t("inbox")}
+                      {inboxCount > 0 && (
+                        <span className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-500 px-1.5 text-[10px] font-medium text-white">
+                          {inboxCount > 99 ? "99+" : inboxCount}
+                        </span>
+                      )}
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="dlq"
+                      className="relative gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-b-none border-b-2 border-transparent data-[state=active]:border-primary"
+                    >
+                      <AlertTriangleIcon className="size-4" />
+                      {t("errors")}
+                      {dlqCount > 0 && (
+                        <span className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 text-[10px] font-medium text-white">
+                          {dlqCount > 99 ? "99+" : dlqCount}
+                        </span>
+                      )}
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+
+                <TabsContent value="messages" className="m-0 flex-1 overflow-hidden p-4 md:p-6">
+                  <ThreadViewer threadId={selectedThreadId} currentAgentId={selectedAgentId} />
+                </TabsContent>
+
+                <TabsContent value="inbox" className="m-0 flex-1 overflow-hidden p-4 md:p-6">
+                  <InboxViewer agentId={selectedAgentId} />
+                </TabsContent>
+
+                <TabsContent value="dlq" className="m-0 flex-1 overflow-hidden p-4 md:p-6">
+                  <DlqViewer />
+                </TabsContent>
+              </Tabs>
+            </main>
+          </>
+        )}
       </div>
 
       {/* Command Palette */}

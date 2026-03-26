@@ -57,7 +57,10 @@
     "more": "Mehr",
     "messages": "Nachrichten",
     "inbox": "Eingang",
-    "errors": "Fehler"
+    "errors": "Fehler",
+    "emptyStateTitle": "Noch kein Projekt",
+    "emptyStateDescription": "Legen Sie Ihr erstes Projekt über die Kopfzeile an, um Agenten, Threads und Nachrichten zu nutzen.",
+    "emptyStateHint": "Projektmenü → Projekt erstellen, Namen eingeben — der Arbeitsbereich erscheint hier."
   },
   "Auth": {
     "title": "Anmelden",

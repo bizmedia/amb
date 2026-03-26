@@ -8,12 +8,6 @@ import {
 import { PrismaService } from "../prisma/prisma.service";
 import { projectIdSchema } from "@amb-app/shared";
 import type { RequestWithAuth } from "./auth-context";
-import {
-  DEFAULT_PROJECT_ID,
-  DEFAULT_PROJECT_SLUG,
-  DEFAULT_TENANT_ID,
-  DEFAULT_TENANT_SLUG,
-} from "./tenant-project.constants";
 
 @Injectable()
 export class ProjectGuard implements CanActivate {
@@ -57,28 +51,9 @@ export class ProjectGuard implements CanActivate {
     const raw = fromQuery ?? fromHeader;
 
     if (!raw) {
-      await this.prisma.tenant.upsert({
-        where: { slug: DEFAULT_TENANT_SLUG },
-        update: {},
-        create: {
-          id: DEFAULT_TENANT_ID,
-          name: "Default Tenant",
-          slug: DEFAULT_TENANT_SLUG,
-        },
-      });
-
-      const project = await this.prisma.project.upsert({
-        where: { slug: DEFAULT_PROJECT_SLUG },
-        update: {},
-        create: {
-          id: DEFAULT_PROJECT_ID,
-          tenantId: DEFAULT_TENANT_ID,
-          name: "Default Project",
-          slug: DEFAULT_PROJECT_SLUG,
-        },
-      });
-      request.projectId = project.id;
-      return true;
+      throw new BadRequestException(
+        "Missing project context: pass projectId as a query parameter or x-project-id header"
+      );
     }
 
     const parsed = projectIdSchema.safeParse(raw);

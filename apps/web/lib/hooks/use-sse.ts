@@ -23,6 +23,7 @@ type UseSSEOptions = {
 export function useSSE(options: UseSSEOptions = {}) {
   const projectId = useProjectId();
   const { enabled = true, reconnectInterval = 3000 } = options;
+  const effectiveEnabled = enabled && projectId != null && projectId.length > 0;
 
   const [state, setState] = useState<SSEState>({
     connected: false,
@@ -72,12 +73,12 @@ export function useSSE(options: UseSSEOptions = {}) {
 
       // Auto-reconnect
       reconnectTimeoutRef.current = setTimeout(() => {
-        if (enabled) {
+        if (effectiveEnabled) {
           connect();
         }
       }, reconnectInterval);
     };
-  }, [enabled, reconnectInterval, projectId]);
+  }, [effectiveEnabled, reconnectInterval, projectId]);
 
   const disconnect = useCallback(() => {
     if (reconnectTimeoutRef.current) {
@@ -92,7 +93,7 @@ export function useSSE(options: UseSSEOptions = {}) {
   }, []);
 
   useEffect(() => {
-    if (enabled) {
+    if (effectiveEnabled) {
       connect();
     } else {
       disconnect();
@@ -101,7 +102,7 @@ export function useSSE(options: UseSSEOptions = {}) {
     return () => {
       disconnect();
     };
-  }, [enabled, connect, disconnect]);
+  }, [effectiveEnabled, connect, disconnect]);
 
   return {
     ...state,

@@ -13,6 +13,12 @@ export function useAgents() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchAgents = useCallback(async () => {
+    if (!projectId) {
+      setAgents([]);
+      setError(null);
+      setLoading(false);
+      return;
+    }
     try {
       const data = await fetchApiData<Agent[]>(withProjectId(projectId, "/api/agents"));
       setAgents(data);

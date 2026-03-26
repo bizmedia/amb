@@ -52,7 +52,7 @@ async function readRegistry(): Promise<Registry> {
   throw new Error("registry.json not found (.cursor/agents/registry.json)");
 }
 
-async function resolveProjectId(token: string): Promise<string> {
+async function resolveProjectId(token: string): Promise<string | null> {
   if (PROJECT_ID_FROM_ENV && UUID_PATTERN.test(PROJECT_ID_FROM_ENV)) {
     return PROJECT_ID_FROM_ENV;
   }
@@ -62,15 +62,9 @@ async function resolveProjectId(token: string): Promise<string> {
   const preferredProject =
     projects.find((project) => project.slug === "default") ??
     projects.find((project) => project.name.trim().toLowerCase() === "default project") ??
-    projects.find((project) => UUID_PATTERN.test(project.id));
+    projects[0];
 
-  if (!preferredProject) {
-    throw new Error(
-      "No projects available. /api/projects should ensure a default project automatically."
-    );
-  }
-
-  return preferredProject.id;
+  return preferredProject?.id ?? null;
 }
 
 async function seedAgentsAndThreads(token: string, projectId: string) {
@@ -120,6 +114,12 @@ async function seedAgentsAndThreads(token: string, projectId: string) {
 async function main() {
   const token = await login();
   const projectId = await resolveProjectId(token);
+  if (!projectId) {
+    console.log(
+      "Docker seed skipped: no projects yet. Create a project in the Dashboard, then re-run seed or set MESSAGE_BUS_PROJECT_ID."
+    );
+    return;
+  }
   await seedAgentsAndThreads(token, projectId);
 }
 
