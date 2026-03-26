@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+"use strict";
 /**
  * CLI for @bizmedia/amb-mcp
  *
@@ -10,10 +11,11 @@
  *   amb-mcp seed agents -r <path>  — same, path via --registry / -r
  *   Без path — интерактивный запрос "Введите путь до..."
  */
-import readline from "readline";
-import { main as runMcpServer } from "./index.js";
-import { runSeedAgents } from "./seed-agents.js";
-import { runSeedThreads } from "./seed-threads.js";
+Object.defineProperty(exports, "__esModule", { value: true });
+const readline_1 = require("readline");
+const index_1 = require("./index");
+const seed_agents_1 = require("./seed-agents");
+const seed_threads_1 = require("./seed-threads");
 const argv = process.argv.slice(2);
 const cmd = argv[0];
 const sub = argv[1];
@@ -36,7 +38,7 @@ function askRegistryPath() {
             resolve(undefined);
             return;
         }
-        const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+        const rl = (0, readline_1.createInterface)({ input: process.stdin, output: process.stdout });
         rl.question("Введите путь до папки или файла с агентами (Enter — .cursor/agents): ", (answer) => {
             rl.close();
             const trimmed = answer?.trim();
@@ -50,18 +52,18 @@ async function main() {
         registryPath = await askRegistryPath();
     }
     if (cmd === "seed" && sub === "agents") {
-        await runSeedAgents(registryPath);
+        await (0, seed_agents_1.runSeedAgents)(registryPath);
     }
     else if (cmd === "seed" && sub === "threads") {
-        await runSeedThreads(registryPath);
+        await (0, seed_threads_1.runSeedThreads)(registryPath);
     }
     else if (cmd === "seed" && sub === "all") {
-        await runSeedAgents(registryPath);
+        await (0, seed_agents_1.runSeedAgents)(registryPath);
         console.log("");
-        await runSeedThreads(registryPath);
+        await (0, seed_threads_1.runSeedThreads)(registryPath);
     }
     else if (!cmd || cmd === "server") {
-        await runMcpServer();
+        await (0, index_1.main)();
     }
     else {
         console.error("Usage:");

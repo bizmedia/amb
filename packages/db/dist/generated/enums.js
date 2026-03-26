@@ -14,8 +14,7 @@ exports.IssueState = {
     BACKLOG: 'BACKLOG',
     TODO: 'TODO',
     IN_PROGRESS: 'IN_PROGRESS',
-    DONE: 'DONE',
-    CANCELLED: 'CANCELLED'
+    DONE: 'DONE'
 };
 exports.IssuePriority = {
     NONE: 'NONE',

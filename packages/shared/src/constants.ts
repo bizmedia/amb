@@ -4,7 +4,6 @@ export const ISSUE_STATES = [
   "TODO",
   "IN_PROGRESS",
   "DONE",
-  "CANCELLED",
 ] as const;
 export const ISSUE_PRIORITIES = [
   "NONE",

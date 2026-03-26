@@ -11,10 +11,10 @@
  *   Без path — интерактивный запрос "Введите путь до..."
  */
 
-import readline from "readline";
-import { main as runMcpServer } from "./index.js";
-import { runSeedAgents } from "./seed-agents.js";
-import { runSeedThreads } from "./seed-threads.js";
+import { createInterface } from "readline";
+import { main as runMcpServer } from "./index";
+import { runSeedAgents } from "./seed-agents";
+import { runSeedThreads } from "./seed-threads";
 
 const argv = process.argv.slice(2);
 const cmd = argv[0];
@@ -38,7 +38,7 @@ function askRegistryPath(): Promise<string | undefined> {
       resolve(undefined);
       return;
     }
-    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+    const rl = createInterface({ input: process.stdin, output: process.stdout });
     rl.question(
       "Введите путь до папки или файла с агентами (Enter — .cursor/agents): ",
       (answer) => {

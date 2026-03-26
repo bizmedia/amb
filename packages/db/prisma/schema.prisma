@@ -177,7 +177,6 @@ enum IssueState {
   TODO
   IN_PROGRESS
   DONE
-  CANCELLED
 }
 
 enum IssuePriority {

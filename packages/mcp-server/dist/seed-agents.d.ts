@@ -4,3 +4,4 @@
  */
 import "dotenv/config";
 export declare function runSeedAgents(registryPath?: string): Promise<void>;
+//# sourceMappingURL=seed-agents.d.ts.map

@@ -2,7 +2,6 @@
   "name": "@openaisdk/amb-mcp",
   "version": "0.1.1",
   "description": "MCP server and CLI for Agent Message Bus — use from Cursor, Codex, Claude Code, or any MCP client; list agents, threads, send messages, seed from .cursor/agents/registry.json",
-  "type": "module",
   "main": "dist/index.js",
   "bin": {
     "amb-mcp": "dist/cli.js"
@@ -14,8 +13,8 @@
     "build": "tsc",
     "prepare": "pnpm run build",
     "start": "node dist/index.js",
-    "dev": "tsx index.ts",
-    "seed:agents": "tsx cli.ts seed agents"
+    "dev": "tsx src/index.ts",
+    "seed:agents": "tsx src/cli.ts seed agents"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
@@ -23,6 +22,7 @@
     "zod": "^3.23.0"
   },
   "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
     "@types/node": "^20",
     "tsx": "^4.21.0",
     "typescript": "^5"

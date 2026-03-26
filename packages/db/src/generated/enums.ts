@@ -13,8 +13,7 @@ export const IssueState = {
   BACKLOG: 'BACKLOG',
   TODO: 'TODO',
   IN_PROGRESS: 'IN_PROGRESS',
-  DONE: 'DONE',
-  CANCELLED: 'CANCELLED'
+  DONE: 'DONE'
 } as const
 
 export type IssueState = (typeof IssueState)[keyof typeof IssueState]

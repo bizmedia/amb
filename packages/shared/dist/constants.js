@@ -7,7 +7,6 @@ exports.ISSUE_STATES = [
     "TODO",
     "IN_PROGRESS",
     "DONE",
-    "CANCELLED",
 ];
 exports.ISSUE_PRIORITIES = [
     "NONE",

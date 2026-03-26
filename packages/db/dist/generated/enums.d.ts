@@ -3,7 +3,6 @@ export declare const IssueState: {
     readonly TODO: "TODO";
     readonly IN_PROGRESS: "IN_PROGRESS";
     readonly DONE: "DONE";
-    readonly CANCELLED: "CANCELLED";
 };
 export type IssueState = (typeof IssueState)[keyof typeof IssueState];
 export declare const IssuePriority: {

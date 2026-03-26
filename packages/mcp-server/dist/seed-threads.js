@@ -1,10 +1,16 @@
+"use strict";
 /**
  * Seed default threads from .cursor/agents/registry.json into the Message Bus API.
  * Reads registry from current working directory (project that installed the package).
  */
-import "dotenv/config";
-import fs from "fs/promises";
-import path from "path";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.runSeedThreads = runSeedThreads;
+require("dotenv/config");
+const promises_1 = __importDefault(require("fs/promises"));
+const path_1 = __importDefault(require("path"));
 const API_URL = process.env.MESSAGE_BUS_URL ?? "http://localhost:3333";
 const PROJECT_ID = process.env.MESSAGE_BUS_PROJECT_ID;
 async function createThread(title) {
@@ -47,19 +53,19 @@ async function getExistingThreads() {
 /** Разрешает путь к файлу registry: если передан каталог — ищет registry.json внутри. */
 async function resolveRegistryFile(registryPath) {
     if (!registryPath) {
-        return path.resolve(process.cwd(), ".cursor/agents/registry.json");
+        return path_1.default.resolve(process.cwd(), ".cursor/agents/registry.json");
     }
-    const resolved = path.resolve(process.cwd(), registryPath);
-    const stat = await fs.stat(resolved).catch(() => null);
+    const resolved = path_1.default.resolve(process.cwd(), registryPath);
+    const stat = await promises_1.default.stat(resolved).catch(() => null);
     if (stat?.isDirectory()) {
-        return path.join(resolved, "registry.json");
+        return path_1.default.join(resolved, "registry.json");
     }
     return resolved;
 }
-export async function runSeedThreads(registryPath) {
+async function runSeedThreads(registryPath) {
     console.log("🌱 Seeding default threads...\n");
     const resolved = await resolveRegistryFile(registryPath);
-    const raw = await fs.readFile(resolved, "utf-8");
+    const raw = await promises_1.default.readFile(resolved, "utf-8");
     const registry = JSON.parse(raw);
     const existingThreads = await getExistingThreads();
     console.log(`📋 Existing threads: ${existingThreads.size}\n`);

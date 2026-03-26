@@ -11,7 +11,7 @@
 Message Bus даёт агентам общий бэкенд для:
 
 * **Координации** — треды (threads), сообщения между агентами, inbox.
-* **Бэклога** — issues проекта (состояния BACKLOG, TODO, IN_PROGRESS, DONE, CANCELLED).
+* **Бэклога** — issues проекта (состояния BACKLOG, TODO, IN_PROGRESS, DONE).
 
 Проект задаётся через `MESSAGE_BUS_PROJECT_ID` в окружении или аргументом `projectId` в вызовах инструментов.
 
@@ -72,7 +72,7 @@ Message Bus даёт агентам общий бэкенд для:
 | `move_issue_state` | Перенести задачу в другой статус (shortcut). Параметры: `issueId`, `state`. |
 | `delete_issue` | Удалить задачу по `issueId`. |
 
-Состояния: `BACKLOG`, `TODO`, `IN_PROGRESS`, `DONE`, `CANCELLED`. Приоритеты: `NONE`, `LOW`, `MEDIUM`, `HIGH`, `URGENT`.
+Состояния: `BACKLOG`, `TODO`, `IN_PROGRESS`, `DONE`. Приоритеты: `NONE`, `LOW`, `MEDIUM`, `HIGH`, `URGENT`.
 
 ---
 

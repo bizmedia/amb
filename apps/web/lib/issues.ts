@@ -5,7 +5,6 @@ export const ISSUE_STATES: IssueState[] = [
   "TODO",
   "IN_PROGRESS",
   "DONE",
-  "CANCELLED",
 ];
 
 export const ISSUE_PRIORITIES: IssuePriority[] = ["NONE", "LOW", "MEDIUM", "HIGH", "URGENT"];
@@ -15,7 +14,6 @@ export const ISSUE_STATE_LABELS: Record<IssueState, string> = {
   TODO: "Todo",
   IN_PROGRESS: "In Progress",
   DONE: "Done",
-  CANCELLED: "Cancelled",
 };
 
 export const ISSUE_PRIORITY_LABELS: Record<IssuePriority, string> = {

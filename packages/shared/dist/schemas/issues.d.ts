@@ -4,7 +4,6 @@ export declare const issueStateSchema: z.ZodEnum<{
     TODO: "TODO";
     IN_PROGRESS: "IN_PROGRESS";
     DONE: "DONE";
-    CANCELLED: "CANCELLED";
 }>;
 export declare const issuePrioritySchema: z.ZodEnum<{
     NONE: "NONE";
@@ -21,7 +20,6 @@ export declare const createIssueSchema: z.ZodObject<{
         TODO: "TODO";
         IN_PROGRESS: "IN_PROGRESS";
         DONE: "DONE";
-        CANCELLED: "CANCELLED";
     }>>;
     priority: z.ZodOptional<z.ZodEnum<{
         NONE: "NONE";
@@ -41,7 +39,6 @@ export declare const updateIssueSchema: z.ZodObject<{
         TODO: "TODO";
         IN_PROGRESS: "IN_PROGRESS";
         DONE: "DONE";
-        CANCELLED: "CANCELLED";
     }>>;
     priority: z.ZodOptional<z.ZodEnum<{
         NONE: "NONE";
@@ -59,7 +56,6 @@ export declare const listIssuesQuerySchema: z.ZodObject<{
         TODO: "TODO";
         IN_PROGRESS: "IN_PROGRESS";
         DONE: "DONE";
-        CANCELLED: "CANCELLED";
     }>>;
     priority: z.ZodOptional<z.ZodEnum<{
         NONE: "NONE";

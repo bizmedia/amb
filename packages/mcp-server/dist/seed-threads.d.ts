@@ -4,3 +4,4 @@
  */
 import "dotenv/config";
 export declare function runSeedThreads(registryPath?: string): Promise<void>;
+//# sourceMappingURL=seed-threads.d.ts.map
