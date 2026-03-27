@@ -18,7 +18,7 @@ echo "[deploy] starting postgres"
 $COMPOSE up -d postgres
 
 echo "[deploy] applying migrations"
-$COMPOSE run --rm api sh -lc "corepack enable && pnpm install --frozen-lockfile && pnpm db:migrate:deploy"
+$COMPOSE run --rm api sh -lc "corepack enable && sh scripts/compose-pre-pnpm-install.sh && pnpm install --frozen-lockfile && pnpm db:migrate:deploy"
 
 echo "[deploy] starting api + web"
 $COMPOSE up -d api web

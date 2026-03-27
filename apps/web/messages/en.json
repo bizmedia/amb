@@ -63,7 +63,26 @@
     "emptyStateHint": "Open the project menu → Create project, enter a name, and the workspace will appear here.",
     "sidebarUserMenu": "Account menu",
     "sidebarUserFallback": "User",
-    "sidebarUserHint": "Signed in"
+    "sidebarUserHint": "Signed in",
+    "profile": "Profile"
+  },
+  "Profile": {
+    "title": "Profile",
+    "accountSection": "Account",
+    "accountSectionDesc": "Information from your signed-in session.",
+    "sessionSection": "Workspace & session",
+    "sessionSectionDesc": "Tenant, default project context from the token, and session expiry.",
+    "email": "Email",
+    "userId": "User ID",
+    "tenantId": "Tenant ID",
+    "projectId": "Project ID (token context)",
+    "roles": "Roles",
+    "tokenType": "Token type",
+    "sessionExpires": "Session expires",
+    "footerHint": "To change your password or email, contact your administrator. This page reflects the current JWT only.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "fallbackName": "User"
   },
   "Auth": {
     "title": "Sign in",
@@ -84,6 +103,7 @@
     "errorQueue": "Error queue (DLQ)",
     "search": "Search",
     "help": "Help",
+    "profile": "Profile",
     "actionsHeading": "Actions",
     "selectionHeading": "Selection",
     "messagesHeading": "Messages",

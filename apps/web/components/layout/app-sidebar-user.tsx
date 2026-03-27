@@ -9,6 +9,7 @@ import {
   LogOutIcon,
   MoonIcon,
   SunIcon,
+  UserRoundIcon,
 } from "lucide-react";
 
 import {
@@ -34,11 +35,21 @@ import { routing } from "@/i18n/routing";
 
 type SessionUser = {
   userId: string | null;
+  email: string | null;
   tenantId: string | null;
   roles: string[];
 };
 
-function userInitials(userId: string | null): string {
+function userInitials(email: string | null, userId: string | null): string {
+  const e = email?.trim();
+  if (e) {
+    const local = e.split("@")[0] ?? "";
+    const letters = local.replace(/[^a-zA-Z0-9]/g, "");
+    if (letters.length >= 2) return letters.slice(0, 2).toUpperCase();
+    if (letters.length === 1) return `${letters}${letters}`.toUpperCase();
+    if (local.length >= 2) return local.slice(0, 2).toUpperCase();
+    if (local.length === 1) return `${local}${local}`.toUpperCase();
+  }
   if (!userId?.trim()) return "?";
   const s = userId.trim();
   if (s.length <= 2) return s.toUpperCase();
@@ -66,6 +77,7 @@ export function AppSidebarUser() {
         if (json?.data?.authenticated) {
           setUser({
             userId: json.data.userId ?? null,
+            email: typeof json.data.email === "string" ? json.data.email : null,
             tenantId: json.data.tenantId ?? null,
             roles: Array.isArray(json.data.roles) ? json.data.roles : [],
           });
@@ -111,7 +123,8 @@ export function AppSidebarUser() {
     }
   }, [redirectToLogin]);
 
-  const displayName = user?.userId?.trim() || t("sidebarUserFallback");
+  const displayName =
+    user?.email?.trim() || user?.userId?.trim() || t("sidebarUserFallback");
   const subtitle =
     user?.roles?.length ? user.roles.join(", ") : user?.tenantId?.trim() || t("sidebarUserHint");
 
@@ -143,7 +156,9 @@ export function AppSidebarUser() {
                 tooltip={t("sidebarUserMenu")}
               >
                 <div className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-sidebar-border bg-sidebar-accent text-sidebar-accent-foreground">
-                  <span className="text-xs font-semibold">{userInitials(user.userId)}</span>
+                  <span className="text-xs font-semibold">
+                    {userInitials(user.email, user.userId)}
+                  </span>
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{displayName}</span>
@@ -153,6 +168,13 @@ export function AppSidebarUser() {
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56 rounded-lg" side="top" align="start" sideOffset={4}>
+              <DropdownMenuItem asChild>
+                <Link href="/profile" className="flex items-center gap-2">
+                  <UserRoundIcon className="size-4" />
+                  {t("profile")}
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={toggleTheme} className="gap-2">
                 {resolvedTheme === "dark" ? (
                   <SunIcon className="size-4" />

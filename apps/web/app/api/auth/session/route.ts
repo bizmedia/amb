@@ -27,6 +27,7 @@ export async function GET(request: Request) {
       authenticated: true,
       tokenType: payload.type ?? null,
       userId: payload.userId ?? null,
+      email: typeof payload.email === "string" ? payload.email : null,
       tenantId: payload.tenantId ?? null,
       projectId: payload.projectId ?? null,
       roles: payload.roles ?? [],

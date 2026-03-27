@@ -63,7 +63,26 @@
     "emptyStateHint": "Меню проекта → «Создать проект», введите имя — рабочая область откроется здесь.",
     "sidebarUserMenu": "Меню аккаунта",
     "sidebarUserFallback": "Пользователь",
-    "sidebarUserHint": "Учётная запись"
+    "sidebarUserHint": "Учётная запись",
+    "profile": "Профиль"
+  },
+  "Profile": {
+    "title": "Профиль",
+    "accountSection": "Аккаунт",
+    "accountSectionDesc": "Данные из текущей сессии.",
+    "sessionSection": "Рабочая область и сессия",
+    "sessionSectionDesc": "Tenant, проект из контекста токена и срок действия сессии.",
+    "email": "Email",
+    "userId": "ID пользователя",
+    "tenantId": "ID tenant",
+    "projectId": "ID проекта (контекст токена)",
+    "roles": "Роли",
+    "tokenType": "Тип токена",
+    "sessionExpires": "Сессия истекает",
+    "footerHint": "Смена пароля или email — через администратора. Страница отражает только текущий JWT.",
+    "copy": "Копировать",
+    "copied": "Скопировано",
+    "fallbackName": "Пользователь"
   },
   "Auth": {
     "title": "Вход",
@@ -84,6 +103,7 @@
     "errorQueue": "Очередь ошибок (DLQ)",
     "search": "Поиск",
     "help": "Помощь",
+    "profile": "Профиль",
     "actionsHeading": "Действия",
     "selectionHeading": "Выбор",
     "messagesHeading": "Сообщения",

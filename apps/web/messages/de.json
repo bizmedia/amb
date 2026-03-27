@@ -63,7 +63,26 @@
     "emptyStateHint": "Projektmenü → Projekt erstellen, Namen eingeben — der Arbeitsbereich erscheint hier.",
     "sidebarUserMenu": "Kontomenü",
     "sidebarUserFallback": "Benutzer",
-    "sidebarUserHint": "Angemeldet"
+    "sidebarUserHint": "Angemeldet",
+    "profile": "Profil"
+  },
+  "Profile": {
+    "title": "Profil",
+    "accountSection": "Konto",
+    "accountSectionDesc": "Angaben aus Ihrer angemeldeten Sitzung.",
+    "sessionSection": "Arbeitsbereich & Sitzung",
+    "sessionSectionDesc": "Mandant, Standard-Projektkontext aus dem Token und Ablauf der Sitzung.",
+    "email": "E-Mail",
+    "userId": "Benutzer-ID",
+    "tenantId": "Mandanten-ID",
+    "projectId": "Projekt-ID (Token-Kontext)",
+    "roles": "Rollen",
+    "tokenType": "Token-Typ",
+    "sessionExpires": "Sitzung läuft ab",
+    "footerHint": "Passwort oder E-Mail ändern Sie über Ihren Administrator. Diese Seite zeigt nur das aktuelle JWT.",
+    "copy": "Kopieren",
+    "copied": "Kopiert",
+    "fallbackName": "Benutzer"
   },
   "Auth": {
     "title": "Anmelden",
@@ -84,6 +103,7 @@
     "errorQueue": "Fehlerwarteschlange (DLQ)",
     "search": "Suchen",
     "help": "Hilfe",
+    "profile": "Profil",
     "actionsHeading": "Aktionen",
     "selectionHeading": "Auswahl",
     "messagesHeading": "Nachrichten",

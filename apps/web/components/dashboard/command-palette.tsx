@@ -27,6 +27,7 @@ import {
   SendIcon,
   BookOpenIcon,
   HelpCircleIcon,
+  UserRoundIcon,
 } from "lucide-react"
 
 type CommandPaletteProps = {
@@ -104,11 +105,13 @@ export function CommandPalette({
             <BookOpenIcon className="size-4" />
             <span>{t("apiDocsSwagger")}</span>
           </CommandItem>
-          <CommandItem
-            onSelect={() => runCommand(() => router.push("/help"))}
-          >
+          <CommandItem onSelect={() => runCommand(() => router.push("/help"))}>
             <HelpCircleIcon className="size-4" />
             <span>{t("help")}</span>
+          </CommandItem>
+          <CommandItem onSelect={() => runCommand(() => router.push("/profile"))}>
+            <UserRoundIcon className="size-4" />
+            <span>{t("profile")}</span>
           </CommandItem>
         </CommandGroup>
 

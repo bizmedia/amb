@@ -33,6 +33,7 @@ services:
       CI: "true"
     command: >
       sh -lc "corepack enable &&
+      sh scripts/compose-pre-pnpm-install.sh &&
       pnpm install --frozen-lockfile &&
       pnpm db:migrate:deploy &&
       pnpm turbo build --filter=amb-api &&
@@ -60,6 +61,7 @@ services:
       CI: "true"
     command: >
       sh -lc "corepack enable &&
+      sh scripts/compose-pre-pnpm-install.sh &&
       pnpm install --frozen-lockfile &&
       pnpm turbo build --filter=amb-web &&
       pnpm --filter amb-web start"
@@ -88,6 +90,7 @@ services:
       CI: "true"
     command: >
       sh -lc "corepack enable &&
+      sh scripts/compose-pre-pnpm-install.sh &&
       pnpm install --frozen-lockfile &&
       until nc -z api 3334; do echo 'waiting for api...'; sleep 2; done &&
       until nc -z web 3333; do echo 'waiting for web...'; sleep 2; done &&

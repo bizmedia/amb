@@ -18,6 +18,7 @@ export function AppBreadcrumb() {
   const tTasks = useTranslations("Tasks");
   const tTokens = useTranslations("Tokens");
   const tHelp = useTranslations("Help");
+  const tProfile = useTranslations("Profile");
 
   if (!pathname || pathname === "/") {
     return (
@@ -117,6 +118,24 @@ export function AppBreadcrumb() {
           <BreadcrumbSeparator className="hidden md:block" />
           <BreadcrumbItem>
             <BreadcrumbPage>{tTokens("title")}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+    );
+  }
+
+  if (pathname.startsWith("/profile")) {
+    return (
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem className="hidden md:block">
+            <BreadcrumbLink asChild>
+              <Link href="/">{tDash("title")}</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator className="hidden md:block" />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{tProfile("title")}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

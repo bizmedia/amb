@@ -10,7 +10,8 @@ function isProtectedLocalePath(pathname: string, locale: string): boolean {
   return (
     pathname === base ||
     pathname.startsWith(`${base}/tasks`) ||
-    pathname.startsWith(`${base}/tokens`)
+    pathname.startsWith(`${base}/tokens`) ||
+    pathname.startsWith(`${base}/profile`)
   );
 }
 
