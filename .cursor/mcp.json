@@ -6,7 +6,7 @@
       "cwd": "${workspaceFolder}",
       "env": {
         "MESSAGE_BUS_URL": "http://localhost:3333",
-        "MESSAGE_BUS_PROJECT_ID": "0d9731c1-84a7-4e17-904d-5dc40cbae420" // Project ID for the local stack
+        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222" // Project ID for the local stack
       }
     }
   }

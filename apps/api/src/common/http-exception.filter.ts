@@ -7,7 +7,13 @@ import {
   HttpException,
 } from "@nestjs/common";
 import { Response } from "express";
+import { Prisma } from "@amb-app/db";
 import { NotFoundError, ConflictError } from "@amb-app/shared";
+
+const PRISMA_SCHEMA_DRIFT_CODES = new Set([
+  "P2021", // table does not exist
+  "P2022", // column does not exist
+]);
 
 function isZodError(e: unknown): e is { flatten: () => unknown } {
   return (
@@ -46,6 +52,24 @@ export class AllExceptionsFilter implements ExceptionFilter {
       code = "invalid_request";
       message = "Invalid request body";
       details = exception.flatten();
+    } else if (exception instanceof Prisma.PrismaClientKnownRequestError) {
+      const meta =
+        exception.meta !== undefined && exception.meta !== null
+          ? JSON.stringify(exception.meta)
+          : "";
+      this.logger.error(
+        `Prisma ${exception.code}: ${exception.message}${meta ? ` ${meta}` : ""}`,
+      );
+      if (PRISMA_SCHEMA_DRIFT_CODES.has(exception.code)) {
+        status = HttpStatus.SERVICE_UNAVAILABLE;
+        code = "database_schema_mismatch";
+        message =
+          "Database schema is out of date. From the repo root run: pnpm db:migrate:deploy";
+      } else {
+        status = HttpStatus.INTERNAL_SERVER_ERROR;
+        code = "database_error";
+        message = "Database request failed";
+      }
     } else if (exception instanceof HttpException) {
       status = exception.getStatus();
       const payload = exception.getResponse();
@@ -66,7 +90,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
       }
     }
 
-    if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
+    if (
+      status === HttpStatus.INTERNAL_SERVER_ERROR &&
+      !(exception instanceof Prisma.PrismaClientKnownRequestError)
+    ) {
       this.logger.error(exception);
     }
 

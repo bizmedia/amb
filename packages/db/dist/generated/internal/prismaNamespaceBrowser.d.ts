@@ -32,9 +32,11 @@ export declare const ModelName: {
     readonly Tenant: "Tenant";
     readonly User: "User";
     readonly Project: "Project";
+    readonly Sprint: "Sprint";
+    readonly Epic: "Epic";
     readonly ProjectToken: "ProjectToken";
     readonly ProjectTokenAudit: "ProjectTokenAudit";
-    readonly Issue: "Issue";
+    readonly Task: "Task";
 };
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
 export declare const TransactionIsolationLevel: {
@@ -104,9 +106,33 @@ export declare const ProjectScalarFieldEnum: {
     readonly tenantId: "tenantId";
     readonly name: "name";
     readonly slug: "slug";
+    readonly taskPrefix: "taskPrefix";
+    readonly taskSequence: "taskSequence";
     readonly createdAt: "createdAt";
 };
 export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum];
+export declare const SprintScalarFieldEnum: {
+    readonly id: "id";
+    readonly projectId: "projectId";
+    readonly name: "name";
+    readonly goal: "goal";
+    readonly startDate: "startDate";
+    readonly endDate: "endDate";
+    readonly status: "status";
+    readonly createdAt: "createdAt";
+    readonly updatedAt: "updatedAt";
+};
+export type SprintScalarFieldEnum = (typeof SprintScalarFieldEnum)[keyof typeof SprintScalarFieldEnum];
+export declare const EpicScalarFieldEnum: {
+    readonly id: "id";
+    readonly projectId: "projectId";
+    readonly title: "title";
+    readonly description: "description";
+    readonly status: "status";
+    readonly createdAt: "createdAt";
+    readonly updatedAt: "updatedAt";
+};
+export type EpicScalarFieldEnum = (typeof EpicScalarFieldEnum)[keyof typeof EpicScalarFieldEnum];
 export declare const ProjectTokenScalarFieldEnum: {
     readonly id: "id";
     readonly tenantId: "tenantId";
@@ -133,19 +159,22 @@ export declare const ProjectTokenAuditScalarFieldEnum: {
     readonly createdAt: "createdAt";
 };
 export type ProjectTokenAuditScalarFieldEnum = (typeof ProjectTokenAuditScalarFieldEnum)[keyof typeof ProjectTokenAuditScalarFieldEnum];
-export declare const IssueScalarFieldEnum: {
+export declare const TaskScalarFieldEnum: {
     readonly id: "id";
     readonly projectId: "projectId";
+    readonly key: "key";
     readonly title: "title";
     readonly description: "description";
     readonly state: "state";
     readonly priority: "priority";
     readonly assigneeId: "assigneeId";
+    readonly epicId: "epicId";
+    readonly sprintId: "sprintId";
     readonly dueDate: "dueDate";
     readonly createdAt: "createdAt";
     readonly updatedAt: "updatedAt";
 };
-export type IssueScalarFieldEnum = (typeof IssueScalarFieldEnum)[keyof typeof IssueScalarFieldEnum];
+export type TaskScalarFieldEnum = (typeof TaskScalarFieldEnum)[keyof typeof TaskScalarFieldEnum];
 export declare const SortOrder: {
     readonly asc: "asc";
     readonly desc: "desc";

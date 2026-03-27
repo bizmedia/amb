@@ -15,6 +15,7 @@ export type Project = {
   tenantId?: string | null;
   name: string;
   slug: string;
+  taskPrefix?: string | null;
   createdAt: string;
 };
 

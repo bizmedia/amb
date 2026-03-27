@@ -3,7 +3,7 @@
   "version": "0.1.2",
   "private": true,
   "scripts": {
-    "dev": "echo '' && echo '  API Docs (Swagger): http://localhost:3333/api-docs' && echo '' && next dev -p 3333",
+    "dev": "P=${PORT:-3333}; echo '' && echo \"  API Docs (Swagger): http://localhost:$P/api-docs\" && echo '' && exec next dev -p \"$P\"",
     "build": "next build",
     "start": "next start -p 3333",
     "lint": "eslint",
@@ -40,7 +40,7 @@
     "next-intl": "^4.8.3",
     "radix-ui": "^1.4.3",
     "react": "19.2.3",
-    "react-day-picker": "^9.13.0",
+    "react-day-picker": "^9.14.0",
     "react-dom": "19.2.3",
     "react-json-view-lite": "^2.5.0",
     "react-markdown": "^10.1.0",

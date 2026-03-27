@@ -6,11 +6,14 @@ import { ChevronLeftIcon, ChevronRightIcon, CalendarIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 
 type DatePickerProps = {
   value?: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  /** Classes for the trigger button (e.g. fixed width in filter bars) */
+  triggerClassName?: string;
 };
 
 function toDateInputValue(date: Date): string {
@@ -31,7 +34,7 @@ function monthLabel(date: Date): string {
   return date.toLocaleDateString(undefined, { month: "long", year: "numeric" });
 }
 
-export function DatePicker({ value, onChange, placeholder: placeholderProp }: DatePickerProps) {
+export function DatePicker({ value, onChange, placeholder: placeholderProp, triggerClassName }: DatePickerProps) {
   const t = useTranslations("Ui");
   const placeholder = placeholderProp ?? t("selectDate");
   const [open, setOpen] = useState(false);
@@ -66,7 +69,10 @@ export function DatePicker({ value, onChange, placeholder: placeholderProp }: Da
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="w-full justify-start gap-2 font-normal">
+        <Button
+          variant="outline"
+          className={cn("w-full justify-start gap-2 font-normal", triggerClassName)}
+        >
           <CalendarIcon className="size-4" />
           {selectedDate ? selectedDate.toLocaleDateString() : <span className="text-muted-foreground">{placeholder}</span>}
         </Button>

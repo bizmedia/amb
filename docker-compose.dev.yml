@@ -1,0 +1,24 @@
+# Только PostgreSQL для гибридной разработки (`pnpm dev` на хосте).
+# Проект `amb-dev`, порт 5434 и отдельный том — не пересекаются с `docker-compose.yml` / `deploy:local`.
+name: amb-dev
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: amb-dev-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: amb
+    ports:
+      - "${POSTGRES_DEV_PORT:-5434}:5432"
+    volumes:
+      - amb_dev_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d amb"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  amb_dev_postgres_data:

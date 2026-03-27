@@ -14,10 +14,12 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.IssuePriority = exports.IssueState = exports.Prisma = exports.PrismaClient = void 0;
+exports.SprintStatus = exports.EpicStatus = exports.TaskPriority = exports.TaskState = exports.Prisma = exports.PrismaClient = void 0;
 var client_1 = require("./generated/client");
 Object.defineProperty(exports, "PrismaClient", { enumerable: true, get: function () { return client_1.PrismaClient; } });
 Object.defineProperty(exports, "Prisma", { enumerable: true, get: function () { return client_1.Prisma; } });
-Object.defineProperty(exports, "IssueState", { enumerable: true, get: function () { return client_1.IssueState; } });
-Object.defineProperty(exports, "IssuePriority", { enumerable: true, get: function () { return client_1.IssuePriority; } });
+Object.defineProperty(exports, "TaskState", { enumerable: true, get: function () { return client_1.TaskState; } });
+Object.defineProperty(exports, "TaskPriority", { enumerable: true, get: function () { return client_1.TaskPriority; } });
+Object.defineProperty(exports, "EpicStatus", { enumerable: true, get: function () { return client_1.EpicStatus; } });
+Object.defineProperty(exports, "SprintStatus", { enumerable: true, get: function () { return client_1.SprintStatus; } });
 __exportStar(require("./rls"), exports);

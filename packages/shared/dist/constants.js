@@ -1,14 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ISSUE_PRIORITIES = exports.ISSUE_STATES = exports.THREAD_STATUSES = void 0;
+exports.TASK_PRIORITIES = exports.TASK_STATES = exports.THREAD_STATUSES = void 0;
 exports.THREAD_STATUSES = ["open", "closed", "archived"];
-exports.ISSUE_STATES = [
+exports.TASK_STATES = [
     "BACKLOG",
     "TODO",
     "IN_PROGRESS",
     "DONE",
 ];
-exports.ISSUE_PRIORITIES = [
+exports.TASK_PRIORITIES = [
     "NONE",
     "LOW",
     "MEDIUM",

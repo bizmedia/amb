@@ -1,7 +1,7 @@
-/** Task / issue column states (API IssueState enum). */
-export const ISSUE_STATE_ENUM = ["BACKLOG", "TODO", "IN_PROGRESS", "DONE"] as const;
+/** Kanban column states (API TaskState enum). */
+export const TASK_STATE_ENUM = ["BACKLOG", "TODO", "IN_PROGRESS", "DONE"] as const;
 
-export const ISSUE_PRIORITY_ENUM = [
+export const TASK_PRIORITY_ENUM = [
   "NONE",
   "LOW",
   "MEDIUM",
@@ -37,30 +37,32 @@ function objectSchema(properties: Record<string, unknown>, required: string[]) {
   };
 }
 
-const listIssuesQueryProps = {
+const listTasksQueryProps = {
   projectId: PROJECT_ID_PROP,
-  state: enumString(ISSUE_STATE_ENUM, "Filter by state (Kanban column)"),
-  priority: enumString(ISSUE_PRIORITY_ENUM, "Filter by priority"),
+  state: enumString(TASK_STATE_ENUM, "Filter by state (Kanban column)"),
+  priority: enumString(TASK_PRIORITY_ENUM, "Filter by priority"),
   assignee: str("Filter by assignee agent UUID"),
+  key: str("Exact task key (e.g. AMB-0001)"),
+  search: str("Prefix match on task key"),
   dueFrom: str("Filter by due date from (ISO date or datetime)"),
   dueTo: str("Filter by due date to (ISO date or datetime)"),
 };
 
-const createIssueProps = {
+const createTaskProps = {
   projectId: PROJECT_ID_PROP,
   title: str("Title (required)"),
   description: str("Description"),
-  state: enumString(ISSUE_STATE_ENUM, "State"),
-  priority: enumString(ISSUE_PRIORITY_ENUM, "Priority"),
+  state: enumString(TASK_STATE_ENUM, "State"),
+  priority: enumString(TASK_PRIORITY_ENUM, "Priority"),
   assigneeId: str("Assignee agent UUID (must belong to project)"),
   dueDate: str("Due date (ISO datetime)"),
 };
 
-const updateIssueBodyProps = {
+const updateTaskBodyProps = {
   title: str("Title"),
   description: str("Description (nullable)"),
-  state: enumString(ISSUE_STATE_ENUM, "State"),
-  priority: enumString(ISSUE_PRIORITY_ENUM, "Priority"),
+  state: enumString(TASK_STATE_ENUM, "State"),
+  priority: enumString(TASK_PRIORITY_ENUM, "Priority"),
   assigneeId: str("Assignee agent UUID (nullable via null)"),
   dueDate: str("Due date (ISO datetime, nullable via null)"),
 };
@@ -75,78 +77,77 @@ export const tools = [
   },
   {
     name: "list_issues",
-    description: "List project issues with optional filters",
-    inputSchema: objectSchema(listIssuesQueryProps, []),
+    description: "List project tasks (legacy name; same as list_tasks)",
+    inputSchema: objectSchema(listTasksQueryProps, []),
   },
   {
     name: "create_issue",
-    description: "Create a new project issue",
-    inputSchema: objectSchema(createIssueProps, ["title"]),
+    description: "Create a project task (legacy name; same as create_task)",
+    inputSchema: objectSchema(createTaskProps, ["title"]),
   },
   {
     name: "get_issue",
-    description: "Get issue by ID",
+    description: "Get task by UUID or key (legacy name; same as get_task)",
     inputSchema: objectSchema(
       {
         projectId: PROJECT_ID_PROP,
-        issueId: str("Issue UUID"),
+        issueId: str("Task UUID or human-readable key (e.g. AMB-0001)"),
       },
       ["issueId"]
     ),
   },
   {
     name: "update_issue",
-    description: "Update issue fields",
+    description: "Update task fields (legacy name)",
     inputSchema: objectSchema(
       {
         projectId: PROJECT_ID_PROP,
-        issueId: str("Issue UUID"),
-        ...updateIssueBodyProps,
+        issueId: str("Task UUID or key"),
+        ...updateTaskBodyProps,
       },
       ["issueId"]
     ),
   },
   {
     name: "move_issue_state",
-    description: "Move issue to another state (kanban-style shortcut)",
+    description: "Move task to another state (legacy name)",
     inputSchema: objectSchema(
       {
         projectId: PROJECT_ID_PROP,
-        issueId: str("Issue UUID"),
-        state: enumString(ISSUE_STATE_ENUM, "Target issue state"),
+        issueId: str("Task UUID or key"),
+        state: enumString(TASK_STATE_ENUM, "Target state"),
       },
       ["issueId", "state"]
     ),
   },
   {
     name: "delete_issue",
-    description: "Delete issue by ID",
+    description: "Delete task by UUID or key (legacy name)",
     inputSchema: objectSchema(
       {
         projectId: PROJECT_ID_PROP,
-        issueId: str("Issue UUID"),
+        issueId: str("Task UUID or key"),
       },
       ["issueId"]
     ),
   },
   {
     name: "list_tasks",
-    description:
-      "List project tasks (Kanban/issues). Same as list_issues; use for Dashboard «Tasks» workflow.",
-    inputSchema: objectSchema(listIssuesQueryProps, []),
+    description: "List project tasks with optional filters",
+    inputSchema: objectSchema(listTasksQueryProps, []),
   },
   {
     name: "create_task",
-    description: "Create a project task (issue on the board)",
-    inputSchema: objectSchema(createIssueProps, ["title"]),
+    description: "Create a project task",
+    inputSchema: objectSchema(createTaskProps, ["title"]),
   },
   {
     name: "get_task",
-    description: "Get a project task by ID",
+    description: "Get a task by UUID or human-readable key (e.g. AMB-0001)",
     inputSchema: objectSchema(
       {
         projectId: PROJECT_ID_PROP,
-        taskId: str("Task UUID (same as issue id in API)"),
+        taskId: str("Task UUID or key"),
       },
       ["taskId"]
     ),
@@ -157,8 +158,8 @@ export const tools = [
     inputSchema: objectSchema(
       {
         projectId: PROJECT_ID_PROP,
-        taskId: str("Task UUID"),
-        ...updateIssueBodyProps,
+        taskId: str("Task UUID or key"),
+        ...updateTaskBodyProps,
       },
       ["taskId"]
     ),
@@ -169,19 +170,19 @@ export const tools = [
     inputSchema: objectSchema(
       {
         projectId: PROJECT_ID_PROP,
-        taskId: str("Task UUID"),
-        state: enumString(ISSUE_STATE_ENUM, "Target state"),
+        taskId: str("Task UUID or key"),
+        state: enumString(TASK_STATE_ENUM, "Target state"),
       },
       ["taskId", "state"]
     ),
   },
   {
     name: "delete_task",
-    description: "Delete a project task by ID",
+    description: "Delete a project task by UUID or key",
     inputSchema: objectSchema(
       {
         projectId: PROJECT_ID_PROP,
-        taskId: str("Task UUID"),
+        taskId: str("Task UUID or key"),
       },
       ["taskId"]
     ),

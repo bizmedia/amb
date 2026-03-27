@@ -178,6 +178,28 @@ export interface PrismaClient<in LogOpts extends Prisma.LogLevel = never, in out
         omit: OmitOpts;
     }>;
     /**
+     * `prisma.sprint`: Exposes CRUD operations for the **Sprint** model.
+      * Example usage:
+      * ```ts
+      * // Fetch zero or more Sprints
+      * const sprints = await prisma.sprint.findMany()
+      * ```
+      */
+    get sprint(): Prisma.SprintDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
+    /**
+     * `prisma.epic`: Exposes CRUD operations for the **Epic** model.
+      * Example usage:
+      * ```ts
+      * // Fetch zero or more Epics
+      * const epics = await prisma.epic.findMany()
+      * ```
+      */
+    get epic(): Prisma.EpicDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
+    /**
      * `prisma.projectToken`: Exposes CRUD operations for the **ProjectToken** model.
       * Example usage:
       * ```ts
@@ -200,14 +222,14 @@ export interface PrismaClient<in LogOpts extends Prisma.LogLevel = never, in out
         omit: OmitOpts;
     }>;
     /**
-     * `prisma.issue`: Exposes CRUD operations for the **Issue** model.
+     * `prisma.task`: Exposes CRUD operations for the **Task** model.
       * Example usage:
       * ```ts
-      * // Fetch zero or more Issues
-      * const issues = await prisma.issue.findMany()
+      * // Fetch zero or more Tasks
+      * const tasks = await prisma.task.findMany()
       * ```
       */
-    get issue(): Prisma.IssueDelegate<ExtArgs, {
+    get task(): Prisma.TaskDelegate<ExtArgs, {
         omit: OmitOpts;
     }>;
 }

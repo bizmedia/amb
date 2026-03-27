@@ -2,7 +2,7 @@ import type { ToolArgs } from "../types/tool-args";
 
 export type ArgResolvers = {
   resolveProjectId(args: ToolArgs): string;
-  resolveIssueOrTaskId(args: ToolArgs): string;
+  resolveTaskId(args: ToolArgs): string;
 };
 
 export function createArgResolvers(defaultProjectId?: string): ArgResolvers {
@@ -22,7 +22,7 @@ export function createArgResolvers(defaultProjectId?: string): ArgResolvers {
       return projectId;
     },
 
-    resolveIssueOrTaskId(args: ToolArgs): string {
+    resolveTaskId(args: ToolArgs): string {
       const fromTask =
         typeof args.taskId === "string" && args.taskId.trim().length > 0
           ? args.taskId.trim()
@@ -33,7 +33,7 @@ export function createArgResolvers(defaultProjectId?: string): ArgResolvers {
           : "";
       const id = fromTask || fromIssue;
       if (!id) {
-        throw new Error("issueId or taskId is required");
+        throw new Error("taskId or issueId (legacy) is required");
       }
       return id;
     },

@@ -21,7 +21,7 @@ for i in $(seq 1 "${MAX_ATTEMPTS}"); do
     echo ""
     exit 0
   fi
-  printf "  [%s/%s] сервис ещё не отвечает…\n" "${i}" "${MAX_ATTEMPTS}"
+  printf "  [%s/%s] сервер в процессе запуска…\n" "${i}" "${MAX_ATTEMPTS}"
   sleep "${SLEEP}"
 done
 

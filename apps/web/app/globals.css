@@ -83,6 +83,73 @@
   --sidebar-accent-foreground: oklch(0.2 0.02 260);
   --sidebar-border: oklch(0.9 0.03 80);
   --sidebar-ring: oklch(0.62 0.17 22);
+  /* Unified page rhythm (see .amb-page-gutter / .amb-content-area) */
+  --page-gutter: 1.25rem;
+  --content-py: 1rem;
+  --content-py-lg: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --page-gutter: 1.5rem;
+  }
+}
+
+/* react-day-picker: same tokens as UI (.rdp-root + .rdp-shadcn-theme beats bundled defaults) */
+.rdp-root.rdp-shadcn-theme {
+  --rdp-accent-color: var(--primary);
+  --rdp-accent-background-color: color-mix(in oklch, var(--primary) 14%, transparent);
+  --rdp-range_middle-background-color: color-mix(in oklch, var(--primary) 11%, transparent);
+  --rdp-range_middle-color: var(--foreground);
+  --rdp-range_start-date-background-color: var(--primary);
+  --rdp-range_end-date-background-color: var(--primary);
+  --rdp-range_start-color: var(--primary-foreground);
+  --rdp-range_end-color: var(--primary-foreground);
+  --rdp-today-color: var(--primary);
+  --rdp-selected-border: 2px solid color-mix(in oklch, var(--primary) 45%, transparent);
+  --rdp-day-height: 2.25rem;
+  --rdp-day-width: 2.25rem;
+  --rdp-day_button-height: 2.125rem;
+  --rdp-day_button-width: 2.125rem;
+  --rdp-day_button-border-radius: var(--radius-md);
+  --rdp-weekday-opacity: 1;
+  --rdp-outside-opacity: 0.42;
+  color: var(--foreground);
+}
+
+.rdp-root.rdp-shadcn-theme .rdp-month_caption {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.rdp-root.rdp-shadcn-theme .rdp-weekday {
+  color: var(--muted-foreground);
+}
+
+.rdp-root.rdp-shadcn-theme .rdp-chevron {
+  fill: var(--muted-foreground);
+}
+
+.rdp-root.rdp-shadcn-theme .rdp-button_next,
+.rdp-root.rdp-shadcn-theme .rdp-button_previous {
+  border-radius: var(--radius-md);
+  color: var(--muted-foreground);
+}
+
+.rdp-root.rdp-shadcn-theme .rdp-button_next:hover,
+.rdp-root.rdp-shadcn-theme .rdp-button_previous:hover {
+  background-color: color-mix(in oklch, var(--muted) 50%, transparent);
+  color: var(--foreground);
+}
+
+.rdp-root.rdp-shadcn-theme .rdp-button_next:hover .rdp-chevron,
+.rdp-root.rdp-shadcn-theme .rdp-button_previous:hover .rdp-chevron {
+  fill: var(--foreground);
+}
+
+.rdp-root.rdp-shadcn-theme .rdp-day_button:not(:disabled):hover {
+  background-color: color-mix(in oklch, var(--accent) 35%, transparent);
 }
 
 .dark {
@@ -128,14 +195,14 @@
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
     background-image:
-      radial-gradient(circle at 0% 0%, color-mix(in oklch, var(--accent) 24%, transparent) 0%, transparent 34%),
-      radial-gradient(circle at 100% 100%, color-mix(in oklch, var(--primary) 20%, transparent) 0%, transparent 35%),
+      radial-gradient(circle at 0% 0%, color-mix(in oklch, var(--accent) 14%, transparent) 0%, transparent 38%),
+      radial-gradient(circle at 100% 100%, color-mix(in oklch, var(--primary) 12%, transparent) 0%, transparent 38%),
       repeating-linear-gradient(
         115deg,
         transparent 0px,
         transparent 8px,
-        color-mix(in oklch, var(--foreground) 5%, transparent) 8px,
-        color-mix(in oklch, var(--foreground) 5%, transparent) 9px
+        color-mix(in oklch, var(--foreground) 3%, transparent) 8px,
+        color-mix(in oklch, var(--foreground) 3%, transparent) 9px
       );
     background-attachment: fixed;
   }
@@ -173,6 +240,180 @@
 }
 
 @layer components {
+  /*
+   * App shell — «control surface» (frontend-design skill):
+   * глубина на inset, акцентная полоса в шапке, без плоского дефолта.
+   */
+  .amb-app-inset {
+    position: relative;
+    isolation: isolate;
+    background: transparent;
+  }
+
+  .dark .amb-app-inset {
+    background: transparent;
+  }
+
+  .amb-shell-stage {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .amb-shell-background {
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-color: var(--background);
+    background-attachment: fixed;
+    background-image:
+      radial-gradient(ellipse 86% 72% at 24% -10%, color-mix(in oklch, var(--primary) 16%, transparent) 0%, transparent 56%),
+      radial-gradient(ellipse 72% 52% at 100% 104%, color-mix(in oklch, var(--accent) 10%, transparent) 0%, transparent 56%),
+      repeating-linear-gradient(
+        0deg,
+        transparent 0,
+        transparent 31px,
+        color-mix(in oklch, var(--foreground) 3.8%, transparent) 31px,
+        color-mix(in oklch, var(--foreground) 3.8%, transparent) 32px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent 0,
+        transparent 31px,
+        color-mix(in oklch, var(--foreground) 3.2%, transparent) 31px,
+        color-mix(in oklch, var(--foreground) 3.2%, transparent) 32px
+      );
+  }
+
+  .dark .amb-shell-background {
+    background-image:
+      radial-gradient(ellipse 86% 70% at 24% -8%, color-mix(in oklch, var(--primary) 20%, transparent) 0%, transparent 54%),
+      radial-gradient(ellipse 64% 48% at 100% 100%, color-mix(in oklch, var(--accent) 10%, transparent) 0%, transparent 50%),
+      repeating-linear-gradient(
+        0deg,
+        transparent 0,
+        transparent 31px,
+        color-mix(in oklch, white 4%, transparent) 31px,
+        color-mix(in oklch, white 4%, transparent) 32px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent 0,
+        transparent 31px,
+        color-mix(in oklch, white 3%, transparent) 31px,
+        color-mix(in oklch, white 3%, transparent) 32px
+      );
+  }
+
+  .amb-shell-inset {
+    position: relative;
+    z-index: 1;
+    background: transparent !important;
+  }
+
+  .amb-glass-surface,
+  .amb-shell-header,
+  .amb-glass-sidebar [data-sidebar="sidebar"],
+  .tasks-workspace-surface {
+    border: 1px solid color-mix(in oklch, var(--border) 68%, transparent);
+    background: color-mix(in oklch, var(--card) 44%, transparent);
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklch, white 62%, transparent),
+      0 16px 36px -24px color-mix(in oklch, var(--foreground) 38%, transparent);
+    backdrop-filter: blur(18px) saturate(1.08);
+  }
+
+  .dark .amb-glass-surface,
+  .dark .amb-shell-header,
+  .dark .amb-glass-sidebar [data-sidebar="sidebar"],
+  .dark .tasks-workspace-surface {
+    border-color: color-mix(in oklch, var(--border) 76%, transparent);
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklch, white 16%, transparent),
+      0 18px 38px -26px color-mix(in oklch, black 76%, transparent);
+  }
+
+  .amb-shell-header {
+    position: relative;
+    z-index: 1;
+    transition: border-color 180ms ease;
+  }
+
+  .amb-glass-sidebar [data-slot="sidebar-inner"] {
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .amb-sidebar-brand-mark {
+    border: 1px solid color-mix(in oklch, var(--sidebar-border) 55%, transparent);
+    background:
+      radial-gradient(
+        ellipse 120% 100% at 20% 0%,
+        color-mix(in oklch, var(--sidebar-primary) 55%, transparent) 0%,
+        transparent 62%
+      ),
+      linear-gradient(
+        145deg,
+        color-mix(in oklch, var(--sidebar-primary) 78%, transparent) 0%,
+        color-mix(in oklch, var(--sidebar-accent) 34%, var(--sidebar-primary)) 100%
+      );
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklch, white 48%, transparent),
+      0 10px 24px -16px color-mix(in oklch, var(--sidebar-primary) 65%, transparent);
+  }
+
+  .dark .amb-sidebar-brand-mark {
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklch, white 22%, transparent),
+      0 12px 24px -16px color-mix(in oklch, black 72%, transparent);
+  }
+
+  [data-sidebar="group-label"].amb-sidebar-section-label {
+    font-family: var(--font-ibm-plex-mono), monospace;
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: color-mix(in oklch, var(--sidebar-foreground) 62%, var(--sidebar-primary));
+  }
+
+  /** Horizontal gutter aligned with px-5 / md:px-6 */
+  .amb-page-gutter {
+    padding-left: var(--page-gutter);
+    padding-right: var(--page-gutter);
+  }
+
+  /** Standard scrollable page body inside shell */
+  .amb-content-area {
+    padding-left: var(--page-gutter);
+    padding-right: var(--page-gutter);
+    padding-top: var(--content-py);
+    padding-bottom: var(--content-py);
+  }
+
+  @media (min-width: 768px) {
+    .amb-content-area {
+      padding-top: var(--content-py-lg);
+      padding-bottom: var(--content-py-lg);
+    }
+  }
+
+  /** Login — stronger ambient depth than global body (inset handles app shell) */
+  .amb-login-surface {
+    min-height: 100svh;
+    background-color: var(--background);
+    background-image:
+      radial-gradient(ellipse 100% 70% at 15% -5%, color-mix(in oklch, var(--primary) 20%, transparent) 0%, transparent 52%),
+      radial-gradient(ellipse 80% 55% at 100% 105%, color-mix(in oklch, var(--accent) 18%, transparent) 0%, transparent 48%);
+    background-attachment: fixed;
+  }
+
+  .dark .amb-login-surface {
+    background-image:
+      radial-gradient(ellipse 100% 65% at 12% 0%, color-mix(in oklch, var(--primary) 26%, transparent) 0%, transparent 48%),
+      radial-gradient(ellipse 75% 50% at 100% 100%, color-mix(in oklch, var(--accent) 14%, transparent) 0%, transparent 44%);
+  }
+
   .thread-date-divider {
     @apply text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/90;
   }
@@ -289,5 +530,123 @@
 
   .json-other {
     @apply text-foreground;
+  }
+
+  /* Tasks module — distinctive “planning ops” surface (frontend-design skill) */
+  .tasks-workspace {
+    position: relative;
+  }
+
+  .tasks-workspace-surface {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+  }
+
+  .tasks-workspace-inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  .tasks-kicker {
+    font-family: var(--font-ibm-plex-mono), monospace;
+    @apply text-[10px] font-semibold uppercase tracking-[0.2em] text-primary;
+  }
+
+  .tasks-filter-deck {
+    border-radius: var(--radius-lg);
+    border: 1px solid color-mix(in oklch, var(--border) 70%, var(--foreground) 8%);
+    background: color-mix(in oklch, var(--muted) 38%, var(--card));
+    box-shadow: inset 0 1px 0 color-mix(in oklch, var(--foreground) 4%, transparent);
+  }
+
+  .tasks-data-table-wrap {
+    border-radius: var(--radius-lg);
+    border: 1px solid color-mix(in oklch, var(--border) 75%, var(--foreground) 6%);
+    background: color-mix(in oklch, var(--card) 96%, transparent);
+    box-shadow: 0 1px 0 color-mix(in oklch, var(--foreground) 4%, transparent);
+  }
+
+  .tasks-table-head {
+    @apply border-b border-border/60;
+    background: color-mix(in oklch, var(--muted) 55%, var(--card));
+  }
+
+  .tasks-table-head th {
+    font-family: var(--font-ibm-plex-mono), monospace;
+    @apply py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground;
+  }
+
+  @keyframes tasks-row-enter {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .tasks-table-row {
+    --stagger: 0;
+    @apply border-b border-border/35 transition-[background-color,box-shadow] duration-200;
+    animation: tasks-row-enter 0.42s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: calc(var(--stagger) * 1ms);
+  }
+
+  .tasks-table-row:hover {
+    background: color-mix(in oklch, var(--accent) 14%, transparent);
+    box-shadow: inset 3px 0 0 color-mix(in oklch, var(--primary) 55%, transparent);
+  }
+
+  .tasks-kanban-scroll {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .tasks-board-column {
+    border-radius: var(--radius-lg);
+    border: 1px solid color-mix(in oklch, var(--border) 80%, var(--foreground) 5%);
+    background: color-mix(in oklch, var(--muted) 25%, var(--card));
+    box-shadow: inset 0 1px 0 color-mix(in oklch, var(--foreground) 3%, transparent);
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .tasks-board-column:hover {
+    border-color: color-mix(in oklch, var(--border) 50%, var(--primary) 35%);
+  }
+
+  .tasks-board-card {
+    @apply rounded-lg border transition-all duration-200;
+    border-color: color-mix(in oklch, var(--border) 85%, var(--foreground) 6%);
+    background: linear-gradient(
+      145deg,
+      color-mix(in oklch, var(--card) 94%, var(--accent) 6%) 0%,
+      var(--card) 100%
+    );
+    box-shadow: 0 1px 0 color-mix(in oklch, var(--foreground) 5%, transparent);
+  }
+
+  .tasks-board-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in oklch, var(--primary) 35%, var(--border));
+    box-shadow:
+      0 2px 0 color-mix(in oklch, var(--foreground) 6%, transparent),
+      0 12px 28px -16px color-mix(in oklch, var(--primary) 35%, transparent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tasks-table-row,
+    .tasks-board-column,
+    .tasks-board-card {
+      transition: none;
+      animation: none;
+    }
+    .tasks-board-card:hover {
+      transform: none;
+    }
   }
 }

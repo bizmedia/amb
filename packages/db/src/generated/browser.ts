@@ -48,6 +48,16 @@ export type User = Prisma.UserModel
  */
 export type Project = Prisma.ProjectModel
 /**
+ * Model Sprint
+ * 
+ */
+export type Sprint = Prisma.SprintModel
+/**
+ * Model Epic
+ * 
+ */
+export type Epic = Prisma.EpicModel
+/**
  * Model ProjectToken
  * 
  */
@@ -58,7 +68,7 @@ export type ProjectToken = Prisma.ProjectTokenModel
  */
 export type ProjectTokenAudit = Prisma.ProjectTokenAuditModel
 /**
- * Model Issue
+ * Model Task
  * 
  */
-export type Issue = Prisma.IssueModel
+export type Task = Prisma.TaskModel

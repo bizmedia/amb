@@ -36,6 +36,8 @@ docker compose -f docker-compose.web-image.yml logs -f seed
 - Проверка API: `curl -s http://localhost:3334/api/health`  
 - Postgres с хоста: порт **5433** (см. `docker-compose.web-image.yml`)
 
+Из корня репозитория **`pnpm deploy:local`** / **`pnpm deploy:amb`** поднимают тот же стек с портами **4333 / 4334** на хосте — так можно параллельно держать **`pnpm dev`** на **3333 / 3334**. Только compose без pnpm — как в таблице выше (**3333 / 3334**).
+
 **Образ ещё не опубликован или pull падает** — поднимите полный стек со сборкой UI из репозитория:
 
 ```bash
@@ -56,7 +58,7 @@ docker compose up -d --build
 |-----|----------|
 | **A (быстрее всего)** | Клонировать репо → `docker pull docker.io/openaisdk/amb:latest` → `docker compose -f docker-compose.web-image.yml up -d` → дождаться `seed` |
 | **B (без Hub)** | Клонировать репо → `docker compose up -d --build` |
-| **C (код на хосте)** | Клонировать → `docker compose up -d postgres` → скопировать `apps/api/.env.example` и `apps/web/.env.example` в `.env`, `DATABASE_URL` с портом **5433** → `pnpm install` → `pnpm db:migrate` → `pnpm dev` → в другом терминале `pnpm seed:agents` |
+| **C (код на хосте)** | Клонировать → `pnpm deploy:dev:db` (Postgres на **5434**, отдельно от полного стека) → скопировать `apps/api/.env.example` и `apps/web/.env.example` в `.env` → `pnpm install` → `pnpm db:migrate` → `pnpm dev` → в другом терминале `pnpm seed:agents` |
 
 После этого AMB уже работает: можно слать сообщения по API или через SDK.
 
@@ -121,10 +123,10 @@ pnpm install
 ## 2. База данных (путь C)
 
 ```bash
-docker compose up -d postgres
+pnpm deploy:dev:db
 cp apps/api/.env.example apps/api/.env
 cp apps/web/.env.example apps/web/.env
-# Убедитесь, что DATABASE_URL указывает на localhost:5433 при Postgres из compose
+# DATABASE_URL в примерах — localhost:5434 (docker-compose.dev.yml), не путать с портом 5433 у полного compose
 pnpm db:migrate
 ```
 
@@ -298,7 +300,7 @@ pnpm mcp:build
 → Скопируйте `apps/api/.env.example` → `apps/api/.env` и `apps/web/.env.example` → `apps/web/.env`.
 
 **Ошибка подключения к PostgreSQL**
-→ Проверьте: `docker compose ps`. Если контейнер не запущен: `docker compose up -d postgres`. С хоста используйте порт **5433**.
+→ Путь C: `pnpm deploy:dev:db`, с хоста порт **5434** (`docker-compose.dev.yml`). Путь A/B: `docker compose ps`, при необходимости `docker compose up -d postgres`, порт **5433**.
 
 **Порт 3333 занят**
 → `lsof -i :3333` — найдите процесс, `kill -9 <PID>` — завершите его.

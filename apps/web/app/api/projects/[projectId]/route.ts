@@ -29,7 +29,14 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
 
     const client = getApiClient({ token });
-    const project = await client.updateProject(parsedId.data, { name: parsed.data.name });
+    const payload: { name?: string; taskPrefix?: string } = {};
+    if (parsed.data.name !== undefined) {
+      payload.name = parsed.data.name;
+    }
+    if (parsed.data.taskPrefix !== undefined) {
+      payload.taskPrefix = parsed.data.taskPrefix;
+    }
+    const project = await client.updateProject(parsedId.data, payload);
     return NextResponse.json({ data: project });
   } catch (error) {
     return handleApiError(error);

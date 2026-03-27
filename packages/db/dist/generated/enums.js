@@ -9,14 +9,25 @@
 * 🟢 You can import this file directly.
 */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.IssuePriority = exports.IssueState = void 0;
-exports.IssueState = {
+exports.TaskPriority = exports.TaskState = exports.SprintStatus = exports.EpicStatus = void 0;
+exports.EpicStatus = {
+    OPEN: 'OPEN',
+    IN_PROGRESS: 'IN_PROGRESS',
+    DONE: 'DONE',
+    ARCHIVED: 'ARCHIVED'
+};
+exports.SprintStatus = {
+    PLANNED: 'PLANNED',
+    ACTIVE: 'ACTIVE',
+    COMPLETED: 'COMPLETED'
+};
+exports.TaskState = {
     BACKLOG: 'BACKLOG',
     TODO: 'TODO',
     IN_PROGRESS: 'IN_PROGRESS',
     DONE: 'DONE'
 };
-exports.IssuePriority = {
+exports.TaskPriority = {
     NONE: 'NONE',
     LOW: 'LOW',
     MEDIUM: 'MEDIUM',

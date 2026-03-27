@@ -5,7 +5,9 @@ import { ProjectsModule } from "./projects/projects.module";
 import { AgentsModule } from "./agents/agents.module";
 import { ThreadsModule } from "./threads/threads.module";
 import { MessagesModule } from "./messages/messages.module";
-import { IssuesModule } from "./issues/issues.module";
+import { TasksModule } from "./tasks/tasks.module";
+import { EpicsModule } from "./epics/epics.module";
+import { SprintsModule } from "./sprints/sprints.module";
 import { DlqModule } from "./dlq/dlq.module";
 import { JwtAuthGuard } from "./common/jwt-auth.guard";
 import { AuthModule } from "./auth/auth.module";
@@ -22,7 +24,9 @@ import { HealthModule } from "./health/health.module";
     AgentsModule,
     ThreadsModule,
     MessagesModule,
-    IssuesModule,
+    TasksModule,
+    EpicsModule,
+    SprintsModule,
     DlqModule,
     AuthModule,
     TenantsModule,

@@ -10,7 +10,10 @@ import type {
   Tenant,
   ProjectToken,
   ProjectTokenIssueResult,
-  Issue,
+  Task,
+  Epic,
+  EpicDetail,
+  EpicListItem,
   ApiResponse,
   CreateAgentInput,
   UpdateAgentInput,
@@ -23,9 +26,18 @@ import type {
   CreateProjectInput,
   UpdateProjectInput,
   CreateProjectTokenInput,
-  CreateIssueInput,
-  UpdateIssueInput,
-  ListIssuesQuery,
+  CreateTaskInput,
+  UpdateTaskInput,
+  ListTasksQuery,
+  CreateEpicInput,
+  UpdateEpicInput,
+  ListEpicsQuery,
+  CreateSprintInput,
+  UpdateSprintInput,
+  ListSprintsQuery,
+  Sprint,
+  SprintListItem,
+  SprintDetail,
 } from "./types";
 
 export class MessageBusClient {
@@ -367,26 +379,30 @@ export class MessageBusClient {
     return res.data;
   }
 
-  async listIssues(
+  async listTasks(
     projectId: string,
-    query?: ListIssuesQuery
-  ): Promise<Issue[]> {
+    query?: ListTasksQuery
+  ): Promise<Task[]> {
     const params = new URLSearchParams();
     if (query?.state) params.set("state", query.state);
     if (query?.priority) params.set("priority", query.priority);
     if (query?.assignee) params.set("assignee", query.assignee);
+    if (query?.epicId) params.set("epicId", query.epicId);
+    if (query?.sprintId) params.set("sprintId", query.sprintId);
+    if (query?.key) params.set("key", query.key);
+    if (query?.search) params.set("search", query.search);
     if (query?.dueFrom) params.set("dueFrom", String(query.dueFrom));
     if (query?.dueTo) params.set("dueTo", String(query.dueTo));
     const qs = params.toString();
-    const res = await this.fetch<ApiResponse<Issue[]>>(
-      `/api/projects/${projectId}/issues${qs ? `?${qs}` : ""}`
+    const res = await this.fetch<ApiResponse<Task[]>>(
+      `/api/projects/${projectId}/tasks${qs ? `?${qs}` : ""}`
     );
     return res.data;
   }
 
-  async createIssue(projectId: string, input: CreateIssueInput): Promise<Issue> {
-    const res = await this.fetch<ApiResponse<Issue>>(
-      `/api/projects/${projectId}/issues`,
+  async createTask(projectId: string, input: CreateTaskInput): Promise<Task> {
+    const res = await this.fetch<ApiResponse<Task>>(
+      `/api/projects/${projectId}/tasks`,
       {
         method: "POST",
         body: JSON.stringify(input),
@@ -395,20 +411,20 @@ export class MessageBusClient {
     return res.data;
   }
 
-  async getIssue(projectId: string, issueId: string): Promise<Issue> {
-    const res = await this.fetch<ApiResponse<Issue>>(
-      `/api/projects/${projectId}/issues/${issueId}`
+  async getTask(projectId: string, taskIdOrKey: string): Promise<Task> {
+    const res = await this.fetch<ApiResponse<Task>>(
+      `/api/projects/${projectId}/tasks/${encodeURIComponent(taskIdOrKey)}`
     );
     return res.data;
   }
 
-  async updateIssue(
+  async updateTask(
     projectId: string,
-    issueId: string,
-    input: UpdateIssueInput
-  ): Promise<Issue> {
-    const res = await this.fetch<ApiResponse<Issue>>(
-      `/api/projects/${projectId}/issues/${issueId}`,
+    taskIdOrKey: string,
+    input: UpdateTaskInput
+  ): Promise<Task> {
+    const res = await this.fetch<ApiResponse<Task>>(
+      `/api/projects/${projectId}/tasks/${encodeURIComponent(taskIdOrKey)}`,
       {
         method: "PATCH",
         body: JSON.stringify(input),
@@ -417,12 +433,175 @@ export class MessageBusClient {
     return res.data;
   }
 
-  async deleteIssue(projectId: string, issueId: string): Promise<void> {
+  async deleteTask(projectId: string, taskIdOrKey: string): Promise<void> {
     await this.fetch<ApiResponse<{ success: true }>>(
-      `/api/projects/${projectId}/issues/${issueId}`,
+      `/api/projects/${projectId}/tasks/${encodeURIComponent(taskIdOrKey)}`,
       { method: "DELETE" }
     );
   }
+
+  private async listEpics(
+    projectId: string,
+    query?: ListEpicsQuery
+  ): Promise<EpicListItem[]> {
+    const params = new URLSearchParams();
+    if (query?.status) params.set("status", query.status);
+    const qs = params.toString();
+    const res = await this.fetch<ApiResponse<EpicListItem[]>>(
+      `/api/projects/${projectId}/epics${qs ? `?${qs}` : ""}`
+    );
+    return res.data;
+  }
+
+  private async getEpic(
+    projectId: string,
+    epicId: string
+  ): Promise<EpicDetail> {
+    const res = await this.fetch<ApiResponse<EpicDetail>>(
+      `/api/projects/${projectId}/epics/${encodeURIComponent(epicId)}`
+    );
+    return res.data;
+  }
+
+  private async createEpic(
+    projectId: string,
+    input: CreateEpicInput
+  ): Promise<Epic> {
+    const res = await this.fetch<ApiResponse<Epic>>(
+      `/api/projects/${projectId}/epics`,
+      {
+        method: "POST",
+        body: JSON.stringify(input),
+      }
+    );
+    return res.data;
+  }
+
+  private async updateEpic(
+    projectId: string,
+    epicId: string,
+    input: UpdateEpicInput
+  ): Promise<Epic> {
+    const res = await this.fetch<ApiResponse<Epic>>(
+      `/api/projects/${projectId}/epics/${encodeURIComponent(epicId)}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(input),
+      }
+    );
+    return res.data;
+  }
+
+  private async deleteEpic(
+    projectId: string,
+    epicId: string
+  ): Promise<Epic> {
+    const res = await this.fetch<ApiResponse<Epic>>(
+      `/api/projects/${projectId}/epics/${encodeURIComponent(epicId)}`,
+      { method: "DELETE" }
+    );
+    return res.data;
+  }
+
+  readonly epics = {
+    list: (projectId: string, query?: ListEpicsQuery) =>
+      this.listEpics(projectId, query),
+    get: (projectId: string, epicId: string) =>
+      this.getEpic(projectId, epicId),
+    create: (projectId: string, input: CreateEpicInput) =>
+      this.createEpic(projectId, input),
+    update: (projectId: string, epicId: string, input: UpdateEpicInput) =>
+      this.updateEpic(projectId, epicId, input),
+    delete: (projectId: string, epicId: string) =>
+      this.deleteEpic(projectId, epicId),
+  };
+
+  private async listSprints(
+    projectId: string,
+    query?: ListSprintsQuery
+  ): Promise<SprintListItem[]> {
+    const params = new URLSearchParams();
+    if (query?.status) params.set("status", query.status);
+    const qs = params.toString();
+    const res = await this.fetch<ApiResponse<SprintListItem[]>>(
+      `/api/projects/${projectId}/sprints${qs ? `?${qs}` : ""}`
+    );
+    return res.data;
+  }
+
+  private async getSprint(projectId: string, sprintId: string): Promise<SprintDetail> {
+    const res = await this.fetch<ApiResponse<SprintDetail>>(
+      `/api/projects/${projectId}/sprints/${encodeURIComponent(sprintId)}`
+    );
+    return res.data;
+  }
+
+  private async createSprint(projectId: string, input: CreateSprintInput): Promise<Sprint> {
+    const res = await this.fetch<ApiResponse<Sprint>>(
+      `/api/projects/${projectId}/sprints`,
+      {
+        method: "POST",
+        body: JSON.stringify(input),
+      }
+    );
+    return res.data;
+  }
+
+  private async updateSprint(
+    projectId: string,
+    sprintId: string,
+    input: UpdateSprintInput
+  ): Promise<Sprint> {
+    const res = await this.fetch<ApiResponse<Sprint>>(
+      `/api/projects/${projectId}/sprints/${encodeURIComponent(sprintId)}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(input),
+      }
+    );
+    return res.data;
+  }
+
+  private async deleteSprint(projectId: string, sprintId: string): Promise<void> {
+    await this.fetch<ApiResponse<{ success: true }>>(
+      `/api/projects/${projectId}/sprints/${encodeURIComponent(sprintId)}`,
+      { method: "DELETE" }
+    );
+  }
+
+  private async startSprint(projectId: string, sprintId: string): Promise<Sprint> {
+    const res = await this.fetch<ApiResponse<Sprint>>(
+      `/api/projects/${projectId}/sprints/${encodeURIComponent(sprintId)}/start`,
+      { method: "POST" }
+    );
+    return res.data;
+  }
+
+  private async completeSprint(projectId: string, sprintId: string): Promise<Sprint> {
+    const res = await this.fetch<ApiResponse<Sprint>>(
+      `/api/projects/${projectId}/sprints/${encodeURIComponent(sprintId)}/complete`,
+      { method: "POST" }
+    );
+    return res.data;
+  }
+
+  readonly sprints = {
+    list: (projectId: string, query?: ListSprintsQuery) =>
+      this.listSprints(projectId, query),
+    get: (projectId: string, sprintId: string) => this.getSprint(projectId, sprintId),
+    create: (projectId: string, input: CreateSprintInput) =>
+      this.createSprint(projectId, input),
+    update: (projectId: string, sprintId: string, input: UpdateSprintInput) =>
+      this.updateSprint(projectId, sprintId, input),
+    delete: (projectId: string, sprintId: string) => this.deleteSprint(projectId, sprintId),
+    start: (projectId: string, sprintId: string) => this.startSprint(projectId, sprintId),
+    complete: (projectId: string, sprintId: string) => this.completeSprint(projectId, sprintId),
+  };
+
+  readonly tasks = {
+    list: (projectId: string, query?: ListTasksQuery) =>
+      this.listTasks(projectId, query),
+  };
 }
 
 export class MessageBusError extends Error {

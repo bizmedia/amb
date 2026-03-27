@@ -64,10 +64,13 @@ export function LoginForm() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md p-6">
-        <div className="mb-6 space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+    <div className="amb-login-surface flex items-center justify-center p-5 md:p-6">
+      <Card className="shadow-elevation-md w-full max-w-sm border-border/80 p-6 md:p-7">
+        <div className="mb-6 space-y-2 text-center sm:text-left">
+          <p className="font-display text-[0.6875rem] font-semibold uppercase tracking-[0.22em] text-primary">
+            Agent Message Bus
+          </p>
+          <h1 className="font-display text-2xl font-semibold tracking-tight">{t("title")}</h1>
           <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
 

@@ -19,5 +19,7 @@ __exportStar(require("./agents"), exports);
 __exportStar(require("./threads"), exports);
 __exportStar(require("./messages"), exports);
 __exportStar(require("./projects"), exports);
-__exportStar(require("./issues"), exports);
+__exportStar(require("./tasks"), exports);
+__exportStar(require("./epics"), exports);
+__exportStar(require("./sprints"), exports);
 __exportStar(require("./auth"), exports);

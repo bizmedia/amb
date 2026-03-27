@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { NotFoundError } from "@amb-app/shared";
 import {
@@ -16,6 +20,14 @@ function toSlug(name: string): string {
     .replace(/-{2,}/g, "-");
 }
 
+function generatePrefix(name: string): string {
+  return name
+    .replace(/[^a-zA-Z]/g, "")
+    .slice(0, 3)
+    .toUpperCase()
+    .padEnd(3, "X");
+}
+
 @Injectable()
 export class ProjectsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -26,7 +38,7 @@ export class ProjectsService {
     });
   }
 
-  async create(name: string) {
+  async create(name: string, taskPrefix?: string) {
     const tenant = await this.prisma.tenant.upsert({
       where: { slug: DEFAULT_TENANT_SLUG },
       update: {},
@@ -49,11 +61,17 @@ export class ProjectsService {
       counter += 1;
       candidate = `${base}-${counter}`;
     }
+
+    const prefix = taskPrefix ?? generatePrefix(name);
+    await this.ensurePrefixUnique(tenant.id, prefix);
+
     return this.prisma.project.create({
       data: {
         tenantId: tenant.id,
         name: name.trim(),
         slug: candidate,
+        taskPrefix: prefix,
+        taskSequence: 0,
       },
     });
   }
@@ -66,12 +84,23 @@ export class ProjectsService {
     return project;
   }
 
-  async update(id: string, name: string) {
-    await this.getById(id);
+  async update(
+    id: string,
+    data: { name?: string; taskPrefix?: string },
+  ) {
+    const project = await this.getById(id);
+
+    if (data.taskPrefix && project.tenantId) {
+      await this.ensurePrefixUnique(project.tenantId, data.taskPrefix, id);
+    }
+
     return this.prisma.project.update({
       where: { id },
       data: {
-        name: name.trim(),
+        ...(data.name !== undefined ? { name: data.name.trim() } : {}),
+        ...(data.taskPrefix !== undefined
+          ? { taskPrefix: data.taskPrefix }
+          : {}),
       },
     });
   }
@@ -88,8 +117,28 @@ export class ProjectsService {
       await tx.message.deleteMany({ where: { projectId: id } });
       await tx.thread.deleteMany({ where: { projectId: id } });
       await tx.agent.deleteMany({ where: { projectId: id } });
-      await tx.issue.deleteMany({ where: { projectId: id } });
+      await tx.task.deleteMany({ where: { projectId: id } });
       await tx.project.delete({ where: { id } });
     });
+  }
+
+  private async ensurePrefixUnique(
+    tenantId: string,
+    prefix: string,
+    excludeProjectId?: string,
+  ): Promise<void> {
+    const existing = await this.prisma.project.findFirst({
+      where: {
+        tenantId,
+        taskPrefix: prefix,
+        ...(excludeProjectId ? { id: { not: excludeProjectId } } : {}),
+      },
+      select: { id: true },
+    });
+    if (existing) {
+      throw new ConflictException(
+        `Task prefix "${prefix}" is already used by another project in this tenant`,
+      );
+    }
   }
 }

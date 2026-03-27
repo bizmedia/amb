@@ -2,7 +2,7 @@
 
 **Версия:** 1.0  
 **Дата:** 2026-01-28  
-**Последняя проверка статуса:** 2026-03-16 (Orchestrator). Epic 1–6 завершены. E6-S1…E6-S6 — Done (nest-engineer).  
+**Последняя проверка статуса:** 2026-03-26 (nest-engineer). Epic 1–6 Done. E9A Phase 1–3 Done (DB, API, SDK). Issue → Task rename завершён.  
 **Автор:** Product Owner Agent  
 **Статус:** Актуально
 
@@ -20,7 +20,8 @@
 | [E5: Developer Experience](#epic-5-developer-experience)               | P1        | 🚧 In Progress | Sprint 5-6 |
 | [E6: Операционная готовность](#epic-6-операционная-готовность)         | P1        | ✅ Done        | Sprint 6-7 |
 | [E7: Локализация (i18n)](#epic-7-локализация-i18n)                     | P1        | 🚧 In Progress | Sprint 6-7 |
-| [E9: Удаление и редактирование сущностей](#epic-9-удаление-и-редактирование-сущностей) | P1        | 📋 Backlog     | —          |
+| [E8: Удаление и редактирование сущностей](#epic-8-удаление-и-редактирование-сущностей) | P1        | 📋 Backlog     | —          |
+| [E9: Issue Keys, Epics и Sprints](#epic-9-issue-keys-epics-и-sprints) | P0        | 🚧 In Progress | Sprint 7-8 |
 
 
 ---
@@ -242,6 +243,41 @@
 
 ---
 
+## Epic 9: Issue Keys, Epics и Sprints
+
+**Цель:** Добавить человекочитаемые ключи задач, проектные эпики и спринты для планирования delivery.
+
+**PRD:** [docs/PRD-issue-keys-epics-sprints.md](./PRD-issue-keys-epics-sprints.md)
+
+### Sub-Epics (детальная декомпозиция)
+
+| Sub-Epic | Stories | Приоритет | Статус | Файл |
+|----------|---------|-----------|--------|------|
+| E9A: Project Prefix & Task Keys | E9-S1, E9-S2, E9-S3 | P0 | ✅ Phase 1–3 Done | [epics/E9A](./epics/E9A-project-prefix-issue-keys.md) |
+| E9B: Epics | E9-S4 | P1 | 📋 Backlog | [epics/E9B](./epics/E9B-epics.md) |
+| E9C: Sprints & Navigation | E9-S5, E9-S6 | P1 | 📋 Backlog | [epics/E9C](./epics/E9C-sprints-navigation.md) |
+
+### Stories
+
+| ID    | Story                                       | Приоритет | Статус     | Sub-Epic | Acceptance Criteria |
+| ----- | ------------------------------------------- | --------- | ---------- | -------- | ------------------- |
+| E9-S1 | Project task prefix и sequence              | P0        | ✅ Done | E9A | • `taskPrefix` + `taskSequence` в Project • prefix генерируется при создании • `@@unique([tenantId, taskPrefix])` |
+| E9-S2 | Task key для новых и существующих задач     | P0        | ✅ Done | E9A | • Каждая задача имеет `key` (PPP-0001) • backfill • атомарный `UPDATE...RETURNING` |
+| E9-S3 | Поиск и отображение task key                | P0        | ✅ Done | E9A | • key в list/board • API/SDK возвращают key • `?key=` exact, `?search=` prefix |
+| E9-S4 | CRUD эпиков и связь issue ↔ epic            | P1        | 📋 Backlog | E9B | • Можно создавать/редактировать эпики • issue может принадлежать максимум одному epic • доступен фильтр по epic и экран эпика |
+| E9-S5 | CRUD спринтов и связь issue ↔ sprint        | P1        | 📋 Backlog | E9C | • Можно создавать planned/active/completed sprint • одновременно не более одного active sprint • issue может быть назначена максимум в один sprint |
+| E9-S6 | Навигация и представления для epics/sprints | P1        | 📋 Backlog | E9C | • В tasks-модуле есть разделы `All Issues`, `Epics`, `Sprints` • list/board фильтруются по sprint/epic • активный sprint визуально выделен |
+
+**Definition of Done:**
+
+- ✅ Каждая задача имеет человекочитаемый key проекта
+- ✅ Project admin может управлять task prefix
+- ✅ Эпики доступны как механизм группировки задач
+- ✅ Спринты доступны как механизм планирования задач по итерациям
+- ✅ API, SDK и Dashboard консистентно поддерживают новые сущности
+
+---
+
 ## 📊 Sprint Planning
 
 ### Sprint 1-2: Foundation
@@ -294,6 +330,12 @@
 - E6-S2: Observability
 - E6-S4: Health checks
 - E6-S5: Deployment automation
+- E9-S1: Project task prefix и sequence
+- E9-S2: Issue key для новых и существующих задач
+- E9-S3: Поиск и отображение issue key
+- E9-S4: CRUD эпиков и связь issue ↔ epic
+- E9-S5: CRUD спринтов и связь issue ↔ sprint
+- E9-S6: Навигация и представления для epics/sprints
 
 ---
 

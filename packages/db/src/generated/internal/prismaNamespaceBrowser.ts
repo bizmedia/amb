@@ -57,9 +57,11 @@ export const ModelName = {
   Tenant: 'Tenant',
   User: 'User',
   Project: 'Project',
+  Sprint: 'Sprint',
+  Epic: 'Epic',
   ProjectToken: 'ProjectToken',
   ProjectTokenAudit: 'ProjectTokenAudit',
-  Issue: 'Issue'
+  Task: 'Task'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -153,10 +155,40 @@ export const ProjectScalarFieldEnum = {
   tenantId: 'tenantId',
   name: 'name',
   slug: 'slug',
+  taskPrefix: 'taskPrefix',
+  taskSequence: 'taskSequence',
   createdAt: 'createdAt'
 } as const
 
 export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
+
+
+export const SprintScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  name: 'name',
+  goal: 'goal',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SprintScalarFieldEnum = (typeof SprintScalarFieldEnum)[keyof typeof SprintScalarFieldEnum]
+
+
+export const EpicScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  title: 'title',
+  description: 'description',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EpicScalarFieldEnum = (typeof EpicScalarFieldEnum)[keyof typeof EpicScalarFieldEnum]
 
 
 export const ProjectTokenScalarFieldEnum = {
@@ -191,20 +223,23 @@ export const ProjectTokenAuditScalarFieldEnum = {
 export type ProjectTokenAuditScalarFieldEnum = (typeof ProjectTokenAuditScalarFieldEnum)[keyof typeof ProjectTokenAuditScalarFieldEnum]
 
 
-export const IssueScalarFieldEnum = {
+export const TaskScalarFieldEnum = {
   id: 'id',
   projectId: 'projectId',
+  key: 'key',
   title: 'title',
   description: 'description',
   state: 'state',
   priority: 'priority',
   assigneeId: 'assigneeId',
+  epicId: 'epicId',
+  sprintId: 'sprintId',
   dueDate: 'dueDate',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type IssueScalarFieldEnum = (typeof IssueScalarFieldEnum)[keyof typeof IssueScalarFieldEnum]
+export type TaskScalarFieldEnum = (typeof TaskScalarFieldEnum)[keyof typeof TaskScalarFieldEnum]
 
 
 export const SortOrder = {

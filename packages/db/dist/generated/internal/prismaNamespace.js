@@ -48,7 +48,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.defineExtension = exports.NullsOrder = exports.JsonNullValueFilter = exports.QueryMode = exports.JsonNullValueInput = exports.NullableJsonNullValueInput = exports.SortOrder = exports.IssueScalarFieldEnum = exports.ProjectTokenAuditScalarFieldEnum = exports.ProjectTokenScalarFieldEnum = exports.ProjectScalarFieldEnum = exports.UserScalarFieldEnum = exports.TenantScalarFieldEnum = exports.MessageScalarFieldEnum = exports.ThreadScalarFieldEnum = exports.AgentScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.prismaVersion = exports.getExtensionContext = exports.Decimal = exports.Sql = exports.raw = exports.join = exports.empty = exports.sql = exports.PrismaClientValidationError = exports.PrismaClientInitializationError = exports.PrismaClientRustPanicError = exports.PrismaClientUnknownRequestError = exports.PrismaClientKnownRequestError = void 0;
+exports.defineExtension = exports.NullsOrder = exports.JsonNullValueFilter = exports.QueryMode = exports.JsonNullValueInput = exports.NullableJsonNullValueInput = exports.SortOrder = exports.TaskScalarFieldEnum = exports.ProjectTokenAuditScalarFieldEnum = exports.ProjectTokenScalarFieldEnum = exports.EpicScalarFieldEnum = exports.SprintScalarFieldEnum = exports.ProjectScalarFieldEnum = exports.UserScalarFieldEnum = exports.TenantScalarFieldEnum = exports.MessageScalarFieldEnum = exports.ThreadScalarFieldEnum = exports.AgentScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.prismaVersion = exports.getExtensionContext = exports.Decimal = exports.Sql = exports.raw = exports.join = exports.empty = exports.sql = exports.PrismaClientValidationError = exports.PrismaClientInitializationError = exports.PrismaClientRustPanicError = exports.PrismaClientUnknownRequestError = exports.PrismaClientKnownRequestError = void 0;
 const runtime = __importStar(require("@prisma/client/runtime/client"));
 /**
  * Prisma Errors
@@ -109,9 +109,11 @@ exports.ModelName = {
     Tenant: 'Tenant',
     User: 'User',
     Project: 'Project',
+    Sprint: 'Sprint',
+    Epic: 'Epic',
     ProjectToken: 'ProjectToken',
     ProjectTokenAudit: 'ProjectTokenAudit',
-    Issue: 'Issue'
+    Task: 'Task'
 };
 /**
  * Enums
@@ -177,7 +179,29 @@ exports.ProjectScalarFieldEnum = {
     tenantId: 'tenantId',
     name: 'name',
     slug: 'slug',
+    taskPrefix: 'taskPrefix',
+    taskSequence: 'taskSequence',
     createdAt: 'createdAt'
+};
+exports.SprintScalarFieldEnum = {
+    id: 'id',
+    projectId: 'projectId',
+    name: 'name',
+    goal: 'goal',
+    startDate: 'startDate',
+    endDate: 'endDate',
+    status: 'status',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+exports.EpicScalarFieldEnum = {
+    id: 'id',
+    projectId: 'projectId',
+    title: 'title',
+    description: 'description',
+    status: 'status',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
 };
 exports.ProjectTokenScalarFieldEnum = {
     id: 'id',
@@ -203,14 +227,17 @@ exports.ProjectTokenAuditScalarFieldEnum = {
     metadata: 'metadata',
     createdAt: 'createdAt'
 };
-exports.IssueScalarFieldEnum = {
+exports.TaskScalarFieldEnum = {
     id: 'id',
     projectId: 'projectId',
+    key: 'key',
     title: 'title',
     description: 'description',
     state: 'state',
     priority: 'priority',
     assigneeId: 'assigneeId',
+    epicId: 'epicId',
+    sprintId: 'sprintId',
     dueDate: 'dueDate',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'

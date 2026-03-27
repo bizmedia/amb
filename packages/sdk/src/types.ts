@@ -3,15 +3,67 @@
  * Entity types from shared; API/transport types defined here.
  */
 
-import type { Agent, Message, Thread, Issue } from "@amb-app/shared";
+import type {
+  Agent,
+  Epic,
+  EpicStatus,
+  Message,
+  Sprint,
+  SprintStatus,
+  Task,
+  TaskAssignee,
+  TaskEpic,
+  TaskPriority,
+  TaskSprint,
+  TaskState,
+  Thread,
+} from "@amb-app/shared";
 
-export type { Agent, Thread, Message, Issue };
+export type {
+  Agent,
+  Epic,
+  EpicStatus,
+  Message,
+  Sprint,
+  SprintStatus,
+  Task,
+  TaskAssignee,
+  TaskEpic,
+  TaskSprint,
+  Thread,
+};
+
+/** Task rows nested under `EpicDetail.tasks` (list select from API). */
+export type EpicLinkedTask = {
+  id: string;
+  key: string | null;
+  title: string;
+  state: TaskState;
+  priority: TaskPriority;
+  assignee: TaskAssignee | null;
+  sprint: TaskSprint | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/** `GET .../epics` — опционально `_count.tasks` с бэкенда. */
+export type EpicListItem = Epic & {
+  _count?: { tasks: number };
+};
+
+/** `GET .../epics/:id` — эпик с задачами и счётчиком. */
+export type EpicDetail = Epic & {
+  _count: { tasks: number };
+  tasks: EpicLinkedTask[];
+};
 
 export interface Project {
   id: string;
   tenantId?: string | null;
   name: string;
   slug: string;
+  taskPrefix?: string | null;
+  taskSequence?: number;
   createdAt?: string;
 }
 
@@ -24,10 +76,12 @@ export interface Tenant {
 
 export interface CreateProjectInput {
   name: string;
+  taskPrefix?: string;
 }
 
 export interface UpdateProjectInput {
-  name: string;
+  name?: string;
+  taskPrefix?: string;
 }
 
 export interface ProjectToken {
@@ -59,7 +113,7 @@ export interface CreateProjectTokenInput {
   expiresIn?: number;
 }
 
-export interface CreateIssueInput {
+export interface CreateTaskInput {
   title: string;
   description?: string | null;
   state?: string;
@@ -68,21 +122,83 @@ export interface CreateIssueInput {
   dueDate?: Date | string | null;
 }
 
-export interface UpdateIssueInput {
+export interface UpdateTaskInput {
   title?: string;
   description?: string | null;
   state?: string;
   priority?: string;
   assigneeId?: string | null;
+  epicId?: string | null;
+  sprintId?: string | null;
   dueDate?: Date | string | null;
 }
 
-export interface ListIssuesQuery {
+export interface ListTasksQuery {
   state?: string;
   priority?: string;
   assignee?: string;
+  epicId?: string;
+  sprintId?: string;
+  key?: string;
+  search?: string;
   dueFrom?: Date | string;
   dueTo?: Date | string;
+}
+
+export interface CreateEpicInput {
+  title: string;
+  description?: string | null;
+  status?: EpicStatus;
+}
+
+export interface UpdateEpicInput {
+  title?: string;
+  description?: string | null;
+  status?: EpicStatus;
+}
+
+export interface ListEpicsQuery {
+  status?: EpicStatus;
+}
+
+export type SprintListItem = Sprint & {
+  _count?: { tasks: number };
+};
+
+export type SprintLinkedTask = {
+  id: string;
+  key: string | null;
+  title: string;
+  state: TaskState;
+  priority: TaskPriority;
+  assignee: TaskAssignee | null;
+  epic: TaskEpic | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type SprintDetail = Sprint & {
+  _count: { tasks: number };
+  tasks: SprintLinkedTask[];
+};
+
+export interface CreateSprintInput {
+  name: string;
+  goal?: string | null;
+  startDate?: Date | string | null;
+  endDate?: Date | string | null;
+}
+
+export interface UpdateSprintInput {
+  name?: string;
+  goal?: string | null;
+  startDate?: Date | string | null;
+  endDate?: Date | string | null;
+  status?: SprintStatus;
+}
+
+export interface ListSprintsQuery {
+  status?: SprintStatus;
 }
 
 export interface ApiResponse<T> {

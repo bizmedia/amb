@@ -3,5 +3,7 @@ export * from "./agents";
 export * from "./threads";
 export * from "./messages";
 export * from "./projects";
-export * from "./issues";
+export * from "./tasks";
+export * from "./epics";
+export * from "./sprints";
 export * from "./auth";

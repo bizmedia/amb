@@ -9,17 +9,36 @@
 * 🟢 You can import this file directly.
 */
 
-export const IssueState = {
+export const EpicStatus = {
+  OPEN: 'OPEN',
+  IN_PROGRESS: 'IN_PROGRESS',
+  DONE: 'DONE',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type EpicStatus = (typeof EpicStatus)[keyof typeof EpicStatus]
+
+
+export const SprintStatus = {
+  PLANNED: 'PLANNED',
+  ACTIVE: 'ACTIVE',
+  COMPLETED: 'COMPLETED'
+} as const
+
+export type SprintStatus = (typeof SprintStatus)[keyof typeof SprintStatus]
+
+
+export const TaskState = {
   BACKLOG: 'BACKLOG',
   TODO: 'TODO',
   IN_PROGRESS: 'IN_PROGRESS',
   DONE: 'DONE'
 } as const
 
-export type IssueState = (typeof IssueState)[keyof typeof IssueState]
+export type TaskState = (typeof TaskState)[keyof typeof TaskState]
 
 
-export const IssuePriority = {
+export const TaskPriority = {
   NONE: 'NONE',
   LOW: 'LOW',
   MEDIUM: 'MEDIUM',
@@ -27,4 +46,4 @@ export const IssuePriority = {
   URGENT: 'URGENT'
 } as const
 
-export type IssuePriority = (typeof IssuePriority)[keyof typeof IssuePriority]
+export type TaskPriority = (typeof TaskPriority)[keyof typeof TaskPriority]

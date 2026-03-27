@@ -56,12 +56,18 @@ Landing-style версия для репозитория:
 
 ### Полный стек в Docker или Podman
 
-| Сервис Compose | Исходники / образ | Назначение | Порт на хосте (по умолчанию) |
-|----------------|-------------------|------------|------------------------------|
+| Сервис Compose | Исходники / образ | Назначение | Порт на хосте |
+|----------------|-------------------|------------|----------------|
 | `postgres` | — | PostgreSQL | **5433** → 5432 в контейнере |
-| `api` | `apps/api` | NestJS REST API | **3334** |
-| `web` | `apps/web` (или образ `openaisdk/amb`) | Next.js Dashboard, BFF `/api/*` → Nest | **3333** |
+| `api` | `apps/api` | NestJS REST API | см. ниже |
+| `web` | `apps/web` (или образ `openaisdk/amb`) | Next.js Dashboard, BFF `/api/*` → Nest | см. ниже |
 | `seed` | скрипты в `apps/web` | Однократный сид (пользователь, проект, агенты) | — |
+
+**Порты web / api на хосте**
+
+- **`pnpm deploy:local`** и **`pnpm deploy:amb`** выставляют **`WEB_PORT=4333`** и **`API_PORT=4334`**, чтобы параллельно с контейнерами можно было держать **`pnpm dev`** на привычных **3333 / 3334** (две разные БД: Postgres compose на **5433**, для разработки — `pnpm deploy:dev:db` на **5434**).
+- **`pnpm deploy:local:standalone`** — полный стек на **3333 / 3334** (когда `pnpm dev` не запущен).
+- Прямой вызов **`docker compose` / `podman compose`** без этих переменных — по умолчанию тоже **3333 / 3334** (как в `docker-compose.yml`).
 
 **Шаги**
 
@@ -86,11 +92,11 @@ Landing-style версия для репозитория:
    docker compose logs -f seed
    ```
 
-4. Проверьте доступность:
-   - Dashboard: [http://localhost:3333](http://localhost:3333)
-   - API health: `curl -s http://localhost:3334/api/health`
+4. Проверьте доступность (если шли через **`pnpm deploy:local`** — порты **4333 / 4334**; иначе чаще **3333 / 3334**):
+   - Dashboard: `http://localhost:4333` или `http://localhost:3333`
+   - API health: `curl -s http://localhost:4334/api/health` или `curl -s http://localhost:3334/api/health`
 
-**Порты заняты** — задайте переменные перед запуском:
+**Порты заняты** — задайте переменные перед запуском compose:
 
 ```bash
 API_PORT=4334 WEB_PORT=4333 docker compose up --build
@@ -103,7 +109,7 @@ docker compose down          # остановить контейнеры
 docker compose down -v       # + удалить том PostgreSQL
 ```
 
-> **Важно:** MCP-сервер не входит в `docker compose`: его запускает ваш MCP-клиент (Cursor, Codex, Claude Code и т.д.) на хосте. `MESSAGE_BUS_URL` указывайте на **`apps/web`** (по умолчанию `http://localhost:3333` — BFF к **`apps/api`**; при смене порта — `WEB_PORT`).
+> **Важно:** MCP-сервер не входит в `docker compose`: его запускает ваш MCP-клиент (Cursor, Codex, Claude Code и т.д.) на хосте. `MESSAGE_BUS_URL` указывайте на BFF **`apps/web`**: при **`pnpm dev`** — `http://localhost:3333`; при потребительском стеке **`pnpm deploy:local`** — `http://localhost:4333` (или ваш `WEB_PORT`).
 
 ### Гибрид: только PostgreSQL в контейнере, код на хосте
 
@@ -111,11 +117,13 @@ docker compose down -v       # + удалить том PostgreSQL
 
 1. Установите на хосте **Node 20** и **pnpm** (версия зафиксирована в `package.json` → `packageManager`).
 
-2. Поднимите БД:
+2. Поднимите БД для разработки (отдельный проект Compose и том от `deploy:local`, порт **5434**):
 
    ```bash
-   docker compose up -d postgres
+   pnpm deploy:dev:db
    ```
+
+   (`podman compose`; при необходимости замените на `docker compose -f docker-compose.dev.yml up -d postgres`.)
 
 3. Создайте файлы окружения из примеров (в корне репозитория нет единого `.env`):
 
@@ -124,7 +132,7 @@ docker compose down -v       # + удалить том PostgreSQL
    cp apps/web/.env.example apps/web/.env
    ```
 
-   В шаблонах уже указан порт **5433** для Postgres из `docker-compose.yml`. Если БД у вас на стандартном `5432`, поправьте `DATABASE_URL` в обоих `.env`.
+   В шаблонах для этого режима указан порт **5434** (`docker-compose.dev.yml`). Полный стек (`docker-compose.yml` / `pnpm deploy:local`) использует Postgres на **5433** — это другая БД. Остановить только dev-Postgres: `pnpm deploy:dev:db:down`.
 
 4. Установите зависимости и миграции:
 

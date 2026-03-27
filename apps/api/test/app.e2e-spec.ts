@@ -242,7 +242,7 @@ describe("API (e2e)", () => {
     });
   });
 
-  describe("issues (project-scoped)", () => {
+  describe("tasks (project-scoped)", () => {
     let projectId: string;
 
     beforeAll(async () => {
@@ -254,31 +254,33 @@ describe("API (e2e)", () => {
       if (!projectId) {
         const createRes = await request(app.getHttpServer())
           .post("/api/projects")
-          .send({ name: "E2E Issues Project" });
+          .send({ name: "E2E Tasks Project" });
         projectId = createRes.body.data.id;
       }
     });
 
-    it("GET /api/projects/:projectId/issues returns 200", async () => {
+    it("GET /api/projects/:projectId/tasks returns 200", async () => {
       const res = await request(app.getHttpServer())
-        .get(`/api/projects/${projectId}/issues`)
+        .get(`/api/projects/${projectId}/tasks`)
         .expect(200);
       expect(res.body).toHaveProperty("data");
       expect(Array.isArray(res.body.data)).toBe(true);
     });
 
-    it("POST /api/projects/:projectId/issues creates issue", async () => {
+    it("POST /api/projects/:projectId/tasks creates task with key", async () => {
       const res = await request(app.getHttpServer())
-        .post(`/api/projects/${projectId}/issues`)
-        .send({ title: "E2E issue" })
+        .post(`/api/projects/${projectId}/tasks`)
+        .send({ title: "E2E task" })
         .expect(201);
-      expect(res.body.data).toMatchObject({ title: "E2E issue" });
+      expect(res.body.data).toMatchObject({ title: "E2E task" });
       expect(res.body.data.id).toBeDefined();
+      expect(typeof res.body.data.key).toBe("string");
+      expect(res.body.data.key.length).toBeGreaterThan(0);
     });
 
-    it("GET /api/projects/:projectId/issues/:id returns 404 for bad id", async () => {
+    it("GET /api/projects/:projectId/tasks/:id returns 404 for bad id", async () => {
       await request(app.getHttpServer())
-        .get(`/api/projects/${projectId}/issues/00000000-0000-0000-0000-000000000099`)
+        .get(`/api/projects/${projectId}/tasks/00000000-0000-0000-0000-000000000099`)
         .expect(404);
     });
   });
@@ -305,7 +307,7 @@ describe("API (e2e)", () => {
     let agentAId: string;
     let threadAId: string;
     let messageAId: string;
-    let issueAId: string;
+    let taskAId: string;
 
     beforeAll(async () => {
       const suffix = Date.now().toString(36);
@@ -350,11 +352,11 @@ describe("API (e2e)", () => {
         .expect(201);
       messageAId = messageRes.body.data.id;
 
-      const issueRes = await request(app.getHttpServer())
-        .post(`/api/projects/${projectAId}/issues`)
-        .send({ title: `iso-issue-${suffix}` })
+      const taskRes = await request(app.getHttpServer())
+        .post(`/api/projects/${projectAId}/tasks`)
+        .send({ title: `iso-task-${suffix}` })
         .expect(201);
-      issueAId = issueRes.body.data.id;
+      taskAId = taskRes.body.data.id;
     });
 
     it("does not leak agents across projects", async () => {
@@ -404,9 +406,9 @@ describe("API (e2e)", () => {
         .expect(404);
     });
 
-    it("does not expose issues across projects", async () => {
+    it("does not expose tasks across projects", async () => {
       await request(app.getHttpServer())
-        .get(`/api/projects/${projectBId}/issues/${issueAId}`)
+        .get(`/api/projects/${projectBId}/tasks/${taskAId}`)
         .expect(404);
     });
 
@@ -499,7 +501,7 @@ describe("API (e2e)", () => {
       const otherProjectId = otherProjectRes.body.data.id as string;
 
       await request(app.getHttpServer())
-        .get(`/api/projects/${otherProjectId}/issues`)
+        .get(`/api/projects/${otherProjectId}/tasks`)
         .set("Authorization", `Bearer ${token}`)
         .expect(400);
     });
@@ -843,6 +845,1223 @@ describe("API (e2e)", () => {
       expect(res.body?.data?.status).toBeDefined();
       expect(res.body?.data?.checks?.db?.status).toBe("up");
       expect(typeof res.body?.data?.uptimeSec).toBe("number");
+    });
+  });
+
+  describe("task keys (E9A-013)", () => {
+    const ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    function randomPrefix(len = 3): string {
+      return Array.from({ length: len }, () =>
+        ALPHA[Math.floor(Math.random() * 26)]
+      ).join("");
+    }
+
+    let projectId: string;
+    let taskPrefix: string;
+
+    beforeAll(async () => {
+      taskPrefix = randomPrefix(3);
+      const suffix = Date.now().toString(36);
+      const res = await request(app.getHttpServer())
+        .post("/api/projects")
+        .send({ name: `E9A Keys ${suffix}`, taskPrefix })
+        .expect(201);
+      projectId = res.body.data.id as string;
+    });
+
+    describe("taskPrefix validation", () => {
+      it("rejects lowercase prefix on POST /api/projects (400)", async () => {
+        await request(app.getHttpServer())
+          .post("/api/projects")
+          .send({ name: "Invalid Prefix lc", taskPrefix: "abc" })
+          .expect(400);
+      });
+
+      it("rejects single-char prefix on POST /api/projects (400)", async () => {
+        await request(app.getHttpServer())
+          .post("/api/projects")
+          .send({ name: "Invalid Prefix short", taskPrefix: "A" })
+          .expect(400);
+      });
+
+      it("rejects 6-char prefix on POST /api/projects (400)", async () => {
+        await request(app.getHttpServer())
+          .post("/api/projects")
+          .send({ name: "Invalid Prefix long", taskPrefix: "TOOLONG" })
+          .expect(400);
+      });
+
+      it("rejects alphanumeric prefix on POST /api/projects (400)", async () => {
+        await request(app.getHttpServer())
+          .post("/api/projects")
+          .send({ name: "Invalid Prefix num", taskPrefix: "AB1" })
+          .expect(400);
+      });
+
+      it("rejects duplicate taskPrefix in same tenant on POST (409)", async () => {
+        await request(app.getHttpServer())
+          .post("/api/projects")
+          .send({
+            name: `E9A Dup Prefix ${Date.now().toString(36)}`,
+            taskPrefix,
+          })
+          .expect(409);
+      });
+
+      it("rejects duplicate taskPrefix via PATCH /api/projects/:id (409)", async () => {
+        const newRes = await request(app.getHttpServer())
+          .post("/api/projects")
+          .send({ name: `E9A PATCH Dup ${Date.now().toString(36)}` })
+          .expect(201);
+        const newId = newRes.body.data.id as string;
+
+        await request(app.getHttpServer())
+          .patch(`/api/projects/${newId}`)
+          .send({ taskPrefix })
+          .expect(409);
+      });
+
+      it("accepts valid 2-letter prefix", async () => {
+        const p2 = randomPrefix(2);
+        const res = await request(app.getHttpServer())
+          .post("/api/projects")
+          .send({ name: `E9A 2L ${Date.now().toString(36)}`, taskPrefix: p2 })
+          .expect(201);
+        expect(res.body.data.taskPrefix).toBe(p2);
+      });
+
+      it("accepts valid 5-letter prefix", async () => {
+        const p5 = randomPrefix(5);
+        const res = await request(app.getHttpServer())
+          .post("/api/projects")
+          .send({ name: `E9A 5L ${Date.now().toString(36)}`, taskPrefix: p5 })
+          .expect(201);
+        expect(res.body.data.taskPrefix).toBe(p5);
+      });
+
+      it("GET /api/projects/:id returns taskPrefix", async () => {
+        const res = await request(app.getHttpServer())
+          .get(`/api/projects/${projectId}`)
+          .expect(200);
+        expect(res.body.data.taskPrefix).toBe(taskPrefix);
+      });
+    });
+
+    describe("key generation format & sequence", () => {
+      it("creates task with key in PPP-NNNN format", async () => {
+        const res = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/tasks`)
+          .send({ title: "E9A key format check" })
+          .expect(201);
+        const key: string = res.body.data.key;
+        expect(key).toMatch(/^[A-Z]{2,5}-\d{4}$/);
+        expect(key.startsWith(`${taskPrefix}-`)).toBe(true);
+      });
+
+      it("sequential task creation produces strictly incrementing keys", async () => {
+        const firstRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/tasks`)
+          .send({ title: "Seq A" })
+          .expect(201);
+        const secondRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/tasks`)
+          .send({ title: "Seq B" })
+          .expect(201);
+
+        const numA = parseInt((firstRes.body.data.key as string).split("-")[1]!, 10);
+        const numB = parseInt((secondRes.body.data.key as string).split("-")[1]!, 10);
+        expect(numB).toBe(numA + 1);
+      });
+
+      it("key is present and non-empty in GET list response", async () => {
+        const res = await request(app.getHttpServer())
+          .get(`/api/projects/${projectId}/tasks`)
+          .expect(200);
+        expect(Array.isArray(res.body.data)).toBe(true);
+        expect((res.body.data as Array<unknown>).length).toBeGreaterThan(0);
+        for (const task of res.body.data as Array<{ key: string }>) {
+          expect(typeof task.key).toBe("string");
+          expect(task.key.length).toBeGreaterThan(0);
+        }
+      });
+    });
+
+    describe("parallel task creation — no duplicate keys", () => {
+      it("5 concurrent requests produce 5 unique keys", async () => {
+        const N = 5;
+        const results = await Promise.all(
+          Array.from({ length: N }, (_, i) =>
+            request(app.getHttpServer())
+              .post(`/api/projects/${projectId}/tasks`)
+              .send({ title: `Parallel task ${i}` })
+              .expect(201)
+          )
+        );
+        const keys = results.map((r) => r.body.data.key as string);
+        const unique = new Set(keys);
+        expect(unique.size).toBe(N);
+      });
+
+      it("10 concurrent requests produce 10 unique keys", async () => {
+        const N = 10;
+        const results = await Promise.all(
+          Array.from({ length: N }, (_, i) =>
+            request(app.getHttpServer())
+              .post(`/api/projects/${projectId}/tasks`)
+              .send({ title: `Concurrent task ${i}` })
+              .expect(201)
+          )
+        );
+        const keys = results.map((r) => r.body.data.key as string);
+        const unique = new Set(keys);
+        expect(unique.size).toBe(N);
+      });
+
+      it("keys from parallel creates belong to the correct project prefix", async () => {
+        const N = 3;
+        const results = await Promise.all(
+          Array.from({ length: N }, (_, i) =>
+            request(app.getHttpServer())
+              .post(`/api/projects/${projectId}/tasks`)
+              .send({ title: `Prefix verify ${i}` })
+              .expect(201)
+          )
+        );
+        for (const r of results) {
+          expect((r.body.data.key as string).startsWith(`${taskPrefix}-`)).toBe(true);
+        }
+      });
+    });
+
+    describe("search and filter by key (E9A-011)", () => {
+      let knownKey: string;
+
+      beforeAll(async () => {
+        const res = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/tasks`)
+          .send({ title: "E9A search target" })
+          .expect(201);
+        knownKey = res.body.data.key as string;
+      });
+
+      it("GET ?key=<exact> returns exactly one matching task", async () => {
+        const res = await request(app.getHttpServer())
+          .get(`/api/projects/${projectId}/tasks`)
+          .query({ key: knownKey })
+          .expect(200);
+        expect(Array.isArray(res.body.data)).toBe(true);
+        expect(res.body.data).toHaveLength(1);
+        expect((res.body.data as Array<{ key: string }>)[0].key).toBe(knownKey);
+      });
+
+      it("GET ?key=<exact> returns empty array for non-existent key", async () => {
+        const res = await request(app.getHttpServer())
+          .get(`/api/projects/${projectId}/tasks`)
+          .query({ key: `${taskPrefix}-9999` })
+          .expect(200);
+        expect(Array.isArray(res.body.data)).toBe(true);
+        expect(res.body.data).toHaveLength(0);
+      });
+
+      it("GET ?search=<prefix> returns all tasks whose key starts with the prefix", async () => {
+        const searchPrefix = knownKey.slice(0, -1);
+        const res = await request(app.getHttpServer())
+          .get(`/api/projects/${projectId}/tasks`)
+          .query({ search: searchPrefix })
+          .expect(200);
+        expect(Array.isArray(res.body.data)).toBe(true);
+        expect((res.body.data as Array<unknown>).length).toBeGreaterThanOrEqual(1);
+        for (const task of res.body.data as Array<{ key: string }>) {
+          expect(task.key.startsWith(searchPrefix)).toBe(true);
+        }
+      });
+
+      it("GET ?search=<project-prefix> returns all project tasks", async () => {
+        const res = await request(app.getHttpServer())
+          .get(`/api/projects/${projectId}/tasks`)
+          .query({ search: `${taskPrefix}-` })
+          .expect(200);
+        expect(Array.isArray(res.body.data)).toBe(true);
+        expect((res.body.data as Array<unknown>).length).toBeGreaterThanOrEqual(1);
+        for (const task of res.body.data as Array<{ key: string }>) {
+          expect(task.key.startsWith(`${taskPrefix}-`)).toBe(true);
+        }
+      });
+
+      it("GET ?search=<nonexistent> returns empty array", async () => {
+        const res = await request(app.getHttpServer())
+          .get(`/api/projects/${projectId}/tasks`)
+          .query({ search: "ZZZZ-0000" })
+          .expect(200);
+        expect(Array.isArray(res.body.data)).toBe(true);
+        expect(res.body.data).toHaveLength(0);
+      });
+    });
+
+    describe("GET /api/projects/:projectId/tasks/:key — lookup by human-readable key (E9A-012)", () => {
+      let knownKey: string;
+      let knownId: string;
+
+      beforeAll(async () => {
+        const res = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/tasks`)
+          .send({ title: "E9A key lookup target" })
+          .expect(201);
+        knownKey = res.body.data.key as string;
+        knownId = res.body.data.id as string;
+      });
+
+      it("returns the correct task when looking up by human-readable key", async () => {
+        const res = await request(app.getHttpServer())
+          .get(`/api/projects/${projectId}/tasks/${knownKey}`)
+          .expect(200);
+        expect(res.body.data.id).toBe(knownId);
+        expect(res.body.data.key).toBe(knownKey);
+      });
+
+      it("returns 404 for a non-existent human-readable key", async () => {
+        await request(app.getHttpServer())
+          .get(`/api/projects/${projectId}/tasks/${taskPrefix}-9999`)
+          .expect(404);
+      });
+
+      it("lookup by UUID and by key returns identical task data", async () => {
+        const [byId, byKey] = await Promise.all([
+          request(app.getHttpServer())
+            .get(`/api/projects/${projectId}/tasks/${knownId}`)
+            .expect(200),
+          request(app.getHttpServer())
+            .get(`/api/projects/${projectId}/tasks/${knownKey}`)
+            .expect(200),
+        ]);
+        expect(byId.body.data.id).toBe(byKey.body.data.id);
+        expect(byId.body.data.key).toBe(byKey.body.data.key);
+        expect(byId.body.data.title).toBe(byKey.body.data.title);
+      });
+
+      it("human-readable key does not resolve across projects (404)", async () => {
+        const otherProjectRes = await request(app.getHttpServer())
+          .post("/api/projects")
+          .send({ name: `E9A Cross ${Date.now().toString(36)}` })
+          .expect(201);
+        const otherProjectId = otherProjectRes.body.data.id as string;
+
+        await request(app.getHttpServer())
+          .get(`/api/projects/${otherProjectId}/tasks/${knownKey}`)
+          .expect(404);
+      });
+    });
+
+    describe("backfill — all tasks have a populated key (E9A-005)", () => {
+      it("all tasks in the test project have a non-null, non-empty key", async () => {
+        const res = await request(app.getHttpServer())
+          .get(`/api/projects/${projectId}/tasks`)
+          .expect(200);
+        expect(Array.isArray(res.body.data)).toBe(true);
+        expect((res.body.data as Array<unknown>).length).toBeGreaterThan(0);
+        for (const task of res.body.data as Array<{ key: string | null | undefined }>) {
+          expect(task.key).toBeDefined();
+          expect(task.key).not.toBeNull();
+          expect(typeof task.key).toBe("string");
+          expect((task.key as string).length).toBeGreaterThan(0);
+        }
+      });
+
+      it("all tasks across existing projects have a non-empty key", async () => {
+        const projectsRes = await request(app.getHttpServer())
+          .get("/api/projects")
+          .expect(200);
+        const projects = (
+          projectsRes.body.data as Array<{ id: string }>
+        ).slice(0, 5);
+
+        for (const project of projects) {
+          const tasksRes = await request(app.getHttpServer())
+            .get(`/api/projects/${project.id}/tasks`)
+            .expect(200);
+          for (const task of tasksRes.body.data as Array<{
+            key: string | null | undefined;
+          }>) {
+            expect(task.key).toBeDefined();
+            expect(task.key).not.toBeNull();
+            expect((task.key as string).length).toBeGreaterThan(0);
+          }
+        }
+      });
+
+      it("newly created task is immediately retrievable by its key", async () => {
+        const createRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/tasks`)
+          .send({ title: "E9A backfill immediate" })
+          .expect(201);
+        const newKey: string = createRes.body.data.key;
+        expect(newKey).toMatch(/^[A-Z]{2,5}-\d{4}$/);
+
+        const lookupRes = await request(app.getHttpServer())
+          .get(`/api/projects/${projectId}/tasks/${newKey}`)
+          .expect(200);
+        expect(lookupRes.body.data.key).toBe(newKey);
+        expect(lookupRes.body.data.id).toBe(createRes.body.data.id);
+      });
+    });
+  });
+
+  describe("epics (E9B-014)", () => {
+    const EPIC_E2E_ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    function epicE2eTaskPrefix(): string {
+      return Array.from({ length: 3 }, () =>
+        EPIC_E2E_ALPHA[Math.floor(Math.random() * 26)]
+      ).join("");
+    }
+
+    let projectId: string;
+
+    beforeAll(async () => {
+      const suffix = Date.now().toString(36);
+      const res = await request(app.getHttpServer())
+        .post("/api/projects")
+        .send({
+          name: `E9B E2E ${suffix}`,
+          taskPrefix: epicE2eTaskPrefix(),
+        })
+        .expect(201);
+      projectId = res.body.data.id as string;
+    });
+
+    describe("CRUD /api/projects/:projectId/epics", () => {
+      it("POST creates epic with default OPEN status", async () => {
+        const res = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/epics`)
+          .send({
+            title: "E9B CRUD epic",
+            description: "e2e description",
+          })
+          .expect(201);
+        expect(res.body.data).toMatchObject({
+          title: "E9B CRUD epic",
+          description: "e2e description",
+          status: "OPEN",
+        });
+        expect(res.body.data.id).toBeDefined();
+      });
+
+      it("returns 400 for invalid create body", async () => {
+        await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/epics`)
+          .send({ title: "" })
+          .expect(400);
+      });
+
+      it("GET list includes non-archived epics and hides archived by default", async () => {
+        const createRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/epics`)
+          .send({ title: "E9B List Visible" })
+          .expect(201);
+        const visibleId = createRes.body.data.id as string;
+
+        const archiveRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/epics`)
+          .send({ title: "E9B List Hidden" })
+          .expect(201);
+        const toArchiveId = archiveRes.body.data.id as string;
+
+        await request(app.getHttpServer())
+          .delete(`/api/projects/${projectId}/epics/${toArchiveId}`)
+          .expect(200);
+
+        const listRes = await request(app.getHttpServer())
+          .get(`/api/projects/${projectId}/epics`)
+          .expect(200);
+        const ids = (listRes.body.data as Array<{ id: string }>).map((e) => e.id);
+        expect(ids).toContain(visibleId);
+        expect(ids).not.toContain(toArchiveId);
+
+        const archivedRes = await request(app.getHttpServer())
+          .get(`/api/projects/${projectId}/epics`)
+          .query({ status: "ARCHIVED" })
+          .expect(200);
+        const archivedIds = (archivedRes.body.data as Array<{ id: string }>).map(
+          (e) => e.id
+        );
+        expect(archivedIds).toContain(toArchiveId);
+      });
+
+      it("GET by id returns _count.tasks and tasks[]", async () => {
+        const createRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/epics`)
+          .send({ title: "E9B Detail epic" })
+          .expect(201);
+        const epicId = createRes.body.data.id as string;
+
+        const res = await request(app.getHttpServer())
+          .get(`/api/projects/${projectId}/epics/${epicId}`)
+          .expect(200);
+        expect(res.body.data._count).toEqual({ tasks: 0 });
+        expect(Array.isArray(res.body.data.tasks)).toBe(true);
+        expect(res.body.data.tasks).toHaveLength(0);
+      });
+
+      it("PATCH updates title and status", async () => {
+        const createRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/epics`)
+          .send({ title: "E9B Patch Before" })
+          .expect(201);
+        const epicId = createRes.body.data.id as string;
+
+        const res = await request(app.getHttpServer())
+          .patch(`/api/projects/${projectId}/epics/${epicId}`)
+          .send({ title: "E9B Patch After", status: "IN_PROGRESS" })
+          .expect(200);
+        expect(res.body.data).toMatchObject({
+          title: "E9B Patch After",
+          status: "IN_PROGRESS",
+        });
+      });
+
+      it("DELETE soft-archives epic (status ARCHIVED)", async () => {
+        const createRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/epics`)
+          .send({ title: "E9B To Archive" })
+          .expect(201);
+        const epicId = createRes.body.data.id as string;
+
+        const res = await request(app.getHttpServer())
+          .delete(`/api/projects/${projectId}/epics/${epicId}`)
+          .expect(200);
+        expect(res.body.data.status).toBe("ARCHIVED");
+      });
+
+      it("returns 404 for unknown epic id", async () => {
+        await request(app.getHttpServer())
+          .get(
+            `/api/projects/${projectId}/epics/00000000-0000-4000-8000-000000000099`
+          )
+          .expect(404);
+      });
+    });
+
+    describe("PATCH /api/projects/:projectId/tasks/:id — epicId assign / unassign", () => {
+      it("assigns task to epic and returns embedded epic", async () => {
+        const epicRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/epics`)
+          .send({ title: "E9B Assign target" })
+          .expect(201);
+        const epicId = epicRes.body.data.id as string;
+
+        const taskRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/tasks`)
+          .send({ title: "E9B task for epic" })
+          .expect(201);
+        const taskId = taskRes.body.data.id as string;
+
+        const patchRes = await request(app.getHttpServer())
+          .patch(`/api/projects/${projectId}/tasks/${taskId}`)
+          .send({ epicId })
+          .expect(200);
+        expect(patchRes.body.data.epic).toMatchObject({
+          id: epicId,
+          title: "E9B Assign target",
+        });
+
+        const epicDetail = await request(app.getHttpServer())
+          .get(`/api/projects/${projectId}/epics/${epicId}`)
+          .expect(200);
+        expect(epicDetail.body.data._count.tasks).toBe(1);
+        expect(
+          (epicDetail.body.data.tasks as Array<{ id: string }>).map((t) => t.id)
+        ).toContain(taskId);
+      });
+
+      it("unassigns with epicId null", async () => {
+        const epicRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/epics`)
+          .send({ title: "E9B Unassign epic" })
+          .expect(201);
+        const epicId = epicRes.body.data.id as string;
+
+        const taskRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/tasks`)
+          .send({ title: "E9B unassign task" })
+          .expect(201);
+        const taskId = taskRes.body.data.id as string;
+
+        await request(app.getHttpServer())
+          .patch(`/api/projects/${projectId}/tasks/${taskId}`)
+          .send({ epicId })
+          .expect(200);
+
+        const unassignRes = await request(app.getHttpServer())
+          .patch(`/api/projects/${projectId}/tasks/${taskId}`)
+          .send({ epicId: null })
+          .expect(200);
+        expect(unassignRes.body.data.epic).toBeNull();
+      });
+
+      it("returns 404 when epicId belongs to another project", async () => {
+        const otherRes = await request(app.getHttpServer())
+          .post("/api/projects")
+          .send({
+            name: `E9B other ${Date.now().toString(36)}`,
+            taskPrefix: epicE2eTaskPrefix(),
+          })
+          .expect(201);
+        const otherProjectId = otherRes.body.data.id as string;
+
+        const epicRes = await request(app.getHttpServer())
+          .post(`/api/projects/${otherProjectId}/epics`)
+          .send({ title: "E9B foreign epic" })
+          .expect(201);
+        const foreignEpicId = epicRes.body.data.id as string;
+
+        const taskRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/tasks`)
+          .send({ title: "E9B task foreign epic" })
+          .expect(201);
+        const taskId = taskRes.body.data.id as string;
+
+        await request(app.getHttpServer())
+          .patch(`/api/projects/${projectId}/tasks/${taskId}`)
+          .send({ epicId: foreignEpicId })
+          .expect(404);
+      });
+    });
+
+    describe("GET /api/projects/:projectId/tasks ?epicId=", () => {
+      it("filters tasks by epicId (exact)", async () => {
+        const epicRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/epics`)
+          .send({ title: "E9B Filter epic" })
+          .expect(201);
+        const epicId = epicRes.body.data.id as string;
+
+        const assignedRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/tasks`)
+          .send({ title: "E9B filtered in" })
+          .expect(201);
+        const assignedId = assignedRes.body.data.id as string;
+
+        await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/tasks`)
+          .send({ title: "E9B filtered out" })
+          .expect(201);
+
+        await request(app.getHttpServer())
+          .patch(`/api/projects/${projectId}/tasks/${assignedId}`)
+          .send({ epicId })
+          .expect(200);
+
+        const filtered = await request(app.getHttpServer())
+          .get(`/api/projects/${projectId}/tasks`)
+          .query({ epicId })
+          .expect(200);
+        const rows = filtered.body.data as Array<{ id: string; epicId?: string | null }>;
+        expect(rows.every((t) => t.epicId === epicId || t.epic?.id === epicId)).toBe(true);
+        expect(rows.some((t) => t.id === assignedId)).toBe(true);
+        expect(rows.length).toBeGreaterThanOrEqual(1);
+      });
+    });
+
+    describe("ARCHIVED epic — assign returns 409", () => {
+      it("rejects PATCH task.epicId when epic is archived", async () => {
+        const epicRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/epics`)
+          .send({ title: "E9B archived target" })
+          .expect(201);
+        const epicId = epicRes.body.data.id as string;
+
+        await request(app.getHttpServer())
+          .delete(`/api/projects/${projectId}/epics/${epicId}`)
+          .expect(200);
+
+        const taskRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/tasks`)
+          .send({ title: "E9B task vs archived epic" })
+          .expect(201);
+        const taskId = taskRes.body.data.id as string;
+
+        await request(app.getHttpServer())
+          .patch(`/api/projects/${projectId}/tasks/${taskId}`)
+          .send({ epicId })
+          .expect(409);
+      });
+    });
+
+    describe("project isolation — epics & tasks", () => {
+      let projectAId: string;
+      let projectBId: string;
+      let epicAId: string;
+
+      beforeAll(async () => {
+        const suffix = Date.now().toString(36);
+        const [a, b] = await Promise.all([
+          request(app.getHttpServer())
+            .post("/api/projects")
+            .send({
+              name: `Alpha E9B Iso ${suffix}`,
+              taskPrefix: epicE2eTaskPrefix(),
+            })
+            .expect(201),
+          request(app.getHttpServer())
+            .post("/api/projects")
+            .send({
+              name: `Beta E9B Iso ${suffix}`,
+              taskPrefix: epicE2eTaskPrefix(),
+            })
+            .expect(201),
+        ]);
+        projectAId = a.body.data.id;
+        projectBId = b.body.data.id;
+
+        const epicRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectAId}/epics`)
+          .send({ title: "E9B epic only in A" })
+          .expect(201);
+        epicAId = epicRes.body.data.id as string;
+      });
+
+      it("returns 404 when fetching epic from another project", async () => {
+        await request(app.getHttpServer())
+          .get(`/api/projects/${projectBId}/epics/${epicAId}`)
+          .expect(404);
+      });
+
+      it("does not list project A epics under project B", async () => {
+        const res = await request(app.getHttpServer())
+          .get(`/api/projects/${projectBId}/epics`)
+          .expect(200);
+        const ids = (res.body.data as Array<{ id: string }>).map((e) => e.id);
+        expect(ids).not.toContain(epicAId);
+      });
+    });
+  });
+
+  describe("sprints (E9C-017)", () => {
+    const SPRINT_E2E_ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    function sprintE2eTaskPrefix(): string {
+      return Array.from({ length: 3 }, () =>
+        SPRINT_E2E_ALPHA[Math.floor(Math.random() * 26)]
+      ).join("");
+    }
+
+    async function createSprintE2eProject(label: string): Promise<string> {
+      const suffix = `${label}-${Date.now().toString(36)}`;
+      const res = await request(app.getHttpServer())
+        .post("/api/projects")
+        .send({
+          name: `E9C ${suffix}`,
+          taskPrefix: sprintE2eTaskPrefix(),
+        })
+        .expect(201);
+      return res.body.data.id as string;
+    }
+
+    describe("CRUD /api/projects/:projectId/sprints", () => {
+      let projectId: string;
+
+      beforeAll(async () => {
+        projectId = await createSprintE2eProject("crud");
+      });
+      it("POST creates sprint with default PLANNED status", async () => {
+        const start = new Date("2030-01-01T00:00:00.000Z");
+        const end = new Date("2030-01-14T00:00:00.000Z");
+        const res = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints`)
+          .send({
+            name: "E9C CRUD sprint",
+            goal: "ship it",
+            startDate: start.toISOString(),
+            endDate: end.toISOString(),
+          })
+          .expect(201);
+        expect(res.body.data).toMatchObject({
+          name: "E9C CRUD sprint",
+          goal: "ship it",
+          status: "PLANNED",
+        });
+        expect(res.body.data.id).toBeDefined();
+      });
+
+      it("returns 400 for invalid create body", async () => {
+        await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints`)
+          .send({ name: "" })
+          .expect(400);
+      });
+
+      it("GET list returns sprints with _count.tasks", async () => {
+        const res = await request(app.getHttpServer())
+          .get(`/api/projects/${projectId}/sprints`)
+          .expect(200);
+        expect(Array.isArray(res.body.data)).toBe(true);
+        expect((res.body.data as Array<unknown>).length).toBeGreaterThan(0);
+        for (const s of res.body.data as Array<{ _count?: { tasks: number } }>) {
+          expect(s._count?.tasks).toBeDefined();
+        }
+      });
+
+      it("GET ?status= filters list", async () => {
+        const plannedRes = await request(app.getHttpServer())
+          .get(`/api/projects/${projectId}/sprints`)
+          .query({ status: "PLANNED" })
+          .expect(200);
+        for (const s of plannedRes.body.data as Array<{ status: string }>) {
+          expect(s.status).toBe("PLANNED");
+        }
+      });
+
+      it("GET by id returns _count.tasks and tasks[]", async () => {
+        const createRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints`)
+          .send({ name: "E9C detail sprint" })
+          .expect(201);
+        const sprintId = createRes.body.data.id as string;
+
+        const res = await request(app.getHttpServer())
+          .get(`/api/projects/${projectId}/sprints/${sprintId}`)
+          .expect(200);
+        expect(res.body.data._count).toEqual({ tasks: 0 });
+        expect(Array.isArray(res.body.data.tasks)).toBe(true);
+        expect(res.body.data.tasks).toHaveLength(0);
+      });
+
+      it("PATCH updates name, goal, and dates", async () => {
+        const createRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints`)
+          .send({ name: "E9C patch before" })
+          .expect(201);
+        const sprintId = createRes.body.data.id as string;
+
+        const res = await request(app.getHttpServer())
+          .patch(`/api/projects/${projectId}/sprints/${sprintId}`)
+          .send({
+            name: "E9C patch after",
+            goal: "updated",
+            startDate: "2031-02-01T00:00:00.000Z",
+            endDate: "2031-02-15T00:00:00.000Z",
+          })
+          .expect(200);
+        expect(res.body.data).toMatchObject({
+          name: "E9C patch after",
+          goal: "updated",
+        });
+      });
+
+      it("DELETE removes only PLANNED sprint", async () => {
+        const plannedRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints`)
+          .send({ name: "E9C to delete" })
+          .expect(201);
+        const plannedId = plannedRes.body.data.id as string;
+
+        await request(app.getHttpServer())
+          .delete(`/api/projects/${projectId}/sprints/${plannedId}`)
+          .expect(200);
+
+        const activeRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints`)
+          .send({ name: "E9C active for delete test" })
+          .expect(201);
+        const activeId = activeRes.body.data.id as string;
+        await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints/${activeId}/start`)
+          .expect(200);
+
+        await request(app.getHttpServer())
+          .delete(`/api/projects/${projectId}/sprints/${activeId}`)
+          .expect(409);
+
+        await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints/${activeId}/complete`)
+          .expect(200);
+
+        const doneRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints`)
+          .send({ name: "E9C complete for delete test" })
+          .expect(201);
+        const doneId = doneRes.body.data.id as string;
+        await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints/${doneId}/start`)
+          .expect(200);
+        await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints/${doneId}/complete`)
+          .expect(200);
+
+        await request(app.getHttpServer())
+          .delete(`/api/projects/${projectId}/sprints/${doneId}`)
+          .expect(409);
+      });
+
+      it("returns 404 for unknown sprint id", async () => {
+        await request(app.getHttpServer())
+          .get(
+            `/api/projects/${projectId}/sprints/00000000-0000-4000-8000-000000000088`
+          )
+          .expect(404);
+      });
+    });
+
+    describe("lifecycle — start / complete", () => {
+      let projectId: string;
+
+      beforeAll(async () => {
+        projectId = await createSprintE2eProject("lifecycle");
+      });
+
+      it("POST start sets PLANNED → ACTIVE", async () => {
+        const createRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints`)
+          .send({ name: "E9C lifecycle start" })
+          .expect(201);
+        const sprintId = createRes.body.data.id as string;
+
+        const res = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints/${sprintId}/start`)
+          .expect(200);
+        expect(res.body.data.status).toBe("ACTIVE");
+
+        await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints/${sprintId}/complete`)
+          .expect(200);
+      });
+
+      it("POST complete sets ACTIVE → COMPLETED", async () => {
+        const createRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints`)
+          .send({ name: "E9C lifecycle complete" })
+          .expect(201);
+        const sprintId = createRes.body.data.id as string;
+
+        await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints/${sprintId}/start`)
+          .expect(200);
+
+        const res = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints/${sprintId}/complete`)
+          .expect(200);
+        expect(res.body.data.status).toBe("COMPLETED");
+      });
+
+      it("POST start returns 409 when sprint is not PLANNED", async () => {
+        const createRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints`)
+          .send({ name: "E9C double start" })
+          .expect(201);
+        const sprintId = createRes.body.data.id as string;
+
+        await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints/${sprintId}/start`)
+          .expect(200);
+
+        await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints/${sprintId}/start`)
+          .expect(409);
+
+        await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints/${sprintId}/complete`)
+          .expect(200);
+      });
+
+      it("POST complete returns 409 when sprint already COMPLETED", async () => {
+        const createRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints`)
+          .send({ name: "E9C double complete" })
+          .expect(201);
+        const sprintId = createRes.body.data.id as string;
+
+        await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints/${sprintId}/start`)
+          .expect(200);
+        await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints/${sprintId}/complete`)
+          .expect(200);
+
+        await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints/${sprintId}/complete`)
+          .expect(409);
+      });
+    });
+
+    describe("at most one ACTIVE sprint per project", () => {
+      it("returns 409 on second POST start and on PATCH status ACTIVE when another sprint is ACTIVE", async () => {
+        const projectId = await createSprintE2eProject("one-active");
+
+        const firstRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints`)
+          .send({ name: "E9C first active" })
+          .expect(201);
+        const firstId = firstRes.body.data.id as string;
+
+        const secondRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints`)
+          .send({ name: "E9C second active" })
+          .expect(201);
+        const secondId = secondRes.body.data.id as string;
+
+        const thirdRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints`)
+          .send({ name: "E9C third active" })
+          .expect(201);
+        const thirdId = thirdRes.body.data.id as string;
+
+        await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints/${firstId}/start`)
+          .expect(200);
+
+        await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints/${secondId}/start`)
+          .expect(409);
+
+        await request(app.getHttpServer())
+          .patch(`/api/projects/${projectId}/sprints/${thirdId}`)
+          .send({ status: "ACTIVE" })
+          .expect(409);
+      });
+    });
+
+    describe("PATCH /api/projects/:projectId/tasks/:id — sprintId", () => {
+      let projectId: string;
+
+      beforeAll(async () => {
+        projectId = await createSprintE2eProject("task-sprint");
+      });
+
+      it("assigns task to sprint and returns embedded sprint", async () => {
+        const sprintRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints`)
+          .send({ name: "E9C assign sprint" })
+          .expect(201);
+        const sprintId = sprintRes.body.data.id as string;
+
+        const taskRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/tasks`)
+          .send({ title: "E9C task in sprint" })
+          .expect(201);
+        const taskId = taskRes.body.data.id as string;
+
+        const patchRes = await request(app.getHttpServer())
+          .patch(`/api/projects/${projectId}/tasks/${taskId}`)
+          .send({ sprintId })
+          .expect(200);
+        expect(patchRes.body.data.sprint).toMatchObject({
+          id: sprintId,
+          name: "E9C assign sprint",
+        });
+
+        const detail = await request(app.getHttpServer())
+          .get(`/api/projects/${projectId}/sprints/${sprintId}`)
+          .expect(200);
+        expect(detail.body.data._count.tasks).toBeGreaterThanOrEqual(1);
+        expect(
+          (detail.body.data.tasks as Array<{ id: string }>).some((t) => t.id === taskId)
+        ).toBe(true);
+      });
+
+      it("unassigns with sprintId null", async () => {
+        const sprintRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints`)
+          .send({ name: "E9C unassign sprint" })
+          .expect(201);
+        const sprintId = sprintRes.body.data.id as string;
+
+        const taskRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/tasks`)
+          .send({ title: "E9C unassign task" })
+          .expect(201);
+        const taskId = taskRes.body.data.id as string;
+
+        await request(app.getHttpServer())
+          .patch(`/api/projects/${projectId}/tasks/${taskId}`)
+          .send({ sprintId })
+          .expect(200);
+
+        const unassignRes = await request(app.getHttpServer())
+          .patch(`/api/projects/${projectId}/tasks/${taskId}`)
+          .send({ sprintId: null })
+          .expect(200);
+        expect(unassignRes.body.data.sprint).toBeNull();
+      });
+
+      it("returns 409 when assigning to COMPLETED sprint", async () => {
+        const sprintRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints`)
+          .send({ name: "E9C completed sprint" })
+          .expect(201);
+        const sprintId = sprintRes.body.data.id as string;
+
+        await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints/${sprintId}/start`)
+          .expect(200);
+        await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints/${sprintId}/complete`)
+          .expect(200);
+
+        const taskRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/tasks`)
+          .send({ title: "E9C task vs completed sprint" })
+          .expect(201);
+        const taskId = taskRes.body.data.id as string;
+
+        await request(app.getHttpServer())
+          .patch(`/api/projects/${projectId}/tasks/${taskId}`)
+          .send({ sprintId })
+          .expect(409);
+      });
+
+      it("returns 404 when sprintId belongs to another project", async () => {
+        const otherRes = await request(app.getHttpServer())
+          .post("/api/projects")
+          .send({
+            name: `E9C other ${Date.now().toString(36)}`,
+            taskPrefix: sprintE2eTaskPrefix(),
+          })
+          .expect(201);
+        const otherProjectId = otherRes.body.data.id as string;
+
+        const sprintRes = await request(app.getHttpServer())
+          .post(`/api/projects/${otherProjectId}/sprints`)
+          .send({ name: "E9C foreign sprint" })
+          .expect(201);
+        const foreignSprintId = sprintRes.body.data.id as string;
+
+        const taskRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/tasks`)
+          .send({ title: "E9C task foreign sprint" })
+          .expect(201);
+        const taskId = taskRes.body.data.id as string;
+
+        await request(app.getHttpServer())
+          .patch(`/api/projects/${projectId}/tasks/${taskId}`)
+          .send({ sprintId: foreignSprintId })
+          .expect(404);
+      });
+
+      it("deleting PLANNED sprint clears sprintId on linked tasks (onDelete SetNull)", async () => {
+        const sprintRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints`)
+          .send({ name: "E9C sprint delete clears task" })
+          .expect(201);
+        const sprintId = sprintRes.body.data.id as string;
+
+        const taskRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/tasks`)
+          .send({ title: "E9C task orphan after sprint delete" })
+          .expect(201);
+        const taskId = taskRes.body.data.id as string;
+
+        await request(app.getHttpServer())
+          .patch(`/api/projects/${projectId}/tasks/${taskId}`)
+          .send({ sprintId })
+          .expect(200);
+
+        await request(app.getHttpServer())
+          .delete(`/api/projects/${projectId}/sprints/${sprintId}`)
+          .expect(200);
+
+        const getTask = await request(app.getHttpServer())
+          .get(`/api/projects/${projectId}/tasks/${taskId}`)
+          .expect(200);
+        expect(getTask.body.data.sprint).toBeNull();
+        expect(getTask.body.data.sprintId ?? null).toBeNull();
+      });
+    });
+
+    describe("GET /api/projects/:projectId/tasks ?sprintId=", () => {
+      let projectId: string;
+
+      beforeAll(async () => {
+        projectId = await createSprintE2eProject("filter");
+      });
+
+      it("filters tasks by sprintId", async () => {
+        const sprintRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/sprints`)
+          .send({ name: "E9C filter sprint" })
+          .expect(201);
+        const sprintId = sprintRes.body.data.id as string;
+
+        const inSprintRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/tasks`)
+          .send({ title: "E9C in sprint filter" })
+          .expect(201);
+        const inId = inSprintRes.body.data.id as string;
+
+        await request(app.getHttpServer())
+          .post(`/api/projects/${projectId}/tasks`)
+          .send({ title: "E9C not in sprint filter" })
+          .expect(201);
+
+        await request(app.getHttpServer())
+          .patch(`/api/projects/${projectId}/tasks/${inId}`)
+          .send({ sprintId })
+          .expect(200);
+
+        const filtered = await request(app.getHttpServer())
+          .get(`/api/projects/${projectId}/tasks`)
+          .query({ sprintId })
+          .expect(200);
+        const rows = filtered.body.data as Array<{
+          id: string;
+          sprintId?: string | null;
+          sprint?: { id: string } | null;
+        }>;
+        expect(rows.length).toBeGreaterThanOrEqual(1);
+        expect(rows.some((t) => t.id === inId)).toBe(true);
+        for (const t of rows) {
+          const sid = t.sprintId ?? t.sprint?.id;
+          expect(sid).toBe(sprintId);
+        }
+      });
+    });
+
+    describe("project isolation — sprints", () => {
+      let projectAId: string;
+      let projectBId: string;
+      let sprintAId: string;
+
+      beforeAll(async () => {
+        const suffix = Date.now().toString(36);
+        const [a, b] = await Promise.all([
+          request(app.getHttpServer())
+            .post("/api/projects")
+            .send({
+              name: `Gamma E9C Iso ${suffix}`,
+              taskPrefix: sprintE2eTaskPrefix(),
+            })
+            .expect(201),
+          request(app.getHttpServer())
+            .post("/api/projects")
+            .send({
+              name: `Delta E9C Iso ${suffix}`,
+              taskPrefix: sprintE2eTaskPrefix(),
+            })
+            .expect(201),
+        ]);
+        projectAId = a.body.data.id;
+        projectBId = b.body.data.id;
+
+        const sprintRes = await request(app.getHttpServer())
+          .post(`/api/projects/${projectAId}/sprints`)
+          .send({ name: "E9C sprint only in A" })
+          .expect(201);
+        sprintAId = sprintRes.body.data.id as string;
+      });
+
+      it("returns 404 when fetching sprint from another project", async () => {
+        await request(app.getHttpServer())
+          .get(`/api/projects/${projectBId}/sprints/${sprintAId}`)
+          .expect(404);
+      });
+
+      it("does not list project A sprints under project B", async () => {
+        const res = await request(app.getHttpServer())
+          .get(`/api/projects/${projectBId}/sprints`)
+          .expect(200);
+        const ids = (res.body.data as Array<{ id: string }>).map((s) => s.id);
+        expect(ids).not.toContain(sprintAId);
+      });
     });
   });
 });
