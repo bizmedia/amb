@@ -561,6 +561,48 @@ describe("API (e2e)", () => {
         .set("x-project-id", projectId)
         .expect(200);
     });
+
+    it("changes password with user token and restores default credentials", async () => {
+      const loginRes = await request(app.getHttpServer())
+        .post("/api/auth/login")
+        .send({ email: "admin@local.test", password: "ChangeMe123!" })
+        .expect(200);
+      const token = loginRes.body.data?.accessToken as string;
+
+      await request(app.getHttpServer())
+        .post("/api/auth/change-password")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ currentPassword: "wrong-password", newPassword: "TempPass999!" })
+        .expect(401);
+
+      await request(app.getHttpServer())
+        .post("/api/auth/change-password")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ currentPassword: "ChangeMe123!", newPassword: "TempPass999!" })
+        .expect(200);
+
+      await request(app.getHttpServer())
+        .post("/api/auth/login")
+        .send({ email: "admin@local.test", password: "TempPass999!" })
+        .expect(200);
+
+      const loginAfter = await request(app.getHttpServer())
+        .post("/api/auth/login")
+        .send({ email: "admin@local.test", password: "TempPass999!" })
+        .expect(200);
+      const tokenAfter = loginAfter.body.data?.accessToken as string;
+
+      await request(app.getHttpServer())
+        .post("/api/auth/change-password")
+        .set("Authorization", `Bearer ${tokenAfter}`)
+        .send({ currentPassword: "TempPass999!", newPassword: "ChangeMe123!" })
+        .expect(200);
+
+      await request(app.getHttpServer())
+        .post("/api/auth/login")
+        .send({ email: "admin@local.test", password: "ChangeMe123!" })
+        .expect(200);
+    });
   });
 
   describe("project tokens (E3-S3)", () => {
@@ -599,6 +641,12 @@ describe("API (e2e)", () => {
       expect(payload.type).toBe("project");
       expect(payload.projectId).toBe(projectId);
       expect(payload.tenantId).toBe(DEFAULT_TENANT_ID);
+
+      await request(app.getHttpServer())
+        .post("/api/auth/change-password")
+        .set("Authorization", `Bearer ${projectToken}`)
+        .send({ currentPassword: "any", newPassword: "Newpass123!" })
+        .expect(401);
     });
 
     it("returns 403 for non-admin user token", async () => {

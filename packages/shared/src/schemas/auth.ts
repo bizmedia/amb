@@ -7,6 +7,16 @@ export const loginSchema = z.object({
   password: z.string().min(8).max(256),
 });
 
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1).max(256),
+    newPassword: z.string().min(8).max(256),
+  })
+  .refine((data) => data.newPassword !== data.currentPassword, {
+    message: "New password must be different from the current password",
+    path: ["newPassword"],
+  });
+
 export const issueProjectTokenSchema = z.object({
   name: z.string().trim().min(1).max(120),
   projectId: z.string().uuid(),

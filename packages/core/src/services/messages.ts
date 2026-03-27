@@ -1,9 +1,12 @@
 import { ConflictError, NotFoundError } from "@amb-app/shared";
 import type { MessageBusStorage } from "../storage/interface";
 
+/** Max delivery retries before moving message to DLQ. */
 const MAX_RETRIES = 3;
+/** Message is considered timed out when delivered older than this threshold. */
 const DELIVERY_TIMEOUT_MS = 60_000;
 
+/** Input for sending a message via the messages service. */
 export type SendMessageInput = {
   projectId: string;
   threadId: string;
@@ -13,6 +16,10 @@ export type SendMessageInput = {
   parentId?: string | null;
 };
 
+/**
+ * Validate message references and create a pending message.
+ * Throws `NotFoundError` for missing thread/agents/parent message.
+ */
 export async function sendMessage(storage: MessageBusStorage, input: SendMessageInput) {
   const thread = await storage.getThreadById(input.projectId, input.threadId);
   if (!thread) throw new NotFoundError("Thread");
@@ -42,10 +49,15 @@ export async function sendMessage(storage: MessageBusStorage, input: SendMessage
   });
 }
 
+/** Get inbox for agent and atomically mark pending messages as delivered. */
 export function getInboxMessages(storage: MessageBusStorage, projectId: string, agentId: string) {
   return storage.getInboxAndMarkDelivered(projectId, agentId);
 }
 
+/**
+ * Acknowledge delivered message.
+ * Throws `NotFoundError` when message does not exist and `ConflictError` for invalid status transition.
+ */
 export async function ackMessage(
   storage: MessageBusStorage,
   projectId: string,
@@ -60,6 +72,10 @@ export async function ackMessage(
   return storage.updateMessageStatus(projectId, messageId, "ack");
 }
 
+/**
+ * Retry timed-out delivered messages.
+ * Messages that reach max retries are moved to DLQ.
+ */
 export async function retryTimedOutMessages(storage: MessageBusStorage, projectId: string) {
   const threshold = new Date(Date.now() - DELIVERY_TIMEOUT_MS);
   const timedOut = await storage.findMessages(projectId, {
@@ -81,10 +97,12 @@ export async function retryTimedOutMessages(storage: MessageBusStorage, projectI
   return { retried, movedToDlq };
 }
 
+/** Return all messages currently in DLQ for project scope. */
 export function getDlqMessages(storage: MessageBusStorage, projectId: string) {
   return storage.findMessages(projectId, { status: "dlq" });
 }
 
+/** Delete old acknowledged or DLQ messages and return deleted count. */
 export async function cleanupOldMessages(
   storage: MessageBusStorage,
   projectId: string,
@@ -98,6 +116,10 @@ export async function cleanupOldMessages(
   return { deleted };
 }
 
+/**
+ * Retry a single DLQ message by moving it to pending state and resetting retries.
+ * Throws `NotFoundError`/`ConflictError` on invalid state.
+ */
 export async function retryDlqMessage(
   storage: MessageBusStorage,
   projectId: string,
@@ -111,6 +133,7 @@ export async function retryDlqMessage(
   return storage.updateMessageStatus(projectId, messageId, "pending", 0);
 }
 
+/** Retry all DLQ messages in project scope and return affected count. */
 export async function retryAllDlqMessages(storage: MessageBusStorage, projectId: string) {
   const retried = await storage.updateManyMessagesToStatus(
     projectId,

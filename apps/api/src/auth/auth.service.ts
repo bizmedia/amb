@@ -1,7 +1,12 @@
-import { ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { createHmac, randomUUID } from "node:crypto";
-import { verifyPassword } from "./password";
+import { hashPassword, verifyPassword } from "./password";
 import type { AuthContext } from "../common/auth-context";
 import { NotFoundError } from "@amb-app/shared";
 import { hashProjectToken } from "./project-token-hash";
@@ -76,6 +81,32 @@ export class AuthService {
         roles: user.roles,
       },
     };
+  }
+
+  async changePassword(auth: AuthContext | undefined, currentPassword: string, newPassword: string) {
+    if (!auth || auth.subject !== "user" || !auth.userId) {
+      throw new UnauthorizedException("User authentication required");
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: auth.userId },
+    });
+    if (!user || !user.isActive) {
+      throw new UnauthorizedException("User authentication required");
+    }
+    if (!user.passwordHash) {
+      throw new BadRequestException("Password change is not available for this account");
+    }
+    if (!verifyPassword(currentPassword, user.passwordHash)) {
+      throw new UnauthorizedException("Current password is incorrect");
+    }
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash: hashPassword(newPassword) },
+    });
+
+    return { success: true as const };
   }
 
   async issueProjectToken(

@@ -1,0 +1,70 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-amb}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-amb}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    image: docker.io/openaisdk/amb-api:latest
+    pull_policy: always
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-amb}
+      JWT_SECRET: ${JWT_SECRET:-change-me-for-local-dev}
+      PORT: 3334
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${API_PORT:-3334}:3334"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 3334"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  web:
+    image: docker.io/openaisdk/amb:latest
+    pull_policy: always
+    environment:
+      API_URL: http://api:3334
+      PORT: 3333
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${WEB_PORT:-3333}:3333"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 3333"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  seed:
+    image: docker.io/openaisdk/amb-seed:latest
+    pull_policy: always
+    environment:
+      API_URL: http://api:3334
+      AMB_SEED_EMAIL: ${AMB_SEED_EMAIL:-admin@local.test}
+      AMB_SEED_PASSWORD: ${AMB_SEED_PASSWORD:-ChangeMe123!}
+      AMB_SEED_THREADS: ${AMB_SEED_THREADS:-false}
+      MESSAGE_BUS_PROJECT_ID: ${MESSAGE_BUS_PROJECT_ID:-}
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+    restart: "no"
+
+volumes:
+  postgres_data:

@@ -4,21 +4,10 @@
  */
 
 import "dotenv/config";
-import fs from "fs/promises";
-import path from "path";
+import { loadOrCreateRegistry, Registry } from "./agent-registry";
 
 const API_URL = process.env.MESSAGE_BUS_URL ?? "http://localhost:3333";
 const PROJECT_ID = process.env.MESSAGE_BUS_PROJECT_ID;
-
-type Registry = {
-  project: string;
-  agents: {
-    id: string;
-    name: string;
-    role: string;
-    defaultThreads?: string[];
-  }[];
-};
 
 async function createThread(title: string): Promise<{ id: string; title: string } | null> {
   try {
@@ -58,26 +47,11 @@ async function getExistingThreads(): Promise<Set<string>> {
   }
 }
 
-/** Разрешает путь к файлу registry: если передан каталог — ищет registry.json внутри. */
-async function resolveRegistryFile(registryPath?: string): Promise<string> {
-  if (!registryPath) {
-    return path.resolve(process.cwd(), ".cursor/agents/registry.json");
-  }
-  const resolved = path.resolve(process.cwd(), registryPath);
-  const stat = await fs.stat(resolved).catch(() => null);
-  if (stat?.isDirectory()) {
-    return path.join(resolved, "registry.json");
-  }
-  return resolved;
-}
-
 export async function runSeedThreads(registryPath?: string): Promise<void> {
   console.log("🌱 Seeding default threads...\n");
 
-  const resolved = await resolveRegistryFile(registryPath);
-
-  const raw = await fs.readFile(resolved, "utf-8");
-  const registry = JSON.parse(raw) as Registry;
+  const loaded = await loadOrCreateRegistry(registryPath);
+  const registry = loaded.registry as Registry;
 
   const existingThreads = await getExistingThreads();
   console.log(`📋 Existing threads: ${existingThreads.size}\n`);

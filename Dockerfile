@@ -11,6 +11,7 @@ FROM base AS deps
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY apps ./apps
 COPY packages ./packages
+COPY scripts ./scripts
 RUN pnpm install --frozen-lockfile
 
 # Builder
@@ -32,6 +33,7 @@ COPY --from=builder /app/apps/web/public ./public
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY apps ./apps
+COPY scripts ./scripts
 COPY --from=builder /app/.cursor ./.cursor
 RUN pnpm install --frozen-lockfile
 

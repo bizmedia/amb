@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import { ChangePasswordCard } from "./change-password-card";
+
 type SessionPayload = {
   authenticated: boolean;
   tokenType?: string | null;
@@ -151,6 +153,8 @@ export default function ProfilePage() {
             {session.userId ? <CopyField label={t("userId")} value={session.userId} /> : null}
           </CardContent>
         </Card>
+
+        {session.userId && session.tokenType !== "project" ? <ChangePasswordCard /> : null}
 
         <Card className="shadow-elevation">
           <CardHeader>

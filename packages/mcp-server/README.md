@@ -1,18 +1,40 @@
-# @bizmedia/amb-mcp
+# `@openaisdk/amb-mcp`
 
-MCP-сервер и CLI для [Agent Message Bus](https://github.com/bizmedia/amb). Даёт возможность из любого проекта подключаться к AMB (в т.ч. развёрнутому в Docker) через Cursor и запускать сиды из локального `.cursor/agents/registry.json`.
+**Scope:** `Integration (MCP bridge)`
 
-## Установка
+MCP server + CLI bridge для Agent Message Bus.
 
-```bash
-pnpm add -D @bizmedia/amb-mcp
-```
+## Назначение
 
-## Использование
+- Публикует операции AMB как MCP tools для Cursor/Codex/Claude Code.
+- Позволяет агентам работать с задачами, агентами, тредами и сообщениями через единый протокол MCP.
+- Даёт CLI-команды для seed из `.cursor/agents/registry.json`.
 
-### MCP в Cursor
+## Почему это отдельный пакет
 
-В `.cursor/mcp.json` вашего проекта:
+- Это интеграционный слой с собственным lifecycle и способом запуска (stdio MCP server).
+- Имеет отдельный канал дистрибуции (`npm` пакет + bin `amb-mcp`).
+- Может развиваться независимо от `apps/web`/`apps/api`.
+
+## Потребители
+
+- MCP-клиенты: Cursor, Codex, Claude Code.
+- Разработчики, выполняющие seed-операции.
+- CI/automation сценарии с headless запуском.
+
+## Публичный API
+
+- CLI bin: `amb-mcp`.
+- Server mode: `amb-mcp` или `amb-mcp server`.
+- Setup command:
+- `amb-mcp setup [path]`
+- Seed commands:
+- `amb-mcp seed agents [path]`
+- `amb-mcp seed threads [path]`
+- `amb-mcp seed all [path]`
+- MCP tools по доменам: `tasks`, `agents`, `threads`, `messaging`.
+
+## Конфигурация
 
 ```json
 {
@@ -29,54 +51,31 @@ pnpm add -D @bizmedia/amb-mcp
 }
 ```
 
-### CLI: сиды агентов и тредов
+## Переменные окружения
 
-Из корня проекта (по умолчанию читается `.cursor/agents/registry.json`; нужен запущенный AMB на `MESSAGE_BUS_URL`):
+- `MESSAGE_BUS_URL` (default: `http://localhost:3333`)
+- `MESSAGE_BUS_PROJECT_ID` (обязателен для `setup`, рекомендуется для `seed`)
 
-```bash
-pnpm exec amb-mcp seed agents              # из .cursor/agents/registry.json
-pnpm exec amb-mcp seed threads
-pnpm exec amb-mcp seed all
-```
+## Границы и правила зависимостей
 
-**Указание пути к registry (файл или папка):**
+- Это adapter между MCP-протоколом и API клиента AMB.
+- В пакете не должно быть бизнес-логики домена (она живёт в API/core).
+- Новые инструменты добавлять через domain registry (`src/tools/*`, `build-registry.ts`).
 
-```bash
-pnpm exec amb-mcp seed agents .cursor/agents           # папка → ищется registry.json внутри
-pnpm exec amb-mcp seed agents ./config/registry.json   # явный файл
-pnpm exec amb-mcp seed agents -r /path/to/agents       # через опцию --registry / -r
-pnpm exec amb-mcp seed all .cursor/agents
-```
-
-Если путь — каталог, используется `registry.json` внутри него.
-
-Переменные окружения:
-
-- `MESSAGE_BUS_URL` (по умолчанию `http://localhost:3333`)
-- `MESSAGE_BUS_PROJECT_ID` (опционально; если не задан, используется default-проект)
-
-Поддерживается `.env`.
-
-## MCP Tools: Tasks
-
-Добавлены инструменты для управления задачами проекта (issues):
-
-- `list_project_members` — список участников проекта (agents)
-- `list_issues` — список задач с фильтрами (`state`, `priority`, `assignee`, `dueFrom`, `dueTo`)
-- `create_issue` — создать задачу
-- `get_issue` — получить задачу по `issueId`
-- `update_issue` — обновить поля задачи
-- `move_issue_state` — быстрый перенос задачи между статусами (Kanban shortcut)
-- `delete_issue` — удалить задачу
-
-`projectId` можно передавать в аргументах каждого инструмента, либо задать через `MESSAGE_BUS_PROJECT_ID`.
-
-## Публикация
-
-Пакет собирается из этого каталога. Публикация в npm из корня репозитория:
+## Локальная разработка
 
 ```bash
-cd mcp-server && pnpm build && npm publish --access public
+pnpm exec amb-mcp setup
+pnpm --filter @openaisdk/amb-mcp run build
+pnpm --filter @openaisdk/amb-mcp run dev
+pnpm --filter @openaisdk/amb-mcp run seed:agents
 ```
 
-(Или через CI при теге/релизе.)
+## Ограничения
+
+- Требует доступного AMB API и корректного project scope.
+- Долгие операции должны обрабатываться на стороне API, не в MCP-tool handler.
+
+## Статус
+
+`public package`, `active`.

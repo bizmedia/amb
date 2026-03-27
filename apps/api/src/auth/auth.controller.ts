@@ -1,5 +1,5 @@
 import { Body, Controller, HttpCode, Post, Req } from "@nestjs/common";
-import { issueProjectTokenSchema, loginSchema } from "@amb-app/shared";
+import { changePasswordSchema, issueProjectTokenSchema, loginSchema } from "@amb-app/shared";
 import { AuthService } from "./auth.service";
 import { Public } from "../common/public.decorator";
 import type { RequestWithAuth } from "../common/auth-context";
@@ -33,6 +33,25 @@ export class AuthController {
     }
 
     const data = await this.authService.login(parsed.data.email, parsed.data.password);
+    return { data };
+  }
+
+  @Post("change-password")
+  @HttpCode(200)
+  async changePassword(
+    @Req() req: RequestWithAuth,
+    @Body() body: unknown
+  ): Promise<{ data: { success: true } }> {
+    const parsed = changePasswordSchema.safeParse(body);
+    if (!parsed.success) {
+      throw parsed.error;
+    }
+
+    const data = await this.authService.changePassword(
+      req.auth,
+      parsed.data.currentPassword,
+      parsed.data.newPassword
+    );
     return { data };
   }
 

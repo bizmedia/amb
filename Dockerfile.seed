@@ -1,0 +1,17 @@
+# syntax=docker/dockerfile:1
+
+FROM node:20-alpine AS base
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+COPY apps ./apps
+COPY packages ./packages
+COPY scripts ./scripts
+COPY .cursor ./.cursor
+
+RUN pnpm install --frozen-lockfile
+
+CMD ["sh", "-lc", "until nc -z api 3334; do echo 'waiting for api...'; sleep 2; done && until nc -z web 3333; do echo 'waiting for web...'; sleep 2; done && pnpm --filter amb-web run seed:docker"]

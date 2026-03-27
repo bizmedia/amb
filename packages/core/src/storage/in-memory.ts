@@ -5,25 +5,33 @@ import type {
   MessageBusStorage,
 } from "./interface";
 
+/** Generate random entity id for in-memory records. */
 function uuid(): string {
   return crypto.randomUUID();
 }
 
+/** Return current timestamp in ISO format. */
 function now(): string {
   return new Date().toISOString();
 }
 
+/**
+ * In-memory implementation of `MessageBusStorage`.
+ * Intended for tests, examples and local development without external DB.
+ */
 export class InMemoryMessageBusStorage implements MessageBusStorage {
   private agents: Agent[] = [];
   private threads: Thread[] = [];
   private messages: Message[] = [];
 
+  /** @inheritdoc */
   async listAgents(projectId: string): Promise<Agent[]> {
     return this.agents
       .filter((a) => a.projectId === projectId)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
+  /** @inheritdoc */
   async createAgent(input: CreateAgentInput): Promise<Agent> {
     const agent: Agent = {
       id: uuid(),
@@ -39,6 +47,7 @@ export class InMemoryMessageBusStorage implements MessageBusStorage {
     return agent;
   }
 
+  /** @inheritdoc */
   async searchAgents(projectId: string, query: string): Promise<Agent[]> {
     if (!query) return this.listAgents(projectId);
     const q = query.toLowerCase();
@@ -51,16 +60,19 @@ export class InMemoryMessageBusStorage implements MessageBusStorage {
       .sort((a, b) => a.name.localeCompare(b.name));
   }
 
+  /** @inheritdoc */
   async getAgentById(projectId: string, agentId: string): Promise<Agent | null> {
     return this.agents.find((a) => a.projectId === projectId && a.id === agentId) ?? null;
   }
 
+  /** @inheritdoc */
   async listThreads(projectId: string): Promise<Thread[]> {
     return this.threads
       .filter((t) => t.projectId === projectId)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
+  /** @inheritdoc */
   async createThread(input: CreateThreadInput): Promise<Thread> {
     const thread: Thread = {
       id: uuid(),
@@ -73,16 +85,19 @@ export class InMemoryMessageBusStorage implements MessageBusStorage {
     return thread;
   }
 
+  /** @inheritdoc */
   async getThreadById(projectId: string, threadId: string): Promise<Thread | null> {
     return this.threads.find((t) => t.projectId === projectId && t.id === threadId) ?? null;
   }
 
+  /** @inheritdoc */
   async listThreadMessages(projectId: string, threadId: string): Promise<Message[]> {
     return this.messages
       .filter((m) => m.projectId === projectId && m.threadId === threadId)
       .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
   }
 
+  /** @inheritdoc */
   async updateThreadStatus(
     projectId: string,
     threadId: string,
@@ -94,6 +109,7 @@ export class InMemoryMessageBusStorage implements MessageBusStorage {
     return this.threads[i];
   }
 
+  /** @inheritdoc */
   async deleteThread(projectId: string, threadId: string): Promise<void> {
     this.messages = this.messages.filter(
       (m) => !(m.projectId === projectId && m.threadId === threadId)
@@ -103,6 +119,7 @@ export class InMemoryMessageBusStorage implements MessageBusStorage {
     );
   }
 
+  /** @inheritdoc */
   async createMessage(data: {
     projectId: string;
     threadId: string;
@@ -129,10 +146,12 @@ export class InMemoryMessageBusStorage implements MessageBusStorage {
     return message;
   }
 
+  /** @inheritdoc */
   async getMessageById(projectId: string, messageId: string): Promise<Message | null> {
     return this.messages.find((m) => m.projectId === projectId && m.id === messageId) ?? null;
   }
 
+  /** @inheritdoc */
   async updateMessageStatus(
     projectId: string,
     messageId: string,
@@ -149,6 +168,10 @@ export class InMemoryMessageBusStorage implements MessageBusStorage {
     return this.messages[i];
   }
 
+  /**
+   * Mark matching pending messages as delivered and return delivered messages visible to agent.
+   * Visibility includes direct (`toAgentId === agentId`) and broadcast (`toAgentId === null`) messages.
+   */
   async getInboxAndMarkDelivered(projectId: string, agentId: string): Promise<Message[]> {
     for (let i = 0; i < this.messages.length; i++) {
       const m = this.messages[i];
@@ -169,6 +192,7 @@ export class InMemoryMessageBusStorage implements MessageBusStorage {
     );
   }
 
+  /** @inheritdoc */
   async findMessages(
     projectId: string,
     filter: {
@@ -191,6 +215,7 @@ export class InMemoryMessageBusStorage implements MessageBusStorage {
     return list.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
   }
 
+  /** @inheritdoc */
   async updateManyMessages(
     projectId: string,
     filter: {
@@ -215,6 +240,7 @@ export class InMemoryMessageBusStorage implements MessageBusStorage {
     return count;
   }
 
+  /** @inheritdoc */
   async deleteManyMessages(
     projectId: string,
     filter: { status: { in: string[] }; createdAtLt: Date }
@@ -229,6 +255,7 @@ export class InMemoryMessageBusStorage implements MessageBusStorage {
     return before - this.messages.length;
   }
 
+  /** @inheritdoc */
   async updateManyMessagesToStatus(
     projectId: string,
     filter: { status: string },

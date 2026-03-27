@@ -1,3 +1,6 @@
+/**
+ * Public entrypoint for message-bus core use-cases and storage contracts.
+ */
 export type {
   CreateAgentInput,
   CreateThreadInput,

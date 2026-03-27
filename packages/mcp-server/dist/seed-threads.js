@@ -3,14 +3,10 @@
  * Seed default threads from .cursor/agents/registry.json into the Message Bus API.
  * Reads registry from current working directory (project that installed the package).
  */
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.runSeedThreads = runSeedThreads;
 require("dotenv/config");
-const promises_1 = __importDefault(require("fs/promises"));
-const path_1 = __importDefault(require("path"));
+const agent_registry_1 = require("./agent-registry");
 const API_URL = process.env.MESSAGE_BUS_URL ?? "http://localhost:3333";
 const PROJECT_ID = process.env.MESSAGE_BUS_PROJECT_ID;
 async function createThread(title) {
@@ -50,23 +46,10 @@ async function getExistingThreads() {
         return new Set();
     }
 }
-/** Разрешает путь к файлу registry: если передан каталог — ищет registry.json внутри. */
-async function resolveRegistryFile(registryPath) {
-    if (!registryPath) {
-        return path_1.default.resolve(process.cwd(), ".cursor/agents/registry.json");
-    }
-    const resolved = path_1.default.resolve(process.cwd(), registryPath);
-    const stat = await promises_1.default.stat(resolved).catch(() => null);
-    if (stat?.isDirectory()) {
-        return path_1.default.join(resolved, "registry.json");
-    }
-    return resolved;
-}
 async function runSeedThreads(registryPath) {
     console.log("🌱 Seeding default threads...\n");
-    const resolved = await resolveRegistryFile(registryPath);
-    const raw = await promises_1.default.readFile(resolved, "utf-8");
-    const registry = JSON.parse(raw);
+    const loaded = await (0, agent_registry_1.loadOrCreateRegistry)(registryPath);
+    const registry = loaded.registry;
     const existingThreads = await getExistingThreads();
     console.log(`📋 Existing threads: ${existingThreads.size}\n`);
     let created = 0;
