@@ -60,6 +60,11 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      - name: Build workspace dependencies
+        run: |
+          pnpm --filter @amb-app/shared build
+          pnpm --filter @amb-app/db build
+
       - name: Migrate DB
         run: pnpm db:migrate:deploy
 
