@@ -1,74 +1,78 @@
 # `@openaisdk/amb-mcp`
 
-**Scope:** `Integration (MCP bridge)`
+MCP server and CLI for Agent Message Bus (AMB).
 
-MCP server + CLI bridge для Agent Message Bus.
+Works with Cursor, Codex, Claude Code, and other MCP clients.
 
-## Назначение
+Docs:
 
-- Публикует операции AMB как MCP tools для Cursor/Codex/Claude Code.
-- Позволяет агентам работать с задачами, агентами, тредами и сообщениями через единый протокол MCP.
-- Даёт CLI-команды для seed из `.cursor/agents/registry.json`.
+- English: https://github.com/bizmedia/amb#readme
+- Russian: https://github.com/bizmedia/amb/blob/main/README.md
+- Repository: https://github.com/bizmedia/amb
 
-## Почему это отдельный пакет
+## What This Package Does
 
-- Это интеграционный слой с собственным lifecycle и способом запуска (stdio MCP server).
-- Имеет отдельный канал дистрибуции (`npm` пакет + bin `amb-mcp`).
-- Может развиваться независимо от `apps/web`/`apps/api`.
+`@openaisdk/amb-mcp` helps your AI client talk to AMB.
 
-## Потребители
+It provides:
 
-- MCP-клиенты: Cursor, Codex, Claude Code.
-- Разработчики, выполняющие seed-операции.
-- CI/automation сценарии с headless запуском.
+- an MCP server for Cursor, Codex, Claude Code, and other MCP clients
+- CLI commands to register agents from your project
+- a fast `setup` command for first-time onboarding
+- access to AMB tools for agents, threads, messages, inbox, and tasks
 
-## Публичный API
+## Requirements
 
-- CLI bin: `amb-mcp`.
-- Server mode: `amb-mcp` или `amb-mcp server`.
-- Setup command:
-- `amb-mcp setup [path]`
-- Seed commands:
-- `amb-mcp seed agents [path]`
-- `amb-mcp seed threads [path]`
-- `amb-mcp seed all [path]`
-- MCP tools по доменам: `tasks`, `agents`, `threads`, `messaging`.
+Before using this package, make sure you have:
 
-## Token Efficiency
+- a running AMB instance
+- Node.js 20+
+- `pnpm` or `npm`
+- `MESSAGE_BUS_URL`
+- `MESSAGE_BUS_PROJECT_ID`
 
-The MCP tools are optimized to avoid wasting model tokens:
+If you need the full product quick start, see the main AMB repository.
 
-- list and read-heavy tools return compact JSON
-- summary mode is enabled by default for heavy responses
-- `limit` defaults to `20`
-- full payloads are opt-in with `summary=false`
+## Install
 
-Use compact calls by default:
+With `pnpm`:
 
-```json
-{
-  "agentId": "550e8400-e29b-41d4-a716-446655440000",
-  "limit": 10
-}
+```bash
+pnpm add -D @openaisdk/amb-mcp
 ```
 
-Ask for full payloads only when you really need them:
+With `npm`:
 
-```json
-{
-  "threadId": "550e8400-e29b-41d4-a716-446655440000",
-  "limit": 50,
-  "summary": false
-}
+```bash
+npm install -D @openaisdk/amb-mcp
 ```
 
-Recommended pattern:
+## Fastest Setup
 
-- first call `list_*` or `get_inbox` with small `limit`
-- then fetch one specific thread or task in detail
-- use `summary=false` only for targeted inspection
+Run this in your own project:
 
-## Конфигурация
+```bash
+MESSAGE_BUS_URL=http://localhost:3333 \
+MESSAGE_BUS_PROJECT_ID=<PROJECT_ID> \
+pnpm exec amb-mcp setup
+```
+
+`setup` will:
+
+- look for `.cursor/agents/registry.json`
+- if it is missing, infer agents from `.cursor/agents/*.md` or `.agents/*.md`
+- register agents in AMB
+- create default threads
+
+This is the recommended first command for new users.
+
+## MCP Config
+
+All MCP clients should point to the same AMB instance and the same `MESSAGE_BUS_PROJECT_ID`.
+
+### Cursor
+
+Create `.cursor/mcp.json`:
 
 ```json
 {
@@ -78,38 +82,150 @@ Recommended pattern:
       "args": ["exec", "amb-mcp"],
       "env": {
         "MESSAGE_BUS_URL": "http://localhost:3333",
-        "MESSAGE_BUS_PROJECT_ID": "<PROJECT_ID>"
+        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
       }
     }
   }
 }
 ```
 
-## Переменные окружения
+### Codex
 
-- `MESSAGE_BUS_URL` (default: `http://localhost:3333`)
-- `MESSAGE_BUS_PROJECT_ID` (обязателен для `setup`, рекомендуется для `seed`)
+Create `.codex/config.toml`:
 
-## Границы и правила зависимостей
+```toml
+[mcp_servers.message-bus]
+command = "pnpm"
+args = ["exec", "amb-mcp"]
 
-- Это adapter между MCP-протоколом и API клиента AMB.
-- В пакете не должно быть бизнес-логики домена (она живёт в API/core).
-- Новые инструменты добавлять через domain registry (`src/tools/*`, `build-registry.ts`).
-
-## Локальная разработка
-
-```bash
-pnpm exec amb-mcp setup
-pnpm --filter @openaisdk/amb-mcp run build
-pnpm --filter @openaisdk/amb-mcp run dev
-pnpm --filter @openaisdk/amb-mcp run seed:agents
+[mcp_servers.message-bus.env]
+MESSAGE_BUS_URL = "http://localhost:3333"
+MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
 ```
 
-## Ограничения
+### Claude Code
 
-- Требует доступного AMB API и корректного project scope.
-- Долгие операции должны обрабатываться на стороне API, не в MCP-tool handler.
+Add the server to your Claude MCP config:
 
-## Статус
+```json
+{
+  "mcpServers": {
+    "message-bus": {
+      "command": "pnpm",
+      "args": ["exec", "amb-mcp"],
+      "env": {
+        "MESSAGE_BUS_URL": "http://localhost:3333",
+        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
+      }
+    }
+  }
+}
+```
 
-`public package`, `active`.
+Replace `MESSAGE_BUS_PROJECT_ID` with your real project ID, then restart the client.
+
+## Example Agent Files
+
+A minimal project can work with agent markdown files like:
+
+```text
+.cursor/agents/orchestrator.md
+.cursor/agents/po.md
+.cursor/agents/architect.md
+.cursor/agents/dev.md
+.cursor/agents/qa.md
+```
+
+If `registry.json` is missing, `setup` can infer agents from these files automatically.
+
+## CLI Commands
+
+```bash
+amb-mcp
+amb-mcp server
+amb-mcp setup [path]
+amb-mcp seed agents [path]
+amb-mcp seed threads [path]
+amb-mcp seed all [path]
+```
+
+What they do:
+
+- `amb-mcp` or `amb-mcp server`: run the MCP server
+- `amb-mcp setup [path]`: fastest onboarding for the current project
+- `amb-mcp seed agents [path]`: register agents only
+- `amb-mcp seed threads [path]`: create default threads only
+- `amb-mcp seed all [path]`: register agents and create threads
+
+## Token-Efficient Usage
+
+This package is optimized to avoid wasting model tokens:
+
+- heavy list/read tools return compact summary objects by default
+- `limit` defaults to `20`
+- full payloads are opt-in with `summary=false`
+
+Recommended usage pattern:
+
+- start with small list calls
+- fetch detailed data only for one specific object
+- use `summary=false` only for targeted inspection
+
+Examples:
+
+```text
+get_inbox({ agentId, limit: 10 })
+```
+
+```text
+get_thread_messages({ threadId, limit: 50, summary: false })
+```
+
+## Environment Variables
+
+- `MESSAGE_BUS_URL`
+  Default: `http://localhost:3333`
+
+- `MESSAGE_BUS_PROJECT_ID`
+  Required for `setup`
+  Recommended for `seed` commands
+
+## Troubleshooting
+
+### MCP tools do not appear
+
+Check that:
+
+- `@openaisdk/amb-mcp` is installed in your project
+- your MCP config uses `pnpm exec amb-mcp`
+- you restarted the client after editing config
+
+### `setup` cannot reach AMB
+
+Check that:
+
+- AMB is running
+- `MESSAGE_BUS_URL` is correct
+- Dashboard is reachable in the browser
+
+### `setup` cannot find agents
+
+Check that your project contains one of these:
+
+- `.cursor/agents/registry.json`
+- `.cursor/agents/*.md`
+- `.agents/*.md`
+
+### Agents do not appear in the Dashboard
+
+Check that:
+
+- `MESSAGE_BUS_PROJECT_ID` is correct
+- you are viewing the same project in the Dashboard
+- `setup` completed without errors
+
+## Links
+
+- Full AMB docs: https://github.com/bizmedia/amb#readme
+- Russian docs: https://github.com/bizmedia/amb/blob/main/README.md
+- GitHub repository: https://github.com/bizmedia/amb
