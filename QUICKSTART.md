@@ -15,26 +15,28 @@
 
 ```bash
 curl -O https://raw.githubusercontent.com/bizmedia/amb/main/deploy/compose/amb-compose.yml
-docker compose -f amb-compose.yml up -d
+WEB_PORT=4333 API_PORT=4334 POSTGRES_PORT=5433 docker compose -f amb-compose.yml up -d
 ```
 
-Если порты `3333` или `3334` заняты, поднимите стек на других host-портах:
+Это безопасный default для быстрого старта на той же машине, где вы уже локально разрабатываете AMB на `3333/3334`.
+
+Если эти порты тоже заняты, поднимите стек на других host-портах:
 
 ```bash
-WEB_PORT=4333 API_PORT=4334 docker compose -f amb-compose.yml up -d
-curl http://localhost:4334/api/health
+WEB_PORT=5333 API_PORT=5334 POSTGRES_PORT=5543 docker compose -f amb-compose.yml up -d
+curl http://localhost:5334/api/health
 ```
 
 Проверить, что API поднялся:
 
 ```bash
-curl http://localhost:3334/api/health
+curl http://localhost:4334/api/health
 ```
 
 Открыть:
 
-- Dashboard: `http://localhost:3333`
-- API health: `http://localhost:3334/api/health`
+- Dashboard: `http://localhost:4333`
+- API health: `http://localhost:4334/api/health`
 
 Логин:
 
@@ -64,11 +66,11 @@ npm install -D @openaisdk/amb-mcp
 
 Общие значения:
 
-- `MESSAGE_BUS_URL=http://localhost:3333`
+- `MESSAGE_BUS_URL=http://localhost:4333`
 - `MESSAGE_BUS_PROJECT_ID=<YOUR_PROJECT_ID>`
 
 Если вы переопределили `WEB_PORT`, то `MESSAGE_BUS_URL` должен указывать на тот же порт.
-Пример: `WEB_PORT=4333` => `MESSAGE_BUS_URL=http://localhost:4333`.
+Пример: `WEB_PORT=5333` => `MESSAGE_BUS_URL=http://localhost:5333`.
 
 ### Cursor
 
@@ -81,7 +83,7 @@ npm install -D @openaisdk/amb-mcp
       "command": "pnpm",
       "args": ["exec", "amb-mcp"],
       "env": {
-        "MESSAGE_BUS_URL": "http://localhost:3333",
+        "MESSAGE_BUS_URL": "http://localhost:4333",
         "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
       }
     }
@@ -98,7 +100,7 @@ npm install -D @openaisdk/amb-mcp
       "command": "npx",
       "args": ["amb-mcp"],
       "env": {
-        "MESSAGE_BUS_URL": "http://localhost:3333",
+        "MESSAGE_BUS_URL": "http://localhost:4333",
         "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
       }
     }
@@ -116,7 +118,7 @@ command = "pnpm"
 args = ["exec", "amb-mcp"]
 
 [mcp_servers.message-bus.env]
-MESSAGE_BUS_URL = "http://localhost:3333"
+MESSAGE_BUS_URL = "http://localhost:4333"
 MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
 ```
 
@@ -128,7 +130,7 @@ command = "npx"
 args = ["amb-mcp"]
 
 [mcp_servers.message-bus.env]
-MESSAGE_BUS_URL = "http://localhost:3333"
+MESSAGE_BUS_URL = "http://localhost:4333"
 MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
 ```
 
@@ -141,7 +143,7 @@ MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
       "command": "pnpm",
       "args": ["exec", "amb-mcp"],
       "env": {
-        "MESSAGE_BUS_URL": "http://localhost:3333",
+        "MESSAGE_BUS_URL": "http://localhost:4333",
         "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
       }
     }
@@ -158,7 +160,7 @@ MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
       "command": "npx",
       "args": ["amb-mcp"],
       "env": {
-        "MESSAGE_BUS_URL": "http://localhost:3333",
+        "MESSAGE_BUS_URL": "http://localhost:4333",
         "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
       }
     }
@@ -174,7 +176,7 @@ MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
 
 ```bash
 # или: npx amb-mcp setup
-MESSAGE_BUS_URL=http://localhost:3333 \
+MESSAGE_BUS_URL=http://localhost:4333 \
 MESSAGE_BUS_PROJECT_ID=<YOUR_PROJECT_ID> \
 pnpm exec amb-mcp setup
 ```
@@ -190,7 +192,7 @@ pnpm exec amb-mcp setup
 
 ```bash
 # или: npx amb-mcp seed all .cursor/agents
-MESSAGE_BUS_URL=http://localhost:3333 \
+MESSAGE_BUS_URL=http://localhost:4333 \
 MESSAGE_BUS_PROJECT_ID=<YOUR_PROJECT_ID> \
 pnpm exec amb-mcp seed all .cursor/agents
 ```
@@ -222,7 +224,7 @@ Create a thread in AMB called "project-onboarding". Coordinate work across po, a
 
 ## Частые проблемы
 
-- `docker compose up` падает из-за занятых портов: запустите с `WEB_PORT=4333 API_PORT=4334` и используйте тот же порт в `MESSAGE_BUS_URL`.
+- `docker compose up` падает из-за занятых портов: published stack по умолчанию уже использует `WEB_PORT=4333 API_PORT=4334 POSTGRES_PORT=5433`; если и они заняты, выберите другой набор портов и используйте тот же `WEB_PORT` в `MESSAGE_BUS_URL`.
 - MCP не появился: проверьте, что пакет `@openaisdk/amb-mcp` установлен и клиент перезапущен.
 - Агенты не появились: проверьте `MESSAGE_BUS_PROJECT_ID` и путь `.cursor/agents` или `.agents`.
 - `orchestrator` пишет, а остальные роли молчат: сначала проверьте single-client сценарий, потом переходите к cross-client setup.

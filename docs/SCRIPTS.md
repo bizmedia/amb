@@ -90,7 +90,7 @@
 
 | Скрипт | Смысл |
 |--------|--------|
-| `pnpm run deploy:local` | **Сборка из репо** (`podman compose up -d --build`), web **4333**, api **4334** |
+| `pnpm run deploy:local` | **Сборка из репо** (`podman compose up -d --build`), web **5333**, api **5334** |
 | `pnpm run deploy:amb` | **Опубликованный stack** из `deploy/compose/amb-compose.yml` (web/api/seed из Hub), по умолчанию web **4333**, api **4334** |
 
 **Остальное:**
@@ -124,13 +124,13 @@
 
 | Сценарий | Команда | Порты (типично) |
 |----------|---------|-----------------|
-| Сборка UI из репозитория | `pnpm run deploy:local` | **4333** / **4334** |
+| Сборка UI из репозитория | `pnpm run deploy:local` | **5333** / **5334** |
 | Опубликованный stack из Hub | `pnpm run deploy:amb` | **4333** / **4334** |
 | Как выше, другие порты | `pnpm run deploy:local:standalone` | **3333** / **3334** |
 
 Остановка локального compose из репозитория: `pnpm run deploy:local:down`.
 
-> **Важно:** direct quick start из `README.md` / `QUICKSTART.md` использует скачанный `amb-compose.yml` и по умолчанию порты **3333 / 3334**. Команда `pnpm run deploy:amb` запускает тот же published stack, но с дефолтными портами **4333 / 4334**, чтобы не конфликтовать с quick start или локальной разработкой.
+> **Важно:** теперь матрица такая: `pnpm dev` и `deploy:local:standalone` используют **3333 / 3334**, direct quick start из `README.md` / `QUICKSTART.md` и `pnpm run deploy:amb` используют **4333 / 4334**, а `pnpm run deploy:local` использует **5333 / 5334**.
 
 ### Я хочу только Postgres, приложения на хосте
 

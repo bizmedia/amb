@@ -35,26 +35,28 @@ Download and start the published AMB stack:
 
 ```bash
 curl -O https://raw.githubusercontent.com/bizmedia/amb/main/deploy/compose/amb-compose.yml
-docker compose -f amb-compose.yml up -d
+WEB_PORT=4333 API_PORT=4334 POSTGRES_PORT=5433 docker compose -f amb-compose.yml up -d
 ```
 
-If ports `3333` or `3334` are already in use, override them when starting the stack:
+This is the safe default when you already run local AMB development on `3333/3334` on the same machine.
+
+If those ports are also in use, override them when starting the stack:
 
 ```bash
-WEB_PORT=4333 API_PORT=4334 docker compose -f amb-compose.yml up -d
-curl http://localhost:4334/api/health
+WEB_PORT=5333 API_PORT=5334 POSTGRES_PORT=5543 docker compose -f amb-compose.yml up -d
+curl http://localhost:5334/api/health
 ```
 
 Wait until the API becomes healthy:
 
 ```bash
-curl http://localhost:3334/api/health
+curl http://localhost:4334/api/health
 ```
 
 Open:
 
-- Dashboard: `http://localhost:3333`
-- API health: `http://localhost:3334/api/health`
+- Dashboard: `http://localhost:4333`
+- API health: `http://localhost:4334/api/health`
 
 Sign in with:
 
@@ -112,12 +114,12 @@ All clients should point to the same local AMB instance and the same `Project ID
 
 Shared values:
 
-- `MESSAGE_BUS_URL=http://localhost:3333`
+- `MESSAGE_BUS_URL=http://localhost:4333`
 - `MESSAGE_BUS_PROJECT_ID=<YOUR_PROJECT_ID>`
 
 If you override `WEB_PORT`, `MESSAGE_BUS_URL` must use the same port. Example:
 
-- `WEB_PORT=4333` => `MESSAGE_BUS_URL=http://localhost:4333`
+- `WEB_PORT=5333` => `MESSAGE_BUS_URL=http://localhost:5333`
 
 ### Cursor
 
@@ -130,7 +132,7 @@ Create `.cursor/mcp.json` in your project:
       "command": "pnpm",
       "args": ["exec", "amb-mcp"],
       "env": {
-        "MESSAGE_BUS_URL": "http://localhost:3333",
+        "MESSAGE_BUS_URL": "http://localhost:4333",
         "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
       }
     }
@@ -147,7 +149,7 @@ If your project uses `npm`, use:
       "command": "npx",
       "args": ["amb-mcp"],
       "env": {
-        "MESSAGE_BUS_URL": "http://localhost:3333",
+        "MESSAGE_BUS_URL": "http://localhost:4333",
         "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
       }
     }
@@ -165,7 +167,7 @@ command = "pnpm"
 args = ["exec", "amb-mcp"]
 
 [mcp_servers.message-bus.env]
-MESSAGE_BUS_URL = "http://localhost:3333"
+MESSAGE_BUS_URL = "http://localhost:4333"
 MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
 ```
 
@@ -177,7 +179,7 @@ command = "npx"
 args = ["amb-mcp"]
 
 [mcp_servers.message-bus.env]
-MESSAGE_BUS_URL = "http://localhost:3333"
+MESSAGE_BUS_URL = "http://localhost:4333"
 MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
 ```
 
@@ -192,7 +194,7 @@ Add the same server to your Claude MCP config:
       "command": "pnpm",
       "args": ["exec", "amb-mcp"],
       "env": {
-        "MESSAGE_BUS_URL": "http://localhost:3333",
+        "MESSAGE_BUS_URL": "http://localhost:4333",
         "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
       }
     }
@@ -209,7 +211,7 @@ If your project uses `npm`, use:
       "command": "npx",
       "args": ["amb-mcp"],
       "env": {
-        "MESSAGE_BUS_URL": "http://localhost:3333",
+        "MESSAGE_BUS_URL": "http://localhost:4333",
         "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
       }
     }
@@ -289,7 +291,7 @@ Recommended first run:
 
 ```bash
 # or: npx amb-mcp setup
-MESSAGE_BUS_URL=http://localhost:3333 \
+MESSAGE_BUS_URL=http://localhost:4333 \
 MESSAGE_BUS_PROJECT_ID=<YOUR_PROJECT_ID> \
 pnpm exec amb-mcp setup
 ```
@@ -321,7 +323,7 @@ Register agents from your project:
 
 ```bash
 # or: npx amb-mcp seed agents .cursor/agents
-MESSAGE_BUS_URL=http://localhost:3333 \
+MESSAGE_BUS_URL=http://localhost:4333 \
 MESSAGE_BUS_PROJECT_ID=<YOUR_PROJECT_ID> \
 pnpm exec amb-mcp seed agents .cursor/agents
 ```
@@ -330,7 +332,7 @@ Register agents and default threads:
 
 ```bash
 # or: npx amb-mcp seed all .cursor/agents
-MESSAGE_BUS_URL=http://localhost:3333 \
+MESSAGE_BUS_URL=http://localhost:4333 \
 MESSAGE_BUS_PROJECT_ID=<YOUR_PROJECT_ID> \
 pnpm exec amb-mcp seed all .cursor/agents
 ```
@@ -387,12 +389,12 @@ Create a thread in AMB called "cross-client-demo". Coordinate work across po, ar
 Start the published stack on different host ports:
 
 ```bash
-WEB_PORT=4333 API_PORT=4334 docker compose -f amb-compose.yml up -d
+WEB_PORT=5333 API_PORT=5334 POSTGRES_PORT=5543 docker compose -f amb-compose.yml up -d
 ```
 
 Then update your MCP config to use the same web port:
 
-- `MESSAGE_BUS_URL=http://localhost:4333`
+- `MESSAGE_BUS_URL=http://localhost:5333`
 
 ### MCP is connected but tools do not appear
 
@@ -415,7 +417,7 @@ Run the command again and verify the selected project in the UI:
 
 ```bash
 # or: npx amb-mcp seed agents .cursor/agents
-MESSAGE_BUS_URL=http://localhost:3333 \
+MESSAGE_BUS_URL=http://localhost:4333 \
 MESSAGE_BUS_PROJECT_ID=<YOUR_PROJECT_ID> \
 pnpm exec amb-mcp seed agents .cursor/agents
 ```

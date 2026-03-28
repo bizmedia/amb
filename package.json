@@ -53,7 +53,7 @@
     "deploy:amb": "sh scripts/deploy/up-published-stack.sh",
     "deploy:dev:db": "podman compose -f docker-compose.dev.yml up -d postgres",
     "deploy:dev:db:down": "podman compose -f docker-compose.dev.yml down",
-    "deploy:local": "bash -c 'export WEB_PORT=4333 API_PORT=4334; podman compose up -d --build && bash scripts/wait-for-local-stack.sh'",
+    "deploy:local": "bash -c 'export WEB_PORT=5333 API_PORT=5334; podman compose up -d --build && bash scripts/wait-for-local-stack.sh'",
     "deploy:local:standalone": "bash -c 'export WEB_PORT=3333 API_PORT=3334; podman compose up -d --build && bash scripts/wait-for-local-stack.sh'",
     "deploy:local:down": "podman compose down -v",
     "deploy:prod": "./scripts/deploy/production-deploy.sh",
