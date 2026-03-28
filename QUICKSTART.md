@@ -15,10 +15,10 @@
 
 ```bash
 curl -O https://raw.githubusercontent.com/bizmedia/amb/main/deploy/compose/amb-compose.yml
-WEB_PORT=4333 API_PORT=4334 POSTGRES_PORT=5433 docker compose -f amb-compose.yml up -d
+docker compose -f amb-compose.yml up -d
 ```
 
-Это безопасный default для быстрого старта на той же машине, где вы уже локально разрабатываете AMB на `3333/3334`.
+`amb-compose.yml` уже по умолчанию использует безопасные host-порты `4333 / 4334 / 5433`, поэтому этот запуск не конфликтует с локальной разработкой AMB на `3333 / 3334`.
 
 Если эти порты тоже заняты, поднимите стек на других host-портах:
 

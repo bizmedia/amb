@@ -35,10 +35,10 @@ Download and start the published AMB stack:
 
 ```bash
 curl -O https://raw.githubusercontent.com/bizmedia/amb/main/deploy/compose/amb-compose.yml
-WEB_PORT=4333 API_PORT=4334 POSTGRES_PORT=5433 docker compose -f amb-compose.yml up -d
+docker compose -f amb-compose.yml up -d
 ```
 
-This is the safe default when you already run local AMB development on `3333/3334` on the same machine.
+`amb-compose.yml` already defaults to safe host ports `4333 / 4334 / 5433`, so this does not collide with local AMB development on `3333 / 3334`.
 
 If those ports are also in use, override them when starting the stack:
 
