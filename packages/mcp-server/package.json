@@ -32,6 +32,7 @@
     "url": "https://github.com/bizmedia/amb.git",
     "directory": "packages/mcp-server"
   },
+  "author": "Anatoliy Tukov <openaisdk@gmail.com>",
   "keywords": [
     "mcp",
     "message-bus",

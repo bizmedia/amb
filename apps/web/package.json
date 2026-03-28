@@ -2,6 +2,7 @@
   "name": "amb-web",
   "version": "1.1.1",
   "private": true,
+  "author": "Anatoliy Tukov <openaisdk@gmail.com>",
   "scripts": {
     "dev": "P=${PORT:-3333}; echo '' && echo \"  API Docs (Swagger): http://localhost:$P/api-docs\" && echo '' && exec next dev -p \"$P\"",
     "build": "next build",

@@ -9,7 +9,7 @@
     "url": "https://github.com/bizmedia/amb.git"
   },
   "homepage": "https://github.com/bizmedia/amb#readme",
-  "author": "Анатолий Туков <anatoliy.tukov@gmail.com>",
+  "author": "Anatoliy Tukov <openaisdk@gmail.com>",
   "pnpm": {
     "onlyBuiltDependencies": [
       "@nestjs/core",
