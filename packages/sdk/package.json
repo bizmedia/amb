@@ -1,6 +1,6 @@
 {
   "name": "@amb-app/sdk",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "private": true,
   "author": "Anatoliy Tukov <openaisdk@gmail.com>",
   "type": "module",
