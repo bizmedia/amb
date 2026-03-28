@@ -1,6 +1,6 @@
 {
   "name": "@openaisdk/amb-mcp",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "MCP server and CLI for Agent Message Bus — use from Cursor, Codex, Claude Code, or any MCP client; list agents, threads, send messages, seed from .cursor/agents/registry.json",
   "main": "dist/index.js",
   "bin": {

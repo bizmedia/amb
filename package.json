@@ -1,7 +1,7 @@
 {
   "name": "amb-app",
   "packageManager": "pnpm@10.19.0",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "private": true,
   "license": "MIT",
   "repository": {
@@ -24,6 +24,7 @@
   "scripts": {
     "postinstall": "sh scripts/chmod-node-bin.sh",
     "scripts:help": "node scripts/print-scripts-help.mjs",
+    "version:bump": "node scripts/bump-version.mjs",
     "fix:bin": "sh scripts/chmod-node-bin.sh",
     "dev": "turbo run dev --filter=amb-web --filter=amb-api",
     "dev:api": "pnpm --filter amb-api run dev",
