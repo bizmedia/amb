@@ -5,6 +5,7 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { NotFoundError } from "@amb-app/shared";
+import { Prisma } from "@amb-app/db";
 import {
   DEFAULT_PROJECT_ID,
   DEFAULT_TENANT_ID,
@@ -26,6 +27,19 @@ function generatePrefix(name: string): string {
     .slice(0, 3)
     .toUpperCase()
     .padEnd(3, "X");
+}
+
+function toAlphaSuffix(counter: number): string {
+  let value = counter;
+  let suffix = "";
+
+  while (value > 0) {
+    value -= 1;
+    suffix = String.fromCharCode(65 + (value % 26)) + suffix;
+    value = Math.floor(value / 26);
+  }
+
+  return suffix;
 }
 
 @Injectable()
@@ -62,18 +76,48 @@ export class ProjectsService {
       candidate = `${base}-${counter}`;
     }
 
-    const prefix = taskPrefix ?? generatePrefix(name);
-    await this.ensurePrefixUnique(tenant.id, prefix);
+    const trimmedName = name.trim();
 
-    return this.prisma.project.create({
-      data: {
-        tenantId: tenant.id,
-        name: name.trim(),
-        slug: candidate,
-        taskPrefix: prefix,
-        taskSequence: 0,
-      },
-    });
+    if (taskPrefix) {
+      const prefix = await this.ensureExplicitPrefixUnique(tenant.id, taskPrefix);
+      return this.prisma.project.create({
+        data: {
+          tenantId: tenant.id,
+          name: trimmedName,
+          slug: candidate,
+          taskPrefix: prefix,
+          taskSequence: 0,
+        },
+      });
+    }
+
+    for (let attempt = 0; attempt < 50; attempt += 1) {
+      const prefix = await this.generateUniquePrefix(tenant.id, name, attempt);
+
+      try {
+        return await this.prisma.project.create({
+          data: {
+            tenantId: tenant.id,
+            name: trimmedName,
+            slug: candidate,
+            taskPrefix: prefix,
+            taskSequence: 0,
+          },
+        });
+      } catch (error) {
+        if (
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === "P2002"
+        ) {
+          continue;
+        }
+        throw error;
+      }
+    }
+
+    throw new ConflictException(
+      `Unable to generate a unique task prefix for project "${trimmedName}"`
+    );
   }
 
   async getById(id: string) {
@@ -140,5 +184,42 @@ export class ProjectsService {
         `Task prefix "${prefix}" is already used by another project in this tenant`,
       );
     }
+  }
+
+  private async ensureExplicitPrefixUnique(
+    tenantId: string,
+    prefix: string,
+  ): Promise<string> {
+    await this.ensurePrefixUnique(tenantId, prefix);
+    return prefix;
+  }
+
+  private async generateUniquePrefix(
+    tenantId: string,
+    name: string,
+    startCounter = 0,
+  ): Promise<string> {
+    const basePrefix = generatePrefix(name);
+
+    for (let counter = startCounter; counter < startCounter + 26 * 26; counter += 1) {
+      const suffix = counter === 0 ? "" : toAlphaSuffix(counter);
+      const candidate = `${basePrefix}${suffix}`.slice(0, 5);
+
+      const existing = await this.prisma.project.findFirst({
+        where: {
+          tenantId,
+          taskPrefix: candidate,
+        },
+        select: { id: true },
+      });
+
+      if (!existing) {
+        return candidate;
+      }
+    }
+
+    throw new ConflictException(
+      `Unable to generate a unique task prefix for project "${name.trim()}"`
+    );
   }
 }

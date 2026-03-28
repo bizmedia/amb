@@ -91,7 +91,7 @@ export class MessagesService {
       });
       if (!msg) throw new NotFoundError("Message");
       if (msg.status === "ack") return msg;
-      if (msg.status !== "delivered") {
+      if (msg.status !== "delivered" && msg.status !== "pending") {
         throw new ConflictError("Message", "Message must be delivered before ack");
       }
       return tx.message.update({
