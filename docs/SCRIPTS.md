@@ -175,6 +175,6 @@
 | 📚 Примеры | `example:simple`, `example:inbox`, `example:workflow` |
 | 🤖 Агенты / PO | `agent:worker`, `agent:worker:single`, `orchestrator`, `po:check-inbox` |
 | 🔌 MCP | `mcp:build`, `mcp:dev`, `mcp:publish`, `mcp:version` |
-| 🐳 Docker / деплой | `docker:compose:publish`, `deploy:amb`, `deploy:compose:prebuilt`, `deploy:local`, `deploy:compose:build`, `deploy:local:standalone`, `deploy:local:down`, `deploy:dev:db`, `deploy:dev:db:down`, `deploy:prod`, `deploy:k8s:migrate`, `deploy:k8s:api` |
+| 🐳 Docker / деплой | `docker:compose:publish`, `release:publish`, `deploy:amb`, `deploy:compose:prebuilt`, `deploy:local`, `deploy:compose:build`, `deploy:local:standalone`, `deploy:local:down`, `deploy:dev:db`, `deploy:dev:db:down`, `deploy:prod`, `deploy:k8s:migrate`, `deploy:k8s:api` |
 
 Полный список имён — в корневом [`package.json`](../package.json).

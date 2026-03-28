@@ -26,7 +26,23 @@ ENV PORT=3334
 
 WORKDIR /app
 
-COPY --from=builder /app /app
+# Keep the runtime layer smaller than the full workspace copy:
+# only the root workspace metadata, installed deps, the built API, and
+# the workspace packages needed at runtime for imports + Prisma migrations.
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY --from=builder /app/node_modules ./node_modules
+
+COPY --from=builder /app/apps/api/package.json ./apps/api/package.json
+COPY --from=builder /app/apps/api/dist ./apps/api/dist
+
+COPY --from=builder /app/packages/db/package.json ./packages/db/package.json
+COPY --from=builder /app/packages/db/prisma.config.mjs ./packages/db/prisma.config.mjs
+COPY --from=builder /app/packages/db/prisma ./packages/db/prisma
+COPY --from=builder /app/packages/db/dist ./packages/db/dist
+
+COPY --from=builder /app/packages/shared/package.json ./packages/shared/package.json
+COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 
 EXPOSE 3334
 

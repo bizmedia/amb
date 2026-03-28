@@ -1,18 +1,20 @@
-name: Publish Docker Image
+name: Publish Public Artifacts
 
 on:
   push:
     branches:
       - main
-    tags:
-      - "v*"
   workflow_dispatch:
 
+concurrency:
+  group: publish-public-artifacts-${{ github.ref }}
+  cancel-in-progress: false
+
 env:
-  IMAGE_NAME: bizmedia/amb
+  REGISTRY_PREFIX: docker.io/openaisdk
 
 jobs:
-  build-and-push:
+  publish:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -21,8 +23,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.19.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -30,24 +49,22 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=latest,enable={{is_default_branch}}
+      - name: Check npm package version
+        id: npm-version
+        shell: bash
+        run: |
+          set -euo pipefail
+          PACKAGE_VERSION=$(node -p "require('./packages/mcp-server/package.json').version")
+          if npm view @openaisdk/amb-mcp@"$PACKAGE_VERSION" version >/dev/null 2>&1; then
+            echo "should_publish=false" >> "$GITHUB_OUTPUT"
+            echo "Package version $PACKAGE_VERSION already exists on npm. Skipping npm publish."
+          else
+            echo "should_publish=true" >> "$GITHUB_OUTPUT"
+            echo "Package version $PACKAGE_VERSION is not on npm yet. Publishing is enabled."
+          fi
 
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          platforms: linux/amd64,linux/arm64
+      - name: Publish public artifacts
+        run: pnpm release:publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PUBLISH_NPM: ${{ steps.npm-version.outputs.should_publish }}
