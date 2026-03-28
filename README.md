@@ -36,14 +36,19 @@ Download and start the published AMB stack:
 ```bash
 curl -O https://raw.githubusercontent.com/bizmedia/amb/main/deploy/compose/amb-compose.yml
 docker compose -f amb-compose.yml up -d
-docker compose -f amb-compose.yml logs -f seed
 ```
 
 If ports `3333` or `3334` are already in use, override them when starting the stack:
 
 ```bash
 WEB_PORT=4333 API_PORT=4334 docker compose -f amb-compose.yml up -d
-docker compose -f amb-compose.yml logs -f seed
+curl http://localhost:4334/api/health
+```
+
+Wait until the API becomes healthy:
+
+```bash
+curl http://localhost:3334/api/health
 ```
 
 Open:
@@ -56,9 +61,11 @@ Sign in with:
 - email: `admin@local.test`
 - password: `ChangeMe123!`
 
+The published stack bootstraps the default user and the `Default Project` automatically.
+
 Then:
 
-1. Create a project in the Dashboard
+1. Open `Default Project` in the Dashboard
 2. Copy its `Project ID`
 
 Install the MCP package in your own project:

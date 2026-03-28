@@ -21,6 +21,7 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-amb}
       JWT_SECRET: ${JWT_SECRET:-change-me-for-local-dev}
+      AMB_BOOTSTRAP: "true"
       PORT: 3334
     depends_on:
       postgres:
@@ -34,7 +35,7 @@ services:
       retries: 20
 
   web:
-    image: docker.io/openaisdk/amb-web-ui:latest
+    image: docker.io/openaisdk/amb:latest
     pull_policy: always
     environment:
       API_URL: http://api:3334
@@ -49,22 +50,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
-
-  seed:
-    image: docker.io/openaisdk/amb-seed:latest
-    pull_policy: always
-    environment:
-      API_URL: http://api:3334
-      AMB_SEED_EMAIL: ${AMB_SEED_EMAIL:-admin@local.test}
-      AMB_SEED_PASSWORD: ${AMB_SEED_PASSWORD:-ChangeMe123!}
-      AMB_SEED_THREADS: ${AMB_SEED_THREADS:-false}
-      MESSAGE_BUS_PROJECT_ID: ${MESSAGE_BUS_PROJECT_ID:-}
-    depends_on:
-      api:
-        condition: service_healthy
-      web:
-        condition: service_healthy
-    restart: "no"
 
 volumes:
   postgres_data:

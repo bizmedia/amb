@@ -16,6 +16,7 @@ import { TenantsModule } from "./tenants/tenants.module";
 import { ObservabilityModule } from "./observability/observability.module";
 import { ObservabilityInterceptor } from "./observability/observability.interceptor";
 import { HealthModule } from "./health/health.module";
+import { DefaultBootstrapService } from "./bootstrap/default-bootstrap.service";
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { HealthModule } from "./health/health.module";
     HealthModule,
   ],
   providers: [
+    DefaultBootstrapService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

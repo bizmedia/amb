@@ -16,14 +16,19 @@
 ```bash
 curl -O https://raw.githubusercontent.com/bizmedia/amb/main/deploy/compose/amb-compose.yml
 docker compose -f amb-compose.yml up -d
-docker compose -f amb-compose.yml logs -f seed
 ```
 
 Если порты `3333` или `3334` заняты, поднимите стек на других host-портах:
 
 ```bash
 WEB_PORT=4333 API_PORT=4334 docker compose -f amb-compose.yml up -d
-docker compose -f amb-compose.yml logs -f seed
+curl http://localhost:4334/api/health
+```
+
+Проверить, что API поднялся:
+
+```bash
+curl http://localhost:3334/api/health
 ```
 
 Открыть:
@@ -36,9 +41,11 @@ docker compose -f amb-compose.yml logs -f seed
 - email: `admin@local.test`
 - password: `ChangeMe123!`
 
+Published stack автоматически создаёт default user и `Default Project`.
+
 После входа:
 
-1. Создайте проект в Dashboard
+1. Откройте `Default Project` в Dashboard
 2. Скопируйте `Project ID`
 
 ## 2. Установить MCP package в свой проект
