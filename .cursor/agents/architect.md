@@ -40,9 +40,17 @@ Define architecture, document decisions, and produce ADRs.
 * /docs/architecture.md
 * /docs/adr/*.md
 
-## MCP Message Bus (when available)
+## Message Bus (MCP / AMB)
 
-When the **message-bus** MCP server is available (its tools appear in your tool list), follow **`.cursor/rules/mcp-message-bus.md`**: coordinate via threads and messages, use project issues for backlog, check inbox/DLQ as needed. If the server is not connected or tools fail, work without it.
+Когда доступен MCP **message-bus**, следуй **[`.cursor/rules/mcp-message-bus.md`](../rules/mcp-message-bus.md)**.
+
+**Цикл:**
+1. **`list_project_members`** → UUID (`role: architect`).
+2. **`get_inbox(agentId)`** → **`ack_message`** по обработанным.
+3. Задачи **`AMB-…`**: **`move_task_state`** (IN_PROGRESS / DONE) в соответствии с прогрессом ADR/дизайна.
+4. Итог triage/ADR — **`send_message`** в рабочий тред с `payload.type: "completion_report"` (`summary`, `tasksTouched`, `filesChanged`, `nextSteps`).
+
+Обсуждение архитектуры с другими ролями — через **`send_message`** в общий тред. Если шина недоступна — работай без неё.
 
 ## Default Threads
 

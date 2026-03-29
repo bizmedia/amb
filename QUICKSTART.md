@@ -64,17 +64,21 @@ npm install -D @openaisdk/amb-mcp
 
 ## 3. Подключить MCP
 
-Общие значения:
+### Переменные окружения
 
-- `MESSAGE_BUS_URL=http://localhost:4333`
-- `MESSAGE_BUS_PROJECT_ID=<YOUR_PROJECT_ID>`
+| Переменная | Обязательно | Описание |
+| ---------- | ------------- | -------- |
+| `MESSAGE_BUS_URL` | да | Базовый URL **HTTP API** AMB (тот же хост/порт, что и `/api/health`). Для опубликованного compose по умолчанию это **`http://localhost:4334`**, а не порт Dashboard (4333). |
+| `MESSAGE_BUS_PROJECT_ID` | да | UUID проекта из Dashboard. |
+| `MESSAGE_BUS_ACCESS_TOKEN` | если API требует JWT | Токен доступа к проекту из Dashboard. Допустимо имя `MESSAGE_BUS_TOKEN`. |
 
-Если вы переопределили `WEB_PORT`, то `MESSAGE_BUS_URL` должен указывать на тот же порт.
-Пример: `WEB_PORT=5333` => `MESSAGE_BUS_URL=http://localhost:5333`.
+Скрипты репозитория (`pnpm seed:*`, примеры) подхватывают те же переменные из **окружения** → **`.cursor/mcp.env`** → устаревший inline `env` в `.cursor/mcp.json` (см. `apps/web/scripts/message-bus-env.ts`).
 
-### Cursor
+### Cursor (рекомендуется: `.cursor/mcp.env`)
 
-`.cursor/mcp.json`:
+1. Скопируйте `.cursor/mcp.env.example` в **`.cursor/mcp.env`** (файл в `.gitignore`, в репозиторий не коммитится).
+2. Заполните `MESSAGE_BUS_URL`, `MESSAGE_BUS_PROJECT_ID`, `MESSAGE_BUS_ACCESS_TOKEN`.
+3. `.cursor/mcp.json`:
 
 ```json
 {
@@ -82,31 +86,20 @@ npm install -D @openaisdk/amb-mcp
     "message-bus": {
       "command": "pnpm",
       "args": ["exec", "amb-mcp"],
+      "envFile": "${workspaceFolder}/.cursor/mcp.env",
       "env": {
-        "MESSAGE_BUS_URL": "http://localhost:4333",
-        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
+        "AMB_MCP_BOOTSTRAP_LOG": "1"
       }
     }
   }
 }
 ```
 
-Если проект использует `npm`, используйте:
+При `npm`: `"command": "npx"`, `"args": ["amb-mcp"]`.
 
-```json
-{
-  "mcpServers": {
-    "message-bus": {
-      "command": "npx",
-      "args": ["amb-mcp"],
-      "env": {
-        "MESSAGE_BUS_URL": "http://localhost:4333",
-        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
-      }
-    }
-  }
-}
-```
+**Без файла (только для быстрого теста):** можно задать всё в `env` внутри `mcp.json`, но токен тогда легко случайно закоммитить — не рекомендуется.
+
+Если меняли порты compose, в `MESSAGE_BUS_URL` укажите **API**-порт (как в `curl …/api/health`). Пример: `API_PORT=5334` → `MESSAGE_BUS_URL=http://localhost:5334`.
 
 ### Codex
 
@@ -118,21 +111,12 @@ command = "pnpm"
 args = ["exec", "amb-mcp"]
 
 [mcp_servers.message-bus.env]
-MESSAGE_BUS_URL = "http://localhost:4333"
+MESSAGE_BUS_URL = "http://localhost:4334"
 MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
+MESSAGE_BUS_ACCESS_TOKEN = "<токен из Dashboard>"
 ```
 
-Если проект использует `npm`, используйте:
-
-```toml
-[mcp_servers.message-bus]
-command = "npx"
-args = ["amb-mcp"]
-
-[mcp_servers.message-bus.env]
-MESSAGE_BUS_URL = "http://localhost:4333"
-MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
-```
+При `npm`: `command = "npx"`, `args = ["amb-mcp"]`.
 
 ### Claude Code
 
@@ -143,32 +127,18 @@ MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
       "command": "pnpm",
       "args": ["exec", "amb-mcp"],
       "env": {
-        "MESSAGE_BUS_URL": "http://localhost:4333",
-        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
+        "MESSAGE_BUS_URL": "http://localhost:4334",
+        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222",
+        "MESSAGE_BUS_ACCESS_TOKEN": "<токен из Dashboard>"
       }
     }
   }
 }
 ```
 
-Если проект использует `npm`, используйте:
+При `npm`: `"command": "npx"`, `"args": ["amb-mcp"]`.
 
-```json
-{
-  "mcpServers": {
-    "message-bus": {
-      "command": "npx",
-      "args": ["amb-mcp"],
-      "env": {
-        "MESSAGE_BUS_URL": "http://localhost:4333",
-        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
-      }
-    }
-  }
-}
-```
-
-Замените `MESSAGE_BUS_PROJECT_ID` на ID проекта из Dashboard и перезапустите клиент.
+Замените `MESSAGE_BUS_PROJECT_ID` и токен на значения из Dashboard, перезапустите клиент.
 
 ## 4. Зарегистрировать агентов
 
@@ -176,8 +146,9 @@ MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
 
 ```bash
 # или: npx amb-mcp setup
-MESSAGE_BUS_URL=http://localhost:4333 \
+MESSAGE_BUS_URL=http://localhost:4334 \
 MESSAGE_BUS_PROJECT_ID=<YOUR_PROJECT_ID> \
+MESSAGE_BUS_ACCESS_TOKEN=<YOUR_PROJECT_TOKEN> \
 pnpm exec amb-mcp setup
 ```
 
@@ -192,8 +163,9 @@ pnpm exec amb-mcp setup
 
 ```bash
 # или: npx amb-mcp seed all .cursor/agents
-MESSAGE_BUS_URL=http://localhost:4333 \
+MESSAGE_BUS_URL=http://localhost:4334 \
 MESSAGE_BUS_PROJECT_ID=<YOUR_PROJECT_ID> \
+MESSAGE_BUS_ACCESS_TOKEN=<YOUR_PROJECT_TOKEN> \
 pnpm exec amb-mcp seed all .cursor/agents
 ```
 
@@ -224,8 +196,10 @@ Create a thread in AMB called "project-onboarding". Coordinate work across po, a
 
 ## Частые проблемы
 
-- `docker compose up` падает из-за занятых портов: published stack по умолчанию уже использует `WEB_PORT=4333 API_PORT=4334 POSTGRES_PORT=5433`; если и они заняты, выберите другой набор портов и используйте тот же `WEB_PORT` в `MESSAGE_BUS_URL`.
+- `docker compose up` падает из-за занятых портов: по умолчанию `WEB_PORT=4333`, `API_PORT=4334`, `POSTGRES_PORT=5433`; при смене портов в `MESSAGE_BUS_URL` укажите **хост-порт API** (тот, что для `/api/health`), а не Dashboard.
+- MCP не стартует в Cursor: есть ли файл `.cursor/mcp.env` и корректный `envFile` в `mcp.json`; после правок перезапустите MCP / окно Cursor.
 - MCP не появился: проверьте, что пакет `@openaisdk/amb-mcp` установлен и клиент перезапущен.
+- 401 / отказ API: задайте `MESSAGE_BUS_ACCESS_TOKEN` (или положите его в `.cursor/mcp.env`).
 - Агенты не появились: проверьте `MESSAGE_BUS_PROJECT_ID` и путь `.cursor/agents` или `.agents`.
 - `orchestrator` пишет, а остальные роли молчат: сначала проверьте single-client сценарий, потом переходите к cross-client setup.
 

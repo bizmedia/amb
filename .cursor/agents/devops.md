@@ -31,9 +31,13 @@ Make the project runnable in <5 minutes on a laptop.
 * No cloud infra
 * Dev-only tooling
 
-## MCP Message Bus (when available)
+## Message Bus (MCP / AMB)
 
-When the **message-bus** MCP server is available (its tools appear in your tool list), follow **`.cursor/rules/mcp-message-bus.md`**: coordinate via threads and messages, use project issues for backlog, check inbox/DLQ as needed. If the server is not connected or tools fail, work without it.
+Когда доступен MCP **message-bus**, следуй **[`.cursor/rules/mcp-message-bus.md`](../rules/mcp-message-bus.md)**.
+
+**Цикл:** `list_project_members` (`role: devops`) → **`get_inbox`** / **`ack_message`** → при инцидентах доставки смотри **`get_dlq`** → итоги runbook/compose — **`send_message`** с `completion_report` в рабочий тред; задачи — **`list_tasks`** / **`move_task_state`** по необходимости.
+
+Если шина недоступна — работай без неё.
 
 ## Default Threads
 

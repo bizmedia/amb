@@ -14,6 +14,16 @@ import {
   DialogTitle,
 } from "@amb-app/ui/components/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@amb-app/ui/components/alert-dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -31,6 +41,7 @@ import {
   Loader2Icon,
   Trash2Icon,
   LayoutDashboard,
+  MoreVerticalIcon,
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 
@@ -52,6 +63,7 @@ import {
   writeProjectColors,
   writeProjectIcons,
 } from "./project-switcher/ProjectDetailsFields";
+import { DEFAULT_BOOTSTRAP_PROJECT_ID } from "@/lib/constants/bootstrap-project";
 
 type Tenant = {
   id: string;
@@ -622,32 +634,42 @@ export function ProjectSwitcher() {
                           <p className="truncate text-sm font-medium">{project.name}</p>
                           <p className="truncate text-xs text-muted-foreground">{project.id}</p>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex shrink-0 items-center gap-1">
                           <Button size="sm" variant="outline" onClick={() => selectProject(project.id)}>
                             {selectedProject?.id === project.id ? t("selected") : t("switchTo")}
                           </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() =>
-                              startEditProject(project.id, project.name, project.taskPrefix)
-                            }
-                            title={t("editProject")}
-                          >
-                            <PencilIcon className="size-4" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="text-destructive hover:text-destructive"
-                            onClick={() => {
-                              setProjectToDelete({ id: project.id, name: project.name });
-                              setDeleteProjectDialogOpen(true);
-                            }}
-                            title={t("deleteProject")}
-                          >
-                            <Trash2Icon className="size-4" />
-                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button size="icon" variant="ghost" className="size-8" title={t("projectActions")}>
+                                <MoreVerticalIcon className="size-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48">
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  startEditProject(project.id, project.name, project.taskPrefix)
+                                }
+                              >
+                                <PencilIcon className="size-4 mr-2" />
+                                {t("editProject")}
+                              </DropdownMenuItem>
+                              {project.id !== DEFAULT_BOOTSTRAP_PROJECT_ID ? (
+                                <>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    className="text-destructive focus:text-destructive"
+                                    onClick={() => {
+                                      setProjectToDelete({ id: project.id, name: project.name });
+                                      setDeleteProjectDialogOpen(true);
+                                    }}
+                                  >
+                                    <Trash2Icon className="size-4 mr-2" />
+                                    {t("deleteProject")}
+                                  </DropdownMenuItem>
+                                </>
+                              ) : null}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </div>
                     )}
@@ -663,33 +685,41 @@ export function ProjectSwitcher() {
         </DialogContent>
       </Dialog>
 
-      <Dialog
+      <AlertDialog
         open={deleteProjectDialogOpen}
         onOpenChange={(open) => {
           setDeleteProjectDialogOpen(open);
-          if (!open) setDeleteProjectError(null);
+          if (!open) {
+            setDeleteProjectError(null);
+            setProjectToDelete(null);
+          }
         }}
       >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("deleteProjectTitle")}</DialogTitle>
-            <DialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("deleteProjectTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
               {t("deleteProjectConfirm", { name: projectToDelete?.name ?? "" })}
-            </DialogDescription>
-          </DialogHeader>
-          {deleteProjectError && (
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {deleteProjectError ? (
             <p className="text-sm text-destructive">{deleteProjectError}</p>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteProjectDialogOpen(false)} disabled={deletingProject}>
-              {tCommon("cancel")}
-            </Button>
-            <Button variant="destructive" onClick={handleDeleteProject} disabled={deletingProject}>
+          ) : null}
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingProject}>{tCommon("cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={(e) => {
+                e.preventDefault();
+                void handleDeleteProject();
+              }}
+              disabled={deletingProject}
+            >
               {deletingProject ? <Loader2Icon className="size-4 animate-spin" /> : tCommon("delete")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

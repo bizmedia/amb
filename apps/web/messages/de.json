@@ -143,6 +143,7 @@
     "switchTo": "Wechseln",
     "selected": "Ausgewählt",
     "editProject": "Projekt bearbeiten",
+    "projectActions": "Projektaktionen",
     "noProjectsForTenant": "Keine Projekte für den ausgewählten Mandanten",
     "tokens": "Token",
     "deleteProject": "Projekt löschen",
@@ -282,7 +283,13 @@
     "lastSeen": "Zuletzt gesehen",
     "deleteAgent": "Agent löschen",
     "deleteAgentTitle": "Agent löschen?",
-    "deleteAgentConfirm": "Der Agent \"{name}\" wird aus der Liste und aus den Zuweisungsoptionen entfernt. Dies kann nicht rückgängig gemacht werden."
+    "deleteAgentConfirm": "Der Agent \"{name}\" wird aus der Liste und aus den Zuweisungsoptionen entfernt. Dies kann nicht rückgängig gemacht werden.",
+    "editAgent": "Agent bearbeiten",
+    "editAgentTitle": "Agent bearbeiten",
+    "editAgentDescription": "Anzeigename und Rolle aktualisieren. Beide Felder sind erforderlich.",
+    "agentName": "Name",
+    "agentRole": "Rolle",
+    "editValidation": "Name und Rolle dürfen nicht leer sein."
   },
   "MentionInput": {
     "agentsHeading": "Agenten",

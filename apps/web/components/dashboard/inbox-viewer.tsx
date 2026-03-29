@@ -71,7 +71,7 @@ export function InboxViewer({ agentId }: Props) {
 
   if (!agentId) {
     return (
-      <div className="h-full rounded-lg border bg-card flex flex-col items-center justify-center text-muted-foreground">
+      <div className="flex h-full min-h-0 flex-col items-center justify-center rounded-lg border bg-card text-muted-foreground">
         <InboxIcon className="size-12 mb-4 opacity-20" />
         <p className="font-medium">{t("noAgentSelected")}</p>
         <p className="text-sm mt-1">{t("selectAgentForInbox")}</p>
@@ -80,7 +80,7 @@ export function InboxViewer({ agentId }: Props) {
   }
 
   return (
-    <div className="h-full rounded-lg border bg-card flex flex-col overflow-hidden">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border bg-card">
       <div className="px-4 py-3 border-b flex items-center justify-between bg-card/50">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
@@ -137,7 +137,7 @@ export function InboxViewer({ agentId }: Props) {
         </div>
       </div>
 
-      <ScrollArea className="flex-1 h-0">
+      <ScrollArea className="min-h-0 flex-1">
         <div className="p-4">
           {loading && messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">

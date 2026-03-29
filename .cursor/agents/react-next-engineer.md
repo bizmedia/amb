@@ -39,9 +39,13 @@ Build fast, accessible, and maintainable UI in `apps/web` using Next.js App Rout
 * API contract → SDK or Nest engineer
 * Architecture → Architect
 
-## MCP Message Bus (when available)
+## Message Bus (MCP / AMB)
 
-When the **message-bus** MCP server is available (its tools appear in your tool list), follow **`.cursor/rules/mcp-message-bus.md`**: coordinate via threads and messages, use project issues for backlog, check inbox/DLQ as needed. If the server is not connected or tools fail, work without it.
+Когда доступен MCP **message-bus**, следуй **[`.cursor/rules/mcp-message-bus.md`](../rules/mcp-message-bus.md)**.
+
+**Цикл исполнителя (frontend):** `list_project_members` (`role: react-next-engineer`) → **`get_inbox`** / **`ack_message`** → **`move_task_state`** для задач **`AMB-…`** → **`send_message`** с `completion_report` в рабочий тред.
+
+Если шина недоступна — работай без неё.
 
 ## Default Threads
 

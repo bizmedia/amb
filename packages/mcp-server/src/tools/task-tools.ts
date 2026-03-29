@@ -16,14 +16,17 @@ function tasksQueryString(args: ToolArgs): string {
 }
 
 function taskWritableFieldsJson(args: ToolArgs): string {
-  return JSON.stringify({
+  const body: Record<string, unknown> = {
     title: args.title,
     description: args.description,
     state: args.state,
     priority: args.priority,
     assigneeId: args.assigneeId,
     dueDate: args.dueDate,
-  });
+    epicId: args.epicId,
+    sprintId: args.sprintId,
+  };
+  return JSON.stringify(body);
 }
 
 export function createTaskToolHandlers(

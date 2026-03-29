@@ -112,18 +112,42 @@ AMB does not replace your AI client. Your AI client runs the prompts. AMB stores
 
 All clients should point to the same local AMB instance and the same `Project ID`.
 
-Shared values:
+### Environment variables
 
-- `MESSAGE_BUS_URL=http://localhost:4333`
-- `MESSAGE_BUS_PROJECT_ID=<YOUR_PROJECT_ID>`
+| Variable | Required | Description |
+| -------- | -------- | ----------- |
+| `MESSAGE_BUS_URL` | Yes | Base URL of the **AMB HTTP API** (the same origin that serves `/api/health`). Default published compose maps the API to host port **4334** (see `API_PORT` in `amb-compose.yml`), not the Dashboard port. |
+| `MESSAGE_BUS_PROJECT_ID` | Yes | Project UUID from the Dashboard. |
+| `MESSAGE_BUS_ACCESS_TOKEN` | When your API enforces JWT | Project access token from the Dashboard. You can use `MESSAGE_BUS_TOKEN` instead; the MCP server accepts either name. |
 
-If you override `WEB_PORT`, `MESSAGE_BUS_URL` must use the same port. Example:
-
-- `WEB_PORT=5333` => `MESSAGE_BUS_URL=http://localhost:5333`
+Repository scripts (`pnpm seed:*`, `pnpm example:*`, and similar) resolve the same variables from, in order: **process environment** → **`.cursor/mcp.env`** → **legacy inline `env` in `.cursor/mcp.json`** (and a few other config paths documented in `apps/web/scripts/message-bus-env.ts`).
 
 ### Cursor
 
-Create `.cursor/mcp.json` in your project:
+**Recommended:** keep secrets out of Git using a gitignored env file and Cursor’s `envFile` ([MCP docs](https://cursor.com/docs/mcp)):
+
+1. Copy `.cursor/mcp.env.example` to `.cursor/mcp.env` (`.cursor/mcp.env` is listed in `.gitignore`).
+2. Set `MESSAGE_BUS_URL`, `MESSAGE_BUS_PROJECT_ID`, and `MESSAGE_BUS_ACCESS_TOKEN` in `.cursor/mcp.env`.
+3. Create `.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "message-bus": {
+      "command": "pnpm",
+      "args": ["exec", "amb-mcp"],
+      "envFile": "${workspaceFolder}/.cursor/mcp.env",
+      "env": {
+        "AMB_MCP_BOOTSTRAP_LOG": "1"
+      }
+    }
+  }
+}
+```
+
+If your project uses `npm`, use `"command": "npx"` and `"args": ["amb-mcp"]` instead of `pnpm` / `pnpm exec`.
+
+**Alternative (inline env, not recommended for tokens):** you can put variables directly under `env` for a quick test; avoid committing real tokens.
 
 ```json
 {
@@ -132,30 +156,18 @@ Create `.cursor/mcp.json` in your project:
       "command": "pnpm",
       "args": ["exec", "amb-mcp"],
       "env": {
-        "MESSAGE_BUS_URL": "http://localhost:4333",
-        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
+        "MESSAGE_BUS_URL": "http://localhost:4334",
+        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222",
+        "MESSAGE_BUS_ACCESS_TOKEN": "<paste token from Dashboard>"
       }
     }
   }
 }
 ```
 
-If your project uses `npm`, use:
+If you override compose ports, point `MESSAGE_BUS_URL` at the **API** host port (the one you use for `/api/health`). Example:
 
-```json
-{
-  "mcpServers": {
-    "message-bus": {
-      "command": "npx",
-      "args": ["amb-mcp"],
-      "env": {
-        "MESSAGE_BUS_URL": "http://localhost:4333",
-        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
-      }
-    }
-  }
-}
-```
+- `API_PORT=5334` => `MESSAGE_BUS_URL=http://localhost:5334`
 
 ### Codex
 
@@ -167,8 +179,9 @@ command = "pnpm"
 args = ["exec", "amb-mcp"]
 
 [mcp_servers.message-bus.env]
-MESSAGE_BUS_URL = "http://localhost:4333"
+MESSAGE_BUS_URL = "http://localhost:4334"
 MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
+MESSAGE_BUS_ACCESS_TOKEN = "<paste token from Dashboard>"
 ```
 
 If your project uses `npm`, use:
@@ -179,8 +192,9 @@ command = "npx"
 args = ["amb-mcp"]
 
 [mcp_servers.message-bus.env]
-MESSAGE_BUS_URL = "http://localhost:4333"
+MESSAGE_BUS_URL = "http://localhost:4334"
 MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
+MESSAGE_BUS_ACCESS_TOKEN = "<paste token from Dashboard>"
 ```
 
 ### Claude Code
@@ -194,8 +208,9 @@ Add the same server to your Claude MCP config:
       "command": "pnpm",
       "args": ["exec", "amb-mcp"],
       "env": {
-        "MESSAGE_BUS_URL": "http://localhost:4333",
-        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
+        "MESSAGE_BUS_URL": "http://localhost:4334",
+        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222",
+        "MESSAGE_BUS_ACCESS_TOKEN": "<paste token from Dashboard>"
       }
     }
   }
@@ -211,15 +226,16 @@ If your project uses `npm`, use:
       "command": "npx",
       "args": ["amb-mcp"],
       "env": {
-        "MESSAGE_BUS_URL": "http://localhost:4333",
-        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
+        "MESSAGE_BUS_URL": "http://localhost:4334",
+        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222",
+        "MESSAGE_BUS_ACCESS_TOKEN": "<paste token from Dashboard>"
       }
     }
   }
 }
 ```
 
-Replace `MESSAGE_BUS_PROJECT_ID` with the `Project ID` from your Dashboard, then restart your client.
+Replace `MESSAGE_BUS_PROJECT_ID` and the access token with values from your Dashboard, then restart your client.
 
 ## Efficient MCP Usage
 
@@ -291,8 +307,9 @@ Recommended first run:
 
 ```bash
 # or: npx amb-mcp setup
-MESSAGE_BUS_URL=http://localhost:4333 \
+MESSAGE_BUS_URL=http://localhost:4334 \
 MESSAGE_BUS_PROJECT_ID=<YOUR_PROJECT_ID> \
+MESSAGE_BUS_ACCESS_TOKEN=<YOUR_PROJECT_TOKEN> \
 pnpm exec amb-mcp setup
 ```
 
@@ -323,8 +340,9 @@ Register agents from your project:
 
 ```bash
 # or: npx amb-mcp seed agents .cursor/agents
-MESSAGE_BUS_URL=http://localhost:4333 \
+MESSAGE_BUS_URL=http://localhost:4334 \
 MESSAGE_BUS_PROJECT_ID=<YOUR_PROJECT_ID> \
+MESSAGE_BUS_ACCESS_TOKEN=<YOUR_PROJECT_TOKEN> \
 pnpm exec amb-mcp seed agents .cursor/agents
 ```
 
@@ -332,8 +350,9 @@ Register agents and default threads:
 
 ```bash
 # or: npx amb-mcp seed all .cursor/agents
-MESSAGE_BUS_URL=http://localhost:4333 \
+MESSAGE_BUS_URL=http://localhost:4334 \
 MESSAGE_BUS_PROJECT_ID=<YOUR_PROJECT_ID> \
+MESSAGE_BUS_ACCESS_TOKEN=<YOUR_PROJECT_TOKEN> \
 pnpm exec amb-mcp seed all .cursor/agents
 ```
 
@@ -371,7 +390,7 @@ Example setup:
 
 To make this work:
 
-1. Connect all clients to the same `MESSAGE_BUS_URL`
+1. Connect all clients to the same `MESSAGE_BUS_URL` (API base URL) and, when required, the same `MESSAGE_BUS_ACCESS_TOKEN`
 2. Use the same `MESSAGE_BUS_PROJECT_ID` everywhere
 3. Register the same agent set into that project
 4. Ask the `orchestrator` to coordinate across those roles
@@ -392,9 +411,9 @@ Start the published stack on different host ports:
 WEB_PORT=5333 API_PORT=5334 POSTGRES_PORT=5543 docker compose -f amb-compose.yml up -d
 ```
 
-Then update your MCP config to use the same web port:
+Then point `MESSAGE_BUS_URL` at the **API** port you chose:
 
-- `MESSAGE_BUS_URL=http://localhost:5333`
+- `API_PORT=5334` => `MESSAGE_BUS_URL=http://localhost:5334`
 
 ### MCP is connected but tools do not appear
 
@@ -404,6 +423,8 @@ Check that:
 - your MCP config uses `pnpm exec amb-mcp` or `npx amb-mcp`
 - you restarted Cursor, Codex, or Claude Code after editing the config
 - `MESSAGE_BUS_PROJECT_ID` points to the project you created in the Dashboard
+- `MESSAGE_BUS_ACCESS_TOKEN` is set (in `.cursor/mcp.env` or inline `env`) if API calls return 401
+- for Cursor with `envFile`, the path resolves and `.cursor/mcp.env` exists on disk
 
 ### `seed agents` succeeded but agents do not appear in the Dashboard
 
@@ -417,8 +438,9 @@ Run the command again and verify the selected project in the UI:
 
 ```bash
 # or: npx amb-mcp seed agents .cursor/agents
-MESSAGE_BUS_URL=http://localhost:4333 \
+MESSAGE_BUS_URL=http://localhost:4334 \
 MESSAGE_BUS_PROJECT_ID=<YOUR_PROJECT_ID> \
+MESSAGE_BUS_ACCESS_TOKEN=<YOUR_PROJECT_TOKEN> \
 pnpm exec amb-mcp seed agents .cursor/agents
 ```
 

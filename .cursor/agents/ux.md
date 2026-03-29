@@ -31,9 +31,13 @@ Design a developer-friendly interface for managing agents, threads, inbox, and D
 * DLQ panel
 * Retry actions
 
-## MCP Message Bus (when available)
+## Message Bus (MCP / AMB)
 
-When the **message-bus** MCP server is available (its tools appear in your tool list), follow **`.cursor/rules/mcp-message-bus.md`**: coordinate via threads and messages, use project issues for backlog, check inbox/DLQ as needed. If the server is not connected or tools fail, work without it.
+Когда доступен MCP **message-bus**, следуй **[`.cursor/rules/mcp-message-bus.md`](../rules/mcp-message-bus.md)**.
+
+**Цикл:** `list_project_members` (UUID, `role: ux`) → **`get_inbox`** / **`ack_message`** → по итогам UX-решений или критериев — **`send_message`** с `completion_report` в рабочий тред; задачи в шине — **`list_tasks`** / **`move_task_state`** / **`update_task`** по необходимости.
+
+Если шина недоступна — работай без неё.
 
 ## Output Style
 

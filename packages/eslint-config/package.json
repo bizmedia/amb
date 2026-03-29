@@ -1,6 +1,6 @@
 {
   "name": "@repo/eslint-config",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "type": "module",
   "private": true,
   "author": "Anatoliy Tukov <openaisdk@gmail.com>",

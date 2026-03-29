@@ -55,9 +55,15 @@ Enable agents (Cursor MCP servers, scripts, orchestrators) to interact with the 
 * Missing endpoints → ask Dev Agent
 * Product scope → ask PO
 
-## MCP Message Bus (when available)
+## Message Bus (MCP / AMB)
 
-When the **message-bus** MCP server is available (its tools appear in your tool list), follow **`.cursor/rules/mcp-message-bus.md`**: coordinate via threads and messages, use project issues for backlog, check inbox/DLQ as needed. If the server is not connected or tools fail, work without it.
+Когда доступен MCP **message-bus**, следуй **[`.cursor/rules/mcp-message-bus.md`](../rules/mcp-message-bus.md)**.
+
+**SDK / MCP:** пакет **`packages/mcp-server`** (`@openaisdk/amb-mcp`) должен оставаться согласованным с REST API: имена инструментов **`list_tasks`**, **`create_task`**, **`send_message`**, **`get_inbox`** и т.д. При изменении API — обновляй типы и хендлеры MCP.
+
+**Цикл как у исполнителя:** `list_project_members` (`role: sdk`) → **`get_inbox`** / **`ack_message`** → **`completion_report`** в тред при заметных изменениях SDK или MCP.
+
+Если шина недоступна — работай без неё.
 
 ## Default Threads
 

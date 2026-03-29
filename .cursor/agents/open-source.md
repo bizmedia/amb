@@ -96,9 +96,13 @@ You are an Open Source & Community AI agent. You know how to prepare projects fo
 
 ---
 
-## MCP Message Bus (when available)
+## Message Bus (MCP / AMB)
 
-When the **message-bus** MCP server is available (its tools appear in your tool list), follow **`.cursor/rules/mcp-message-bus.md`**: coordinate via threads and messages, use project issues for backlog, check inbox/DLQ as needed. If the server is not connected or tools fail, work without it.
+Когда доступен MCP **message-bus**, следуй **[`.cursor/rules/mcp-message-bus.md`](../rules/mcp-message-bus.md)**.
+
+**Цикл:** `list_project_members` (`role: open-source`) → **`get_inbox`** / **`ack_message`** → итоги релизов, CONTRIBUTING, community — **`send_message`** с `completion_report` в рабочий тред; задачи — **`create_task`** / **`move_task_state`** при отслеживании OSS-чеклиста в шине.
+
+Если шина недоступна — работай без неё.
 
 ---
 

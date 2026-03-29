@@ -131,7 +131,7 @@ export function Dashboard() {
         ) : (
           <>
             <aside
-              className="amb-shell-panel flex-shrink-0 overflow-hidden rounded-xl"
+              className="amb-shell-panel flex min-h-0 min-w-0 flex-shrink-0 flex-col overflow-hidden rounded-xl"
               style={{ width: agentsWidth, minWidth: 200, maxWidth: 500 }}
             >
               <AgentsList
@@ -147,7 +147,7 @@ export function Dashboard() {
             />
 
             <aside
-              className="amb-shell-panel flex-shrink-0 overflow-hidden rounded-xl"
+              className="amb-shell-panel flex min-h-0 min-w-0 flex-shrink-0 flex-col overflow-hidden rounded-xl"
               style={{ width: threadsWidth, minWidth: 250, maxWidth: 600 }}
             >
               <ThreadsList
@@ -162,7 +162,7 @@ export function Dashboard() {
               onResize={(delta) => setThreadsWidth((w) => Math.max(250, Math.min(600, w + delta)))}
             />
 
-            <main className="amb-shell-panel flex flex-1 flex-col overflow-hidden rounded-xl">
+            <main className="amb-shell-panel flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl">
               <Tabs
                 value={activeTab}
                 onValueChange={(v) => setActiveTab(v as TabValue)}
@@ -204,15 +204,15 @@ export function Dashboard() {
                   </TabsList>
                 </div>
 
-                <TabsContent value="messages" className="m-0 flex-1 overflow-hidden p-5 md:p-6">
+                <TabsContent value="messages" className="m-0 flex min-h-0 flex-1 flex-col overflow-hidden p-5 md:p-6">
                   <ThreadViewer threadId={selectedThreadId} currentAgentId={selectedAgentId} />
                 </TabsContent>
 
-                <TabsContent value="inbox" className="m-0 flex-1 overflow-hidden p-5 md:p-6">
+                <TabsContent value="inbox" className="m-0 flex min-h-0 flex-1 flex-col overflow-hidden p-5 md:p-6">
                   <InboxViewer agentId={selectedAgentId} />
                 </TabsContent>
 
-                <TabsContent value="dlq" className="m-0 flex-1 overflow-hidden p-5 md:p-6">
+                <TabsContent value="dlq" className="m-0 flex min-h-0 flex-1 flex-col overflow-hidden p-5 md:p-6">
                   <DlqViewer />
                 </TabsContent>
               </Tabs>

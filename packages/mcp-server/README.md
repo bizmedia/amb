@@ -28,10 +28,11 @@ Before using this package, make sure you have:
 - a running AMB instance
 - Node.js 20+
 - `pnpm` or `npm`
-- `MESSAGE_BUS_URL`
+- `MESSAGE_BUS_URL` (base URL of the **AMB API**, e.g. `http://localhost:4334` for the default published compose API port)
 - `MESSAGE_BUS_PROJECT_ID`
+- `MESSAGE_BUS_ACCESS_TOKEN` (or `MESSAGE_BUS_TOKEN`) when the API requires JWT
 
-If you need the full product quick start, see the main AMB repository.
+If you need the full product quick start, see the main AMB repository ([README](https://github.com/bizmedia/amb/blob/main/README.md), [QUICKSTART](https://github.com/bizmedia/amb/blob/main/QUICKSTART.md)).
 
 ## Install
 
@@ -52,8 +53,9 @@ npm install -D @openaisdk/amb-mcp
 Run this in your own project:
 
 ```bash
-MESSAGE_BUS_URL=http://localhost:3333 \
+MESSAGE_BUS_URL=http://localhost:4334 \
 MESSAGE_BUS_PROJECT_ID=<PROJECT_ID> \
+MESSAGE_BUS_ACCESS_TOKEN=<PROJECT_TOKEN> \
 pnpm exec amb-mcp setup
 ```
 
@@ -68,11 +70,13 @@ This is the recommended first command for new users.
 
 ## MCP Config
 
-All MCP clients should point to the same AMB instance and the same `MESSAGE_BUS_PROJECT_ID`.
+All MCP clients should point to the same AMB **API** base URL, the same `MESSAGE_BUS_PROJECT_ID`, and the same access token when JWT is enabled.
 
-### Cursor
+### Cursor (recommended: gitignored env file)
 
-Create `.cursor/mcp.json`:
+1. Copy `.cursor/mcp.env.example` to `.cursor/mcp.env` in your project (see the main AMB repo; `.cursor/mcp.env` is gitignored).
+2. Set `MESSAGE_BUS_URL`, `MESSAGE_BUS_PROJECT_ID`, and `MESSAGE_BUS_ACCESS_TOKEN` in that file.
+3. Create `.cursor/mcp.json`:
 
 ```json
 {
@@ -80,14 +84,16 @@ Create `.cursor/mcp.json`:
     "message-bus": {
       "command": "pnpm",
       "args": ["exec", "amb-mcp"],
+      "envFile": "${workspaceFolder}/.cursor/mcp.env",
       "env": {
-        "MESSAGE_BUS_URL": "http://localhost:3333",
-        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
+        "AMB_MCP_BOOTSTRAP_LOG": "1"
       }
     }
   }
 }
 ```
+
+See [Cursor MCP documentation](https://cursor.com/docs/mcp) for `envFile` and variable interpolation.
 
 ### Codex
 
@@ -99,8 +105,9 @@ command = "pnpm"
 args = ["exec", "amb-mcp"]
 
 [mcp_servers.message-bus.env]
-MESSAGE_BUS_URL = "http://localhost:3333"
+MESSAGE_BUS_URL = "http://localhost:4334"
 MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
+MESSAGE_BUS_ACCESS_TOKEN = "<paste token from Dashboard>"
 ```
 
 ### Claude Code
@@ -114,15 +121,16 @@ Add the server to your Claude MCP config:
       "command": "pnpm",
       "args": ["exec", "amb-mcp"],
       "env": {
-        "MESSAGE_BUS_URL": "http://localhost:3333",
-        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
+        "MESSAGE_BUS_URL": "http://localhost:4334",
+        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222",
+        "MESSAGE_BUS_ACCESS_TOKEN": "<paste token from Dashboard>"
       }
     }
   }
 }
 ```
 
-Replace `MESSAGE_BUS_PROJECT_ID` with your real project ID, then restart the client.
+Replace IDs and tokens with values from your Dashboard, then restart the client.
 
 ## Example Agent Files
 
@@ -183,12 +191,11 @@ get_thread_messages({ threadId, limit: 50, summary: false })
 
 ## Environment Variables
 
-- `MESSAGE_BUS_URL`
-  Default: `http://localhost:3333`
+- `MESSAGE_BUS_URL` — base URL of the AMB **HTTP API** (not necessarily the Dashboard UI port). Default in code: `http://localhost:3333`; published compose typically exposes the API on host port **4334**.
 
-- `MESSAGE_BUS_PROJECT_ID`
-  Required for `setup`
-  Recommended for `seed` commands
+- `MESSAGE_BUS_PROJECT_ID` — required for `setup`; recommended for `seed` commands.
+
+- `MESSAGE_BUS_ACCESS_TOKEN` or `MESSAGE_BUS_TOKEN` — required when the API enforces JWT (project token from the Dashboard).
 
 ## Troubleshooting
 
@@ -205,7 +212,8 @@ Check that:
 Check that:
 
 - AMB is running
-- `MESSAGE_BUS_URL` is correct
+- `MESSAGE_BUS_URL` points at the **API** (try `curl $MESSAGE_BUS_URL/api/health`)
+- `MESSAGE_BUS_ACCESS_TOKEN` is set if the API returns 401 without it
 - Dashboard is reachable in the browser
 
 ### `setup` cannot find agents

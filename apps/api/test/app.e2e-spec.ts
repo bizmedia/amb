@@ -2112,4 +2112,101 @@ describe("API (e2e)", () => {
       });
     });
   });
+
+  describe("E8 agents and projects lifecycle", () => {
+    it("PATCH /api/agents/:id updates name and role", async () => {
+      const projectRes = await request(app.getHttpServer())
+        .post("/api/projects")
+        .send({ name: `E8 Agent Patch ${Date.now().toString(36)}` })
+        .expect(201);
+      const projectId = projectRes.body.data.id as string;
+      const createRes = await request(app.getHttpServer())
+        .post("/api/agents")
+        .set("x-project-id", projectId)
+        .send({ name: "patch-me", role: "worker" })
+        .expect(201);
+      const agentId = createRes.body.data.id as string;
+
+      const patchRes = await request(app.getHttpServer())
+        .patch(`/api/agents/${agentId}`)
+        .set("x-project-id", projectId)
+        .send({ name: "patched-name", role: "lead" })
+        .expect(200);
+      expect(patchRes.body.data).toMatchObject({
+        id: agentId,
+        name: "patched-name",
+        role: "lead",
+      });
+    });
+
+    it("DELETE /api/agents/:id removes agent", async () => {
+      const projectRes = await request(app.getHttpServer())
+        .post("/api/projects")
+        .send({ name: `E8 Agent Delete ${Date.now().toString(36)}` })
+        .expect(201);
+      const projectId = projectRes.body.data.id as string;
+      const createRes = await request(app.getHttpServer())
+        .post("/api/agents")
+        .set("x-project-id", projectId)
+        .send({ name: "to-delete", role: "temp" })
+        .expect(201);
+      const agentId = createRes.body.data.id as string;
+
+      await request(app.getHttpServer())
+        .delete(`/api/agents/${agentId}`)
+        .set("x-project-id", projectId)
+        .expect(200);
+
+      const list = await request(app.getHttpServer())
+        .get("/api/agents")
+        .set("x-project-id", projectId)
+        .expect(200);
+      const ids = (list.body.data as Array<{ id: string }>).map((a) => a.id);
+      expect(ids).not.toContain(agentId);
+    });
+
+    it("DELETE /api/projects/:id cascades related data", async () => {
+      const projectRes = await request(app.getHttpServer())
+        .post("/api/projects")
+        .send({ name: `E8 Project Cascade ${Date.now().toString(36)}` })
+        .expect(201);
+      const projectId = projectRes.body.data.id as string;
+
+      const agentRes = await request(app.getHttpServer())
+        .post("/api/agents")
+        .set("x-project-id", projectId)
+        .send({ name: "cascade-agent", role: "r" })
+        .expect(201);
+      const agentId = agentRes.body.data.id as string;
+
+      const threadRes = await request(app.getHttpServer())
+        .post("/api/threads")
+        .set("x-project-id", projectId)
+        .send({ title: "cascade thread" })
+        .expect(201);
+      const threadId = threadRes.body.data.id as string;
+
+      await request(app.getHttpServer())
+        .post("/api/messages/send")
+        .set("x-project-id", projectId)
+        .send({
+          threadId,
+          fromAgentId: agentId,
+          toAgentId: agentId,
+          payload: { text: "e8" },
+        })
+        .expect(201);
+
+      await request(app.getHttpServer()).delete(`/api/projects/${projectId}`).expect(200);
+
+      await request(app.getHttpServer())
+        .get("/api/agents")
+        .set("x-project-id", projectId)
+        .expect(404);
+
+      const projects = await request(app.getHttpServer()).get("/api/projects").expect(200);
+      const stillThere = (projects.body.data as Array<{ id: string }>).some((p) => p.id === projectId);
+      expect(stillThere).toBe(false);
+    });
+  });
 });

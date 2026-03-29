@@ -143,6 +143,7 @@
     "switchTo": "Switch",
     "selected": "Selected",
     "editProject": "Edit project",
+    "projectActions": "Project actions",
     "noProjectsForTenant": "No projects for selected tenant",
     "tokens": "Tokens",
     "deleteProject": "Delete project",
@@ -282,7 +283,13 @@
     "lastSeen": "Last seen",
     "deleteAgent": "Delete agent",
     "deleteAgentTitle": "Delete agent?",
-    "deleteAgentConfirm": "The agent \"{name}\" will be removed from the list and from assignee options. This cannot be undone."
+    "deleteAgentConfirm": "The agent \"{name}\" will be removed from the list and from assignee options. This cannot be undone.",
+    "editAgent": "Edit agent",
+    "editAgentTitle": "Edit agent",
+    "editAgentDescription": "Update the display name and role. Both fields are required.",
+    "agentName": "Name",
+    "agentRole": "Role",
+    "editValidation": "Name and role cannot be empty."
   },
   "MentionInput": {
     "agentsHeading": "Agents",

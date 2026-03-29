@@ -93,7 +93,7 @@ export function DlqViewer() {
   };
 
   return (
-    <div className="h-full rounded-lg border bg-card flex flex-col overflow-hidden">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border bg-card">
       <div className="px-4 py-3 border-b flex items-center justify-between bg-destructive/5">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
@@ -144,7 +144,7 @@ export function DlqViewer() {
         </div>
       </div>
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="min-h-0 flex-1">
         <div className="p-4">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">

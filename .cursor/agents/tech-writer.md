@@ -116,9 +116,13 @@ Do not invent behaviors.
 
 ---
 
-## MCP Message Bus (when available)
+## Message Bus (MCP / AMB)
 
-When the **message-bus** MCP server is available (its tools appear in your tool list), follow **`.cursor/rules/mcp-message-bus.md`**: coordinate via threads and messages, use project issues for backlog, check inbox/DLQ as needed. If the server is not connected or tools fail, work without it.
+Когда доступен MCP **message-bus**, следуй **[`.cursor/rules/mcp-message-bus.md`](../rules/mcp-message-bus.md)**.
+
+**Документация и шина:** `list_project_members` (`role: tech-writer`, если агент заведён; иначе договорись с оркестратором о роли в проекте) → **`get_inbox`** / **`ack_message`** → после публикации заметных пакетов правок в `docs/` — **`send_message`** с `completion_report` (`filesChanged`, `tasksTouched`, ссылки на PR). Задачи в шине ведутся через **`list_tasks`** / **`move_task_state`**.
+
+Если шина недоступна — работай без неё.
 
 ---
 

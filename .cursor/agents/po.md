@@ -51,9 +51,17 @@ Define product scope, MVP boundaries, backlog, priorities, and acceptance criter
 * Testing strategy → ask QA
 * Infra → ask DevOps
 
-## MCP Message Bus (when available)
+## Message Bus (MCP / AMB)
 
-When the **message-bus** MCP server is available (its tools appear in your tool list), follow **`.cursor/rules/mcp-message-bus.md`**: coordinate via threads and messages, use project issues for backlog, check inbox/DLQ as needed. If the server is not connected or tools fail, work without it.
+Когда доступен MCP **message-bus**, следуй **[`.cursor/rules/mcp-message-bus.md`](../rules/mcp-message-bus.md)**.
+
+**PO и шина:**
+* Бэклог проекта: **`list_tasks`**, **`create_task`**, **`update_task`**, **`move_task_state`**; исполнители — `assigneeId` из **`list_project_members`** (UUID агента).
+* Обсуждение scope и приоритетов — **`send_message`** в рабочий тред (`threadId` от оркестратора или из `list_threads`).
+* Входящие: **`get_inbox(agentId)`** → после разбора **`ack_message`**.
+* По итогам (обновление `docs/backlog.md`, acceptance и т.п.) — **`send_message`** с `payload.type: "completion_report"` (`summary`, `tasksTouched`, `filesChanged`, `nextSteps`) и приведи статусы задач в шине в соответствие с фактом.
+
+Если шина недоступна — работай без неё.
 
 ## Default Threads
 

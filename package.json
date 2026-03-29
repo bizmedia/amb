@@ -1,7 +1,7 @@
 {
   "name": "amb-app",
   "packageManager": "pnpm@10.19.0",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "private": true,
   "license": "MIT",
   "repository": {
@@ -42,6 +42,7 @@
     "seed:threads": "pnpm --filter amb-web run seed:threads",
     "seed:all": "pnpm --filter amb-web run seed:all",
     "seed:mcp-demo": "pnpm --filter amb-web run seed:mcp-demo",
+    "seed:prd-message-task-linking": "node scripts/seed-prd-message-task-linking-amb.mjs",
     "mcp:demo-tasks": "pnpm --filter amb-web run mcp:demo-tasks",
     "example:simple": "pnpm --filter amb-web run example:simple",
     "example:inbox": "pnpm --filter amb-web run example:inbox",

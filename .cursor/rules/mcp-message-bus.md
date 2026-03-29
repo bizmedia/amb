@@ -49,7 +49,17 @@ Message Bus даёт агентам общий бэкенд для:
 | `get_inbox` | Входящие сообщения для агента. Обязательно: `agentId`. |
 | `ack_message` | Подтвердить получение/обработку сообщения по `messageId`. |
 
-Типичный цикл: агент вызывает `get_inbox(agentId)` → обрабатывает сообщения → при необходимости отвечает через `send_message` и/или вызывает `ack_message(messageId)`.
+Типичный цикл: агент вызывает `get_inbox(agentId)` → обрабатывает сообщения → **обязательно** `ack_message(messageId)` по каждому обработанному или просмотренному сообщению → при необходимости отвечает через `send_message`.
+
+### Почему у всех в инбоксе «куча непрочитанных»
+
+1. **Статус в БД:** после опроса инбокса сообщение становится `delivered`. Пока не вызван **`ack_message`**, оно **остаётся** в выдаче `get_inbox` — в UI это выглядит как непрочитанное / ожидающее подтверждения.
+2. **Broadcast** (`toAgentId` не указан): **одна** строка сообщения попадает в инбокс **каждого** агента проекта (кроме отправителя). Десять broadcast — у двенадцати агентов в списке те же десять, пока их не ack'нут.
+3. **Один ack на сообщение:** первый успешный **`ack_message`** переводит сообщение в `ack` — оно **пропадает из инбокса у всех** (это одна запись на всех). Если никто не ack'ает (типично для агентов только в IDE без вызова MCP), очередь только растёт.
+
+**Что делать агентам:** в конце сессии работы по шине — для **каждого** `messageId` из `get_inbox`, с которым ты ознакомился или отработал задачу, вызови **`ack_message`**. Нет действий по письму — всё равно ack, чтобы не копить шум (либо в Dashboard — «Подтвердить все»).
+
+**Оркестратор:** по возможности шли **адресные** сообщения с **`toAgentId`** исполнителя, а не broadcast; broadcast — только для редких сводок. Сообщения **от себя** сам оркестратор через свой инбокс не ack'ает (они не попадают в `get_inbox` отправителя) — очистка зависит от получателей или ручного ack в UI.
 
 ### DLQ (Dead Letter Queue)
 
@@ -59,18 +69,20 @@ Message Bus даёт агентам общий бэкенд для:
 
 Используй для диагностики и отчётов (например, QA, DevOps).
 
-### Issues (задачи проекта)
+### Задачи проекта (tasks)
 
-Все инструменты по issues привязаны к проекту: нужен `projectId` или `MESSAGE_BUS_PROJECT_ID`.
+В API и Dashboard сущность называется **task**; человекочитаемый ключ — **`AMB-…`**. В MCP инструменты обычно именуются `*_task` (в старых клиентах встречается алиас `issueId` — это тот же id задачи).
+
+Все вызовы привязаны к проекту: нужен `projectId` или `MESSAGE_BUS_PROJECT_ID`.
 
 | Tool | Назначение |
 |------|------------|
-| `list_issues` | Список задач. Фильтры: `state`, `priority`, `assignee`, `dueFrom`, `dueTo`. |
-| `create_issue` | Создать задачу. Обязательно: `title`. Опционально: `description`, `state`, `priority`, `assigneeId`, `dueDate`. |
-| `get_issue` | Задача по `issueId`. |
-| `update_issue` | Обновить задачу (`issueId` + любые поля). |
-| `move_issue_state` | Перенести задачу в другой статус (shortcut). Параметры: `issueId`, `state`. |
-| `delete_issue` | Удалить задачу по `issueId`. |
+| `list_tasks` | Список задач. Фильтры: `state`, `priority`, `assignee`, и т.д. |
+| `create_task` | Создать задачу. Обязательно: `title`. Опционально: `description`, `state`, `priority`, `assigneeId`, `dueDate`. |
+| `get_task` | Задача по `taskId` (или legacy `issueId`). |
+| `update_task` | Обновить задачу (`taskId` + поля). |
+| `move_task_state` | Статус-kanban shortcut: `taskId`, `state`. |
+| `delete_task` | Удалить задачу по `taskId`. |
 
 Состояния: `BACKLOG`, `TODO`, `IN_PROGRESS`, `DONE`. Приоритеты: `NONE`, `LOW`, `MEDIUM`, `HIGH`, `URGENT`.
 
@@ -85,10 +97,10 @@ Message Bus даёт агентам общий бэкенд для:
   `create_thread` с `title` → `list_agents` или `list_project_members` → `send_message(threadId, fromAgentId, payload, toAgentId)`.
 
 * **Взять работу из inbox**  
-  Определи свой `agentId` (из `list_agents` / registry). Вызови `get_inbox(agentId)` → обработай сообщения → `ack_message` по обработанным.
+  Определи свой `agentId`. `get_inbox(agentId)` → обработай → **`ack_message` по каждому обработанному id** (иначе «непрочитанные» копятся у всех, особенно после broadcast).
 
 * **Вести бэклог в шине**  
-  `list_issues` с фильтрами → `create_issue` / `update_issue` / `move_issue_state` по необходимости. Для назначения используй `assigneeId` (UUID агента из проекта).
+  `list_tasks` с фильтрами → `create_task` / `update_task` / `move_task_state` по необходимости. Назначение: `assigneeId` (UUID агента из `list_project_members`).
 
 * **Проверить DLQ**  
   `get_dlq` — для диагностики и отчётов.
@@ -101,6 +113,30 @@ Message Bus даёт агентам общий бэкенд для:
 * **projectId**: везде, где нужен проект (issues, list_project_members), передавай `projectId` в аргументах или убедись, что задан `MESSAGE_BUS_PROJECT_ID`.
 * **Идентификация агента**: для `send_message` и `get_inbox` нужны реальные UUID из `list_agents` / `list_project_members`; не выдумывай ID.
 * **payload**: в `send_message` передавай осмысленный JSON (задача, вопрос, результат и т.д.), чтобы другой агент мог обработать сообщение.
+* **Отчёт о проделанном в тред**: по завершении работы отправляй в рабочий тред `send_message` с `completion_report`. Предпочитай **не broadcast**, если отчёт касается только оркестратора: укажи **`toAgentId`** UUID оркестратора (из `list_project_members`). Broadcast допустим для сводок на всю команду — тогда **каждый** заинтересованный агент после прочтения должен **`ack_message`** (или один ack снимает письмо у всех). Если шина недоступна — пропусти шаг.
+
+---
+
+## 5. Отчёт в тред (handoff)
+
+Чтобы команда видела прогресс в Dashboard, а не только в чате IDE:
+
+1. Определи `threadId` открытого треда (или создай тред оркестратором).
+2. Вызови `send_message` с `payload` вида: `{ "type": "completion_report", "summary": "…", "tasksTouched": ["AMB-00xx"], "files": ["path/…"], "nextSteps": "…" }`.
+3. При смене статуса задачи в шине — по возможности `update_task` / `move_task_state` в том же цикле.
+
+---
+
+## 6. Обязанности по ролям (кратко)
+
+| Роль | Шина: что делать |
+|------|------------------|
+| **orchestrator** | Fan-out с **`toAgentId`** у исполнителя; реже broadcast. После работы со входящими — сам **`ack_message`** по письмам **не от себя**. `orchestrator_sync`, `close_thread`. |
+| **po** | `get_inbox` → разбор → **`ack_message`** по каждому просмотренному id → `create_task` / `update_task`; `completion_report` с **`toAgentId`** оркестратора, если не нужен broadcast. |
+| **architect** | `get_inbox` → **`ack_message`** → работа → `completion_report`; `move_task_state`. |
+| **dev**, **nest-engineer**, **react-next-engineer** | `get_inbox` → **`ack_message`** → код → `move_task_state` → `completion_report` (**`ack_message`** на все прочитанные входящие в той же сессии). |
+| **qa** | То же: **`ack_message`** после разбора инбокса; `get_dlq` при необходимости; отчёт; задачи в шине. |
+| **ux**, **sdk**, **devops**, **tech-writer**, **open-source** | `get_inbox` → **`ack_message`** → результат → `completion_report` при необходимости. |
 
 ---
 

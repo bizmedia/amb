@@ -78,11 +78,35 @@ export class TasksService {
       state?: TaskState;
       priority?: TaskPriority;
       assigneeId?: string | null;
+      epicId?: string | null;
+      sprintId?: string | null;
       dueDate?: Date | null;
     }
   ) {
     return this.prisma.withProjectContext(projectId, async (tx, context) => {
       await this.ensureAssignee(tx, context.projectId, data.assigneeId);
+
+      if (data.epicId) {
+        const epic = await tx.epic.findFirst({
+          where: { id: data.epicId, projectId: context.projectId },
+          select: { id: true, status: true },
+        });
+        if (!epic) throw new NotFoundError("Epic");
+        if (epic.status === "ARCHIVED") {
+          throw new ConflictError("Epic", "Cannot assign task to archived epic");
+        }
+      }
+
+      if (data.sprintId) {
+        const sprint = await tx.sprint.findFirst({
+          where: { id: data.sprintId, projectId: context.projectId },
+          select: { id: true, status: true },
+        });
+        if (!sprint) throw new NotFoundError("Sprint");
+        if (sprint.status === "COMPLETED") {
+          throw new ConflictError("Sprint", "Cannot assign task to completed sprint");
+        }
+      }
 
       const rows = await tx.$queryRawUnsafe<
         { taskSequence: number; taskPrefix: string | null }[]
@@ -110,6 +134,8 @@ export class TasksService {
           state: data.state ?? "BACKLOG",
           priority: data.priority ?? "NONE",
           assigneeId: data.assigneeId ?? null,
+          epicId: data.epicId ?? null,
+          sprintId: data.sprintId ?? null,
           dueDate: data.dueDate ?? null,
         },
         include: {

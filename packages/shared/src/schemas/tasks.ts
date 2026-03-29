@@ -10,6 +10,8 @@ export const createTaskSchema = z.object({
   state: taskStateSchema.optional(),
   priority: taskPrioritySchema.optional(),
   assigneeId: z.string().uuid().optional().nullable(),
+  epicId: z.string().uuid().optional().nullable(),
+  sprintId: z.string().uuid().optional().nullable(),
   dueDate: z.coerce.date().optional().nullable(),
 });
 

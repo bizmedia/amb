@@ -68,6 +68,8 @@ const createTaskProps = {
   priority: enumString(TASK_PRIORITY_ENUM, "Priority"),
   assigneeId: str("Assignee agent UUID (must belong to project)"),
   dueDate: str("Due date (ISO datetime)"),
+  epicId: str("Epic UUID (optional; must belong to project)"),
+  sprintId: str("Sprint UUID (optional; must belong to project)"),
 };
 
 const updateTaskBodyProps = {
@@ -77,6 +79,8 @@ const updateTaskBodyProps = {
   priority: enumString(TASK_PRIORITY_ENUM, "Priority"),
   assigneeId: str("Assignee agent UUID (nullable via null)"),
   dueDate: str("Due date (ISO datetime, nullable via null)"),
+  epicId: str("Epic UUID (nullable via null to clear)"),
+  sprintId: str("Sprint UUID (nullable via null to clear)"),
 };
 
 const threadIdProp = str("Thread UUID");
@@ -94,7 +98,7 @@ export const tools = [
   },
   {
     name: "create_task",
-    description: "Create a project task",
+    description: "Create a project task (optional epicId, sprintId)",
     inputSchema: objectSchema(createTaskProps, ["title"]),
   },
   {
@@ -110,7 +114,7 @@ export const tools = [
   },
   {
     name: "update_task",
-    description: "Update task fields (title, state, priority, assignee, due date)",
+    description: "Update task fields (title, state, priority, assignee, due date, epic, sprint)",
     inputSchema: objectSchema(
       {
         projectId: PROJECT_ID_PROP,

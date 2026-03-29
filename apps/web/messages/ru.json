@@ -143,6 +143,7 @@
     "switchTo": "Переключить",
     "selected": "Выбран",
     "editProject": "Редактировать проект",
+    "projectActions": "Действия с проектом",
     "noProjectsForTenant": "Для выбранного tenant нет проектов",
     "tokens": "Токены",
     "deleteProject": "Удалить проект",
@@ -282,7 +283,13 @@
     "lastSeen": "Был в сети",
     "deleteAgent": "Удалить агента",
     "deleteAgentTitle": "Удалить агента?",
-    "deleteAgentConfirm": "Агент «{name}» будет удалён из списка и из выбора исполнителя. Это действие нельзя отменить."
+    "deleteAgentConfirm": "Агент «{name}» будет удалён из списка и из выбора исполнителя. Это действие нельзя отменить.",
+    "editAgent": "Редактировать агента",
+    "editAgentTitle": "Редактирование агента",
+    "editAgentDescription": "Измените отображаемое имя и роль. Оба поля обязательны.",
+    "agentName": "Имя",
+    "agentRole": "Роль",
+    "editValidation": "Имя и роль не могут быть пустыми."
   },
   "MentionInput": {
     "agentsHeading": "Агенты",

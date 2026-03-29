@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from "@nestjs/common";
 import { AgentsService } from "./agents.service";
@@ -14,6 +15,8 @@ import { createAgentSchema, updateAgentSchema, uuidSchema } from "@amb-app/share
 import type { Agent } from "@amb-app/db";
 import { ProjectGuard } from "../common/project.guard";
 import { ProjectId } from "../common/project.decorator";
+import type { RequestWithAuth } from "../common/auth-context";
+import { assertAgentWriteAccess } from "../common/project-write-access";
 
 @Controller("agents")
 @UseGuards(ProjectGuard)
@@ -28,9 +31,11 @@ export class AgentsController {
 
   @Post()
   async create(
+    @Req() req: RequestWithAuth,
     @ProjectId() projectId: string,
     @Body() body: unknown
   ): Promise<{ data: Agent }> {
+    assertAgentWriteAccess(req.auth, projectId);
     const parsed = createAgentSchema.safeParse(body);
     if (!parsed.success) throw parsed.error;
     const data = await this.agents.create(projectId, parsed.data);
@@ -59,9 +64,11 @@ export class AgentsController {
 
   @Delete(":id")
   async delete(
+    @Req() req: RequestWithAuth,
     @ProjectId() projectId: string,
     @Param("id") id: string
   ): Promise<{ data: { success: true } }> {
+    assertAgentWriteAccess(req.auth, projectId);
     const parsed = uuidSchema.safeParse(id);
     if (!parsed.success) throw parsed.error;
     await this.agents.delete(projectId, parsed.data);
@@ -70,10 +77,12 @@ export class AgentsController {
 
   @Patch(":id")
   async update(
+    @Req() req: RequestWithAuth,
     @ProjectId() projectId: string,
     @Param("id") id: string,
     @Body() body: unknown
   ): Promise<{ data: Agent }> {
+    assertAgentWriteAccess(req.auth, projectId);
     const parsedId = uuidSchema.safeParse(id);
     if (!parsedId.success) throw parsedId.error;
     const parsed = updateAgentSchema.safeParse(body);

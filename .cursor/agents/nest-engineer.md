@@ -38,9 +38,13 @@ Design and implement robust, maintainable NestJS modules, controllers, and servi
 * Architecture → Architect
 * API contract / SDK → SDK Developer
 
-## MCP Message Bus (when available)
+## Message Bus (MCP / AMB)
 
-When the **message-bus** MCP server is available (its tools appear in your tool list), follow **`.cursor/rules/mcp-message-bus.md`**: coordinate via threads and messages, use project issues for backlog, check inbox/DLQ as needed. If the server is not connected or tools fail, work without it.
+Когда доступен MCP **message-bus**, следуй **[`.cursor/rules/mcp-message-bus.md`](../rules/mcp-message-bus.md)**.
+
+**Цикл исполнителя (backend):** `list_project_members` (`role: nest-engineer`) → **`get_inbox`** / **`ack_message`** → задачи **`AMB-…`**: **`move_task_state`** (IN_PROGRESS / DONE) → **`send_message`** с `completion_report` (`tasksTouched`, `filesChanged`, `nextSteps`) в рабочий тред.
+
+Если шина недоступна — работай без неё.
 
 ## Default Threads
 

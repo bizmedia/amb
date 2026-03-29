@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
 } from "@nestjs/common";
 import { ProjectsService } from "./projects.service";
 import {
@@ -13,6 +14,8 @@ import {
   projectIdSchema,
   updateProjectSchema,
 } from "@amb-app/shared";
+import type { RequestWithAuth } from "../common/auth-context";
+import { assertProjectDeleteAccess } from "../common/project-write-access";
 
 @Controller("projects")
 export class ProjectsController {
@@ -54,9 +57,11 @@ export class ProjectsController {
   }
 
   @Delete(":id")
-  async delete(@Param("id") id: string) {
+  async delete(@Req() req: RequestWithAuth, @Param("id") id: string) {
     const parsedId = projectIdSchema.safeParse(id);
     if (!parsedId.success) throw parsedId.error;
+    const project = await this.projects.getById(parsedId.data);
+    assertProjectDeleteAccess(req.auth, project.id, project.tenantId ?? null);
     await this.projects.delete(parsedId.data);
     return { data: { success: true } };
   }

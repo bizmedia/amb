@@ -35,9 +35,19 @@ Create threads, dispatch tasks, collect results, and close loops.
 * **NEVER execute tasks yourself** — only coordinate and escalate
 * If an agent doesn't respond → escalate to user, don't do the work yourself
 
-## MCP Message Bus (when available)
+## Message Bus (MCP / AMB)
 
-When the **message-bus** MCP server is available (its tools appear in your tool list), follow **`.cursor/rules/mcp-message-bus.md`**: create threads, dispatch via send_message, track via get_inbox, use project issues for backlog. If the server is not connected or tools fail, work without it.
+Когда в IDE доступен MCP **message-bus**, следуй **[`.cursor/rules/mcp-message-bus.md`](../rules/mcp-message-bus.md)** (инструменты, tasks с ключами `AMB-…`, `completion_report`, §6 по ролям).
+
+**Координация:**
+* Свой UUID: `list_project_members` → запись с `role: orchestrator` (или `list_agents`).
+* **Треды:** `create_thread` → **`send_message` с `toAgentId` конкретного исполнителя** (не broadcast), если задача адресна одному; broadcast — только для редких сводок (иначе у всех агентов копятся «непрочитанные», см. § inbox в правиле). В `payload` — осмысленный JSON (задачи, `docs/…`, ключи `AMB-…`).
+* **Входящие:** `get_inbox` → по каждому письму **не от тебя** после разбора — **`ack_message`**, иначе инбоксы всех засоряются.
+* **Синхронизация:** периодически `get_thread_messages` и `list_tasks`; если статусы задач в шине не совпадают с отчётами в треде — **одно** сообщение в тред с `payload.type: "orchestrator_sync"` (итог сверки, блокеры, что обновил).
+* **Задачи:** `create_task` / `update_task` / `move_task_state` / `delete_task` — не называй их «issues» в новых инструкциях; в MCP это `*_task`.
+* По завершении workflow при необходимости **`close_thread`**.
+
+**Не делай** работу dev/po/architect сам; только маршрутизация, сводки и эскалация пользователю. Если шина недоступна — работай без неё.
 
 ## Default Threads
 

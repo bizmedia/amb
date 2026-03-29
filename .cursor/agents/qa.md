@@ -32,9 +32,17 @@ Ensure correctness of threads, inbox, retry logic, and UI.
 * No security testing
 * Local-only assumptions
 
-## MCP Message Bus (when available)
+## Message Bus (MCP / AMB)
 
-When the **message-bus** MCP server is available (its tools appear in your tool list), follow **`.cursor/rules/mcp-message-bus.md`**: coordinate via threads and messages, use project issues for backlog, check inbox/DLQ as needed. If the server is not connected or tools fail, work without it.
+Когда доступен MCP **message-bus**, следуй **[`.cursor/rules/mcp-message-bus.md`](../rules/mcp-message-bus.md)**.
+
+**QA и шина:**
+1. **`list_project_members`** → UUID (`role: qa`).
+2. **`get_inbox(agentId)`** → **`ack_message`**.
+3. Регрессия / сценарии — фиксируй вывод в треде: **`send_message`** с `completion_report` (чеклист, баги или «блокеров нет», `tasksTouched`).
+4. Задачи **`AMB-…`** (регрессия, релиз): **`move_task_state`** по факту; при диагностике доставки сообщений — **`get_dlq`**.
+
+Если шина недоступна — работай без неё.
 
 ## Default Threads
 

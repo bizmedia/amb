@@ -158,10 +158,16 @@ export class ProjectsService {
     await this.prisma.$transaction(async (tx) => {
       await tx.projectTokenAudit.deleteMany({ where: { projectId: id } });
       await tx.projectToken.deleteMany({ where: { projectId: id } });
+      await tx.message.updateMany({
+        where: { projectId: id },
+        data: { parentId: null },
+      });
       await tx.message.deleteMany({ where: { projectId: id } });
       await tx.thread.deleteMany({ where: { projectId: id } });
       await tx.agent.deleteMany({ where: { projectId: id } });
       await tx.task.deleteMany({ where: { projectId: id } });
+      await tx.epic.deleteMany({ where: { projectId: id } });
+      await tx.sprint.deleteMany({ where: { projectId: id } });
       await tx.project.delete({ where: { id } });
     });
   }

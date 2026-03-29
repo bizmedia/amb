@@ -2,7 +2,7 @@
 
 **Версия:** 1.0  
 **Дата:** 2026-01-28  
-**Последняя проверка статуса:** 2026-03-29 (PO). Сверка E5/E7: Epic Overview = таблицы stories (все Done, расхождений нет). E1–E7 Done в overview. E9A Phase 1–3 Done (DB, API, SDK). Issue → Task rename завершён.  
+**Последняя проверка статуса:** 2026-03-29 (Dev). Сверка E5/E7: Epic Overview = таблицы stories (все Done, расхождений нет). E1–E8 Done в overview. **E9 ✅ Done** в overview: E9A + E9B + E9C (шина **AMB-0027** — E9-S4/S5/S6 сверены с кодом и e2e). Issue → Task rename завершён.  
 **Автор:** Product Owner Agent  
 **Статус:** Актуально
 
@@ -20,8 +20,8 @@
 | [E5: Developer Experience](#epic-5-developer-experience)               | P1        | ✅ Done        | Sprint 5-6 |
 | [E6: Операционная готовность](#epic-6-операционная-готовность)         | P1        | ✅ Done        | Sprint 6-7 |
 | [E7: Локализация (i18n)](#epic-7-локализация-i18n)                     | P1        | ✅ Done        | Sprint 6-7 |
-| [E8: Удаление и редактирование сущностей](#epic-8-удаление-и-редактирование-сущностей) | P1        | 📋 Backlog     | —          |
-| [E9: Issue Keys, Epics и Sprints](#epic-9-issue-keys-epics-и-sprints) | P0        | 🚧 In Progress | Sprint 7-8 |
+| [E8: Удаление и редактирование сущностей](#epic-8-удаление-и-редактирование-сущностей) | P1        | ✅ Done        | —          |
+| [E9: Issue Keys, Epics и Sprints](#epic-9-issue-keys-epics-и-sprints) | P0        | ✅ Done        | Sprint 7-8 |
 
 
 ---
@@ -226,10 +226,10 @@
 | ID    | Story                                   | Приоритет | Статус     | Acceptance Criteria                                                                                                                                                             |
 | ----- | --------------------------------------- | --------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | E8-S1 | Удаление треда с каскадом сообщений     | P1        | ✅ Done    | • API: при удалении треда удаляются все сообщения треда (уже есть в apps/api) • Dashboard: кнопка/меню «Удалить тред» с диалогом подтверждения и текстом о необратимости • i18n ключи |
-| E8-S2 | Удаление агента                         | P1        | 📋 Backlog | • API: DELETE /api/agents/:id (project-scoped, RBAC) • При удалении агента: связанные Issue.assigneeId — SetNull или запрет удаления при назначенных задачах (решение в реализации) • Dashboard: в списке агентов меню с «Удалить» и диалог подтверждения • Паттерн по docs/ux-design-system.md (п. 5) |
+| E8-S2 | Удаление агента                         | P1        | ✅ Done    | • API: DELETE /api/agents/:id (project-scoped, RBAC) • При удалении агента: связанные Task.assigneeId — SetNull (Prisma) • Dashboard: меню строки, AlertDialog, UX п. 5 • i18n |
 | E8-S3 | Редактирование названия проекта         | P1        | ✅ Done    | • API: PATCH /api/projects/:id с полем name (уже есть) • Dashboard: в переключателе проектов возможность редактировать название (уже есть в ProjectSwitcher) • Валидация и отображение ошибок |
-| E8-S4 | Удаление проекта                        | P1        | 📋 Backlog | • API: DELETE /api/projects/:id • При удалении проекта каскадом удаляются: агенты, треды, сообщения, project tokens, issues (в БД — порядок/RLS учтён) • Запрет удаления default project (опционально) • Dashboard: в управлении проектами действие «Удалить проект» с диалогом подтверждения и описанием последствий • Если удалён текущий проект — переключение на другой или пустое состояние |
-| E8-S5 | Редактирование агента (имя, роль)      | P2        | 📋 Backlog | • API: PATCH /api/agents/:id (name, role; project-scoped) • Dashboard: в списке агентов возможность редактировать имя и роль (inline или диалог) • Валидация и i18n |
+| E8-S4 | Удаление проекта                        | P1        | ✅ Done    | • API: DELETE /api/projects/:id, RBAC (user token), каскад (токены, сообщения с parentId, треды, агенты, задачи, epic/sprint), запрет default project • Dashboard: ProjectSwitcher, AlertDialog • смена контекста при удалении текущего проекта |
+| E8-S5 | Редактирование агента (имя, роль)      | P2        | ✅ Done    | • API: PATCH /api/agents/:id (name, role), RBAC, Zod refine • Dashboard: диалог редактирования в списке агентов • i18n |
 
 **Definition of Done:**
 
@@ -254,8 +254,8 @@
 | Sub-Epic | Stories | Приоритет | Статус | Файл |
 |----------|---------|-----------|--------|------|
 | E9A: Project Prefix & Task Keys | E9-S1, E9-S2, E9-S3 | P0 | ✅ Phase 1–3 Done | [epics/E9A](./epics/E9A-project-prefix-issue-keys.md) |
-| E9B: Epics | E9-S4 | P1 | 📋 Backlog | [epics/E9B](./epics/E9B-epics.md) |
-| E9C: Sprints & Navigation | E9-S5, E9-S6 | P1 | 📋 Backlog | [epics/E9C](./epics/E9C-sprints-navigation.md) |
+| E9B: Epics | E9-S4 | P1 | ✅ Done | [epics/E9B](./epics/E9B-epics.md) |
+| E9C: Sprints & Navigation | E9-S5, E9-S6 | P1 | ✅ Done | [epics/E9C](./epics/E9C-sprints-navigation.md) |
 
 ### Stories
 
@@ -264,9 +264,9 @@
 | E9-S1 | Project task prefix и sequence              | P0        | ✅ Done | E9A | • `taskPrefix` + `taskSequence` в Project • prefix генерируется при создании • `@@unique([tenantId, taskPrefix])` |
 | E9-S2 | Task key для новых и существующих задач     | P0        | ✅ Done | E9A | • Каждая задача имеет `key` (PPP-0001) • backfill • атомарный `UPDATE...RETURNING` |
 | E9-S3 | Поиск и отображение task key                | P0        | ✅ Done | E9A | • key в list/board • API/SDK возвращают key • `?key=` exact, `?search=` prefix |
-| E9-S4 | CRUD эпиков и связь issue ↔ epic            | P1        | 📋 Backlog | E9B | • Можно создавать/редактировать эпики • issue может принадлежать максимум одному epic • доступен фильтр по epic и экран эпика |
-| E9-S5 | CRUD спринтов и связь issue ↔ sprint        | P1        | 📋 Backlog | E9C | • Можно создавать planned/active/completed sprint • одновременно не более одного active sprint • issue может быть назначена максимум в один sprint |
-| E9-S6 | Навигация и представления для epics/sprints | P1        | 📋 Backlog | E9C | • В tasks-модуле есть разделы `All Issues`, `Epics`, `Sprints` • list/board фильтруются по sprint/epic • активный sprint визуально выделен |
+| E9-S4 | CRUD эпиков и связь issue ↔ epic            | P1        | ✅ Done | E9B | • Nest `EpicsModule`, PATCH task `epicId`, `?epicId=` • Dashboard: `/tasks/epics`, деталь эпика, EpicPicker, badge, фильтры • e2e `epics (E9B-014)` |
+| E9-S5 | CRUD спринтов и связь issue ↔ sprint        | P1        | ✅ Done | E9C | • Nest `SprintsModule`, start/complete, один ACTIVE • PATCH task `sprintId`, `?sprintId=` • SprintPicker, badges • e2e `sprints (E9C-017)` |
+| E9-S6 | Навигация и представления для epics/sprints | P1        | ✅ Done | E9C | • Сайдбар: All Issues / Epics / Sprints (`app-sidebar`) • list/board фильтры epic/sprint • активный спринт выделен в списке спринтов |
 
 **Definition of Done:**
 

@@ -188,7 +188,7 @@ export function ThreadsList({
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex h-full min-h-0 min-w-0 flex-col">
       <div className="p-4 border-b space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

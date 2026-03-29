@@ -42,20 +42,31 @@ function repoRoot(): string {
 
 // ── Extract env from a JSON MCP config (Cursor / Claude Code) ───────────
 
+function mcpEnvVarsMeaningful(v: McpEnvVars): boolean {
+  return Boolean(
+    v.MESSAGE_BUS_URL?.trim() ||
+      v.MESSAGE_BUS_PROJECT_ID?.trim() ||
+      v.MESSAGE_BUS_ACCESS_TOKEN?.trim() ||
+      v.MESSAGE_BUS_TOKEN?.trim()
+  );
+}
+
 function extractEnvFromMcpJson(parsed: McpJsonFile): McpEnvVars | null {
   const servers = parsed.mcpServers;
   if (!servers || typeof servers !== "object") return null;
 
   const preferred = servers["message-bus"]?.env ?? servers["project-0-amb-app-message-bus"]?.env;
   if (preferred && typeof preferred === "object") {
-    return pickVars(preferred);
+    const v = pickVars(preferred);
+    return mcpEnvVarsMeaningful(v) ? v : null;
   }
 
   for (const server of Object.values(servers)) {
     const env = server?.env;
     if (!env || typeof env !== "object") continue;
     if (env.MESSAGE_BUS_PROJECT_ID?.trim() || env.MESSAGE_BUS_URL?.trim()) {
-      return pickVars(env);
+      const v = pickVars(env);
+      if (mcpEnvVarsMeaningful(v)) return v;
     }
   }
 
@@ -127,12 +138,52 @@ async function readTomlMcpFile(filePath: string): Promise<{ vars: McpEnvVars; fi
   return vars ? { vars, file: filePath } : null;
 }
 
+/** Простой разбор .env (без зависимости dotenv): KEY=VALUE, # комментарии */
+function parseDotEnvMessageBus(raw: string): McpEnvVars | null {
+  const vars: Record<string, string> = {};
+  for (const line of raw.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const eq = trimmed.indexOf("=");
+    if (eq === -1) continue;
+    const key = trimmed.slice(0, eq).trim();
+    let val = trimmed.slice(eq + 1).trim();
+    if (
+      (val.startsWith('"') && val.endsWith('"')) ||
+      (val.startsWith("'") && val.endsWith("'"))
+    ) {
+      val = val.slice(1, -1);
+    }
+    vars[key] = val;
+  }
+  const v: McpEnvVars = {
+    MESSAGE_BUS_URL: vars.MESSAGE_BUS_URL?.trim() || undefined,
+    MESSAGE_BUS_PROJECT_ID: vars.MESSAGE_BUS_PROJECT_ID?.trim() || undefined,
+    MESSAGE_BUS_ACCESS_TOKEN:
+      vars.MESSAGE_BUS_ACCESS_TOKEN?.trim() || vars.MESSAGE_BUS_TOKEN?.trim() || undefined,
+    MESSAGE_BUS_TOKEN: vars.MESSAGE_BUS_TOKEN?.trim() || undefined,
+  };
+  return mcpEnvVarsMeaningful(v) ? v : null;
+}
+
+async function readDotEnvMcpFile(filePath: string): Promise<{ vars: McpEnvVars; file: string } | null> {
+  let raw: string;
+  try {
+    raw = await fs.readFile(filePath, "utf-8");
+  } catch {
+    return null;
+  }
+  const vars = parseDotEnvMessageBus(raw);
+  return vars ? { vars, file: filePath } : null;
+}
+
 // ── Try all known config locations ──────────────────────────────────────
 
 async function readMcpConfig(): Promise<{ vars: McpEnvVars; file: string } | null> {
   const root = repoRoot();
 
   const candidates: Array<() => Promise<{ vars: McpEnvVars; file: string } | null>> = [
+    () => readDotEnvMcpFile(path.join(root, ".cursor", "mcp.env")),
     () => readJsonMcpFile(path.join(root, ".cursor", "mcp.json")),
     () => readTomlMcpFile(path.join(root, ".codex", "config.toml")),
     () => readJsonMcpFile(path.join(root, ".mcp.json")),

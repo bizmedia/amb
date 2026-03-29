@@ -177,7 +177,7 @@ export function ThreadViewer({ threadId, currentAgentId }: Props) {
 
   if (!threadId) {
     return (
-      <div className="h-full rounded-lg border bg-card flex flex-col items-center justify-center text-muted-foreground">
+      <div className="flex h-full min-h-0 flex-col items-center justify-center rounded-lg border bg-card text-muted-foreground">
         <MessageSquareIcon className="size-12 mb-4 opacity-20" />
         <p className="font-medium">{t("noThreadSelected")}</p>
         <p className="text-sm mt-1">{t("selectThreadToView")}</p>
