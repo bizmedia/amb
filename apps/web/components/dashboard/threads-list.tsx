@@ -10,11 +10,10 @@ import { ScrollArea } from "@amb-app/ui/components/scroll-area";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
-  DialogTrigger,
-  DialogDescription,
 } from "@amb-app/ui/components/dialog";
 import {
   DropdownMenu,
@@ -44,6 +43,7 @@ import {
   CopyIcon,
   CheckIcon,
 } from "lucide-react";
+import { ThreadCreateDialog } from "./threads-list/ThreadCreateDialog";
 
 type Props = {
   selectedThreadId: string | null;
@@ -210,49 +210,22 @@ export function ThreadsList({
                 className={`size-3.5 ${isRefreshing ? "animate-spin" : ""}`}
               />
             </Button>
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-              <DialogTrigger asChild>
-                <Button size="icon" variant="ghost" className="size-7">
-                  <PlusIcon className="size-4" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>{t("createNewThread")}</DialogTitle>
-                  <DialogDescription>
-                    {t("createThreadDesc")}
-                  </DialogDescription>
-                </DialogHeader>
-                <Input
-                  placeholder={t("threadTitlePlaceholder")}
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-                  autoFocus
-                />
-                <DialogFooter>
-                  <Button
-                    variant="outline"
-                    onClick={() => setDialogOpen(false)}
-                  >
-                    {tCommon("cancel")}
-                  </Button>
-                  <Button
-                    onClick={handleCreate}
-                    disabled={!newTitle.trim() || creating}
-                  >
-                    {creating ? (
-                      <>
-                        <Loader2Icon className="size-4 mr-2 animate-spin" />
-                        {tCommon("creating")}
-                      </>
-                    ) : (
-                      t("createThread")
-                    )}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            <ThreadCreateDialog
+              open={dialogOpen}
+              onOpenChange={setDialogOpen}
+              title={newTitle}
+              setTitle={setNewTitle}
+              creating={creating}
+              onCreate={handleCreate}
+              labels={{
+                createNewThread: t("createNewThread"),
+                createThreadDesc: t("createThreadDesc"),
+                threadTitlePlaceholder: t("threadTitlePlaceholder"),
+                cancel: tCommon("cancel"),
+                creating: tCommon("creating"),
+                createThread: t("createThread"),
+              }}
+            />
           </div>
         </div>
 

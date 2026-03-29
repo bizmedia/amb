@@ -26,7 +26,10 @@ export async function POST(request: Request) {
       return jsonError(400, "invalid_request", "Invalid request body", result.error.flatten());
     }
     const client = getApiClient({ token });
-    const project = await client.createProject({ name: result.data.name });
+    const project = await client.createProject({
+      name: result.data.name,
+      ...(result.data.taskPrefix ? { taskPrefix: result.data.taskPrefix } : {}),
+    });
     return NextResponse.json({ data: project }, { status: 201 });
   } catch (error) {
     return handleApiError(error);

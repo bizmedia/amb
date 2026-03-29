@@ -103,12 +103,14 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex flex-1 flex-col overflow-auto bg-background">
-        <main className="mx-auto w-full max-w-2xl space-y-6 px-5 py-5 md:px-6 md:py-6">
-          <Skeleton className="h-9 w-48" />
-          <Skeleton className="h-40 w-full rounded-xl" />
-          <Skeleton className="h-56 w-full rounded-xl" />
-        </main>
+      <div className="tasks-workspace-surface amb-glass-surface amb-shell-panel flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="tasks-workspace-inner min-h-0 min-w-0 flex-1 overflow-auto">
+          <main className="space-y-6 px-5 py-4 md:px-6 md:py-5">
+            <Skeleton className="h-9 w-48" />
+            <Skeleton className="h-40 w-full rounded-xl" />
+            <Skeleton className="h-56 w-full rounded-xl" />
+          </main>
+        </div>
       </div>
     );
   }
@@ -128,71 +130,73 @@ export default function ProfilePage() {
       : "—";
 
   return (
-    <div className="flex flex-1 flex-col overflow-auto bg-background">
-      <main className="mx-auto w-full max-w-2xl space-y-6 px-5 py-5 md:px-6 md:py-6">
-        <div className="flex items-start gap-3">
-          <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl border bg-muted/60 text-muted-foreground">
-            <UserRoundIcon className="size-6" />
+    <div className="tasks-workspace-surface amb-glass-surface amb-shell-panel flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="tasks-workspace-inner min-h-0 min-w-0 flex-1 overflow-auto">
+        <main className="space-y-6 px-5 py-4 md:px-6 md:py-5">
+          <div className="flex items-start gap-3">
+            <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl border bg-muted/60 text-muted-foreground">
+              <UserRoundIcon className="size-6" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-xl font-semibold tracking-tight md:text-2xl">{t("title")}</h1>
+              <p className="text-sm text-muted-foreground">{displayName}</p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <h1 className="text-xl font-semibold tracking-tight md:text-2xl">{t("title")}</h1>
-            <p className="text-sm text-muted-foreground">{displayName}</p>
-          </div>
-        </div>
 
-        <Card className="shadow-elevation">
-          <CardHeader>
-            <CardTitle>{t("accountSection")}</CardTitle>
-            <CardDescription>{t("accountSectionDesc")}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-1">
-              <p className="text-xs font-medium text-muted-foreground">{t("email")}</p>
-              <p className="text-sm">{session.email?.trim() || "—"}</p>
-            </div>
-            {session.userId ? <CopyField label={t("userId")} value={session.userId} /> : null}
-          </CardContent>
-        </Card>
-
-        {session.userId && session.tokenType !== "project" ? <ChangePasswordCard /> : null}
-
-        <Card className="shadow-elevation">
-          <CardHeader>
-            <CardTitle>{t("sessionSection")}</CardTitle>
-            <CardDescription>{t("sessionSectionDesc")}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {session.tenantId ? <CopyField label={t("tenantId")} value={session.tenantId} /> : null}
-            {!session.tenantId ? (
+          <Card className="shadow-elevation">
+            <CardHeader>
+              <CardTitle>{t("accountSection")}</CardTitle>
+              <CardDescription>{t("accountSectionDesc")}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div className="space-y-1">
-                <p className="text-xs font-medium text-muted-foreground">{t("tenantId")}</p>
-                <p className="text-sm">—</p>
+                <p className="text-xs font-medium text-muted-foreground">{t("email")}</p>
+                <p className="text-sm">{session.email?.trim() || "—"}</p>
               </div>
-            ) : null}
-            {session.projectId ? <CopyField label={t("projectId")} value={session.projectId} /> : null}
-            {!session.projectId ? (
-              <div className="space-y-1">
-                <p className="text-xs font-medium text-muted-foreground">{t("projectId")}</p>
-                <p className="text-sm">—</p>
-              </div>
-            ) : null}
-            <div className="space-y-1">
-              <p className="text-xs font-medium text-muted-foreground">{t("roles")}</p>
-              <p className="text-sm">{rolesLine}</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-xs font-medium text-muted-foreground">{t("tokenType")}</p>
-              <p className="font-mono text-sm">{session.tokenType?.trim() || "—"}</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-xs font-medium text-muted-foreground">{t("sessionExpires")}</p>
-              <p className="text-sm">{expiresFormatted}</p>
-            </div>
-          </CardContent>
-        </Card>
+              {session.userId ? <CopyField label={t("userId")} value={session.userId} /> : null}
+            </CardContent>
+          </Card>
 
-        <p className="text-xs text-muted-foreground">{t("footerHint")}</p>
-      </main>
+          {session.userId && session.tokenType !== "project" ? <ChangePasswordCard /> : null}
+
+          <Card className="shadow-elevation">
+            <CardHeader>
+              <CardTitle>{t("sessionSection")}</CardTitle>
+              <CardDescription>{t("sessionSectionDesc")}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {session.tenantId ? <CopyField label={t("tenantId")} value={session.tenantId} /> : null}
+              {!session.tenantId ? (
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground">{t("tenantId")}</p>
+                  <p className="text-sm">—</p>
+                </div>
+              ) : null}
+              {session.projectId ? <CopyField label={t("projectId")} value={session.projectId} /> : null}
+              {!session.projectId ? (
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground">{t("projectId")}</p>
+                  <p className="text-sm">—</p>
+                </div>
+              ) : null}
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-muted-foreground">{t("roles")}</p>
+                <p className="text-sm">{rolesLine}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-muted-foreground">{t("tokenType")}</p>
+                <p className="font-mono text-sm">{session.tokenType?.trim() || "—"}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-muted-foreground">{t("sessionExpires")}</p>
+                <p className="text-sm">{expiresFormatted}</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <p className="text-xs text-muted-foreground">{t("footerHint")}</p>
+        </main>
+      </div>
     </div>
   );
 }

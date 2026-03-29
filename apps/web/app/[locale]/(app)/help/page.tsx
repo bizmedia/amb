@@ -16,6 +16,7 @@ import {
   PageHeaderEyebrow,
   PageHeaderTitle,
 } from "@amb-app/ui/components/page-header";
+import { McpConfigCards } from "@/components/help/mcp-config-cards";
 import { getTranslations } from "next-intl/server";
 
 export const metadata: Metadata = {
@@ -179,65 +180,7 @@ const agent = await client.registerAgent({ name: "my-service", role: "worker" })
                 <li>{t("singleProjectSetupStep3")}</li>
               </ol>
 
-              <div className="space-y-2">
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Cursor</h4>
-                <p className="text-sm text-muted-foreground">{t("singleProjectSetupCursor")}</p>
-                <pre className="text-xs bg-muted rounded-md p-3 overflow-x-auto">
-{`{
-  "mcpServers": {
-    "message-bus": {
-      "command": "node",
-      "args": ["/absolute/path/to/amb/packages/mcp-server/dist/index.js"],
-      "env": {
-        "MESSAGE_BUS_URL": "http://localhost:3333",
-        "MESSAGE_BUS_PROJECT_ID": "<projectId>",
-        "MESSAGE_BUS_TOKEN": "<projectToken>"
-      }
-    }
-  }
-}`}
-                </pre>
-              </div>
-
-              <div className="space-y-2">
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Codex</h4>
-                <p className="text-sm text-muted-foreground">{t("singleProjectSetupCodex")}</p>
-                <pre className="text-xs bg-muted rounded-md p-3 overflow-x-auto">
-{`{
-  "mcpServers": {
-    "message-bus": {
-      "command": "node",
-      "args": ["/absolute/path/to/amb/packages/mcp-server/dist/index.js"],
-      "env": {
-        "MESSAGE_BUS_URL": "http://localhost:3333",
-        "MESSAGE_BUS_PROJECT_ID": "<projectId>",
-        "MESSAGE_BUS_TOKEN": "<projectToken>"
-      }
-    }
-  }
-}`}
-                </pre>
-              </div>
-
-              <div className="space-y-2">
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Claude Desktop</h4>
-                <p className="text-sm text-muted-foreground">{t("singleProjectSetupClaude")}</p>
-                <pre className="text-xs bg-muted rounded-md p-3 overflow-x-auto">
-{`{
-  "mcpServers": {
-    "message-bus": {
-      "command": "node",
-      "args": ["/absolute/path/to/amb/packages/mcp-server/dist/index.js"],
-      "env": {
-        "MESSAGE_BUS_URL": "http://localhost:3333",
-        "MESSAGE_BUS_PROJECT_ID": "<projectId>",
-        "MESSAGE_BUS_TOKEN": "<projectToken>"
-      }
-    }
-  }
-}`}
-                </pre>
-              </div>
+              <McpConfigCards />
             </div>
 
             <div className="space-y-2 rounded-md border border-border bg-muted/30 p-4">

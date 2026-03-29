@@ -4,8 +4,8 @@
       "command": "pnpm",
       "args": ["exec", "amb-mcp"],
       "env": {
-        "MESSAGE_BUS_URL": "http://localhost:4333",
-        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
+        "MESSAGE_BUS_URL": "http://localhost:3334",
+        "MESSAGE_BUS_PROJECT_ID": "70275f6d-2528-40b1-9dc3-266cdb72ddfc"
       }
     }
   }

@@ -12,6 +12,8 @@
     "seed:agents": "tsx scripts/seed-agents.ts",
     "seed:threads": "tsx scripts/seed-threads.ts",
     "seed:product-demo": "tsx scripts/seed-product-demo.ts",
+    "seed:mcp-demo": "tsx scripts/seed-product-demo.ts",
+    "mcp:demo-tasks": "tsx scripts/mcp-demo-tasks.ts",
     "seed:docker": "tsx scripts/seed-docker.ts",
     "seed:all": "pnpm seed:agents && pnpm seed:threads",
     "example:simple": "tsx examples/simple-agent.ts",

@@ -1,14 +1,22 @@
 import "dotenv/config";
 import { createClient } from "@amb-app/sdk";
 
-const DEFAULT_PROJECT_ID = "22222222-2222-4222-8222-222222222222";
+/** Сначала проект из `.cursor/mcp.json`, затем прежний демо-ID из сидов БД. */
+const DEMO_PROJECT_IDS_IN_ORDER = [
+  "70275f6d-2528-40b1-9dc3-266cdb72ddfc",
+  "22222222-2222-4222-8222-222222222222",
+] as const;
+
 const ADMIN_EMAIL = process.env.AMB_SEED_EMAIL ?? "admin@local.test";
 const ADMIN_PASSWORD = process.env.AMB_SEED_PASSWORD ?? "ChangeMe123!";
 
+/** Same base as MCP (`MESSAGE_BUS_URL`); often Next dev or a reverse proxy in front of the API. */
 const apiCandidates = [
   process.env.API_URL,
+  process.env.MESSAGE_BUS_URL,
   "http://localhost:4334",
   "http://localhost:3334",
+  "http://localhost:3333",
   "http://localhost:5334",
 ].filter(Boolean) as string[];
 
@@ -336,8 +344,23 @@ async function login(apiUrl: string): Promise<string> {
 
 async function ensureProject(client: ReturnType<typeof createClient>) {
   const projects = await client.listProjects();
+  const forcedId = process.env.MESSAGE_BUS_PROJECT_ID?.trim();
+  if (forcedId) {
+    const match = projects.find((project) => project.id === forcedId);
+    if (!match) {
+      throw new Error(
+        `MESSAGE_BUS_PROJECT_ID=${forcedId} не найден среди проектов текущего пользователя. Войдите под учёткой с доступом к этому проекту или уберите переменную.`
+      );
+    }
+    return match;
+  }
+
+  for (const id of DEMO_PROJECT_IDS_IN_ORDER) {
+    const match = projects.find((project) => project.id === id);
+    if (match) return match;
+  }
+
   const existing =
-    projects.find((project) => project.id === DEFAULT_PROJECT_ID) ??
     projects.find((project) => normalize(project.slug) === "default") ??
     projects.find((project) => normalize(project.name) === "default project");
 
@@ -559,6 +582,9 @@ async function main() {
   const token = await login(apiUrl);
   const client = createClient({ baseUrl: apiUrl, token });
   const project = await ensureProject(client);
+  if (process.env.MESSAGE_BUS_PROJECT_ID?.trim()) {
+    console.log(`Используется проект из MESSAGE_BUS_PROJECT_ID: ${project.id}`);
+  }
 
   client.setProjectId(project.id);
 

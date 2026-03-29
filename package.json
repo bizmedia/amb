@@ -41,6 +41,8 @@
     "seed:agents": "pnpm --filter amb-web run seed:agents",
     "seed:threads": "pnpm --filter amb-web run seed:threads",
     "seed:all": "pnpm --filter amb-web run seed:all",
+    "seed:mcp-demo": "pnpm --filter amb-web run seed:mcp-demo",
+    "mcp:demo-tasks": "pnpm --filter amb-web run mcp:demo-tasks",
     "example:simple": "pnpm --filter amb-web run example:simple",
     "example:inbox": "pnpm --filter amb-web run example:inbox",
     "example:workflow": "pnpm --filter amb-web run example:workflow",

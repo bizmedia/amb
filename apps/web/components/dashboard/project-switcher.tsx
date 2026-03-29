@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@amb-app/ui/components/button";
 import { Input } from "@amb-app/ui/components/input";
@@ -41,6 +41,17 @@ import {
 } from "@amb-app/ui/components/sidebar";
 import { useProjectContext } from "@/lib/context/project-context";
 import { getLocalizedApiErrorFromCode } from "@/lib/api/error-i18n";
+import {
+  PROJECT_COLOR_OPTIONS,
+  PROJECT_ICON_OPTIONS,
+  ProjectDetailsFields,
+  readProjectColors,
+  readProjectIcons,
+  type ProjectColorValue,
+  type ProjectIconValue,
+  writeProjectColors,
+  writeProjectIcons,
+} from "./project-switcher/ProjectDetailsFields";
 
 type Tenant = {
   id: string;
@@ -48,6 +59,7 @@ type Tenant = {
   slug: string;
   createdAt: string;
 };
+
 
 export function ProjectToolbarQuickActions() {
   const t = useTranslations("ProjectSwitcher");
@@ -84,6 +96,9 @@ export function ProjectSwitcher() {
   const tCommon = useTranslations("Common");
   const { setProjectId, projects, loading, selectedProject, loadProjects: reloadProjects, deleteProject } = useProjectContext();
   const [newProjectName, setNewProjectName] = useState("");
+  const [newTaskPrefix, setNewTaskPrefix] = useState("");
+  const [newProjectIcon, setNewProjectIcon] = useState<ProjectIconValue>("folder-kanban");
+  const [newProjectColor, setNewProjectColor] = useState<ProjectColorValue>("blue");
   const [creating, setCreating] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -95,6 +110,8 @@ export function ProjectSwitcher() {
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
   const [editProjectName, setEditProjectName] = useState("");
   const [editTaskPrefix, setEditTaskPrefix] = useState("");
+  const [editProjectIcon, setEditProjectIcon] = useState<ProjectIconValue>("folder-kanban");
+  const [editProjectColor, setEditProjectColor] = useState<ProjectColorValue>("blue");
   const [baselineTaskPrefix, setBaselineTaskPrefix] = useState<string | null>(null);
   const [prefixDuplicate, setPrefixDuplicate] = useState(false);
   const [prefixCheckPending, setPrefixCheckPending] = useState(false);
@@ -104,6 +121,51 @@ export function ProjectSwitcher() {
   const [deleteProjectDialogOpen, setDeleteProjectDialogOpen] = useState(false);
   const [deletingProject, setDeletingProject] = useState(false);
   const [deleteProjectError, setDeleteProjectError] = useState<string | null>(null);
+  const [projectIcons, setProjectIcons] = useState<Record<string, ProjectIconValue>>({});
+  const [projectColors, setProjectColors] = useState<Record<string, ProjectColorValue>>({});
+
+  useEffect(() => {
+    setProjectIcons(readProjectIcons());
+    setProjectColors(readProjectColors());
+  }, []);
+
+  const resetCreateProjectForm = () => {
+    setNewProjectName("");
+    setNewTaskPrefix("");
+    setNewProjectIcon("folder-kanban");
+    setNewProjectColor("blue");
+    setCreateError(null);
+  };
+
+  const normalizedNewTaskPrefix = newTaskPrefix.trim().toUpperCase();
+  const createPrefixFormatValid =
+    normalizedNewTaskPrefix.length === 0 || /^[A-Z]{2,5}$/.test(normalizedNewTaskPrefix);
+  const createPrefixDuplicate =
+    normalizedNewTaskPrefix.length > 0 &&
+    projects.some(
+      (project) => (project.taskPrefix?.toUpperCase() ?? "") === normalizedNewTaskPrefix
+    );
+  const selectedProjectIconValue =
+    (selectedProject ? projectIcons[selectedProject.id] : undefined) ?? "folder-kanban";
+  const selectedProjectColorValue =
+    (selectedProject ? projectColors[selectedProject.id] : undefined) ?? "blue";
+  const SelectedProjectIcon = useMemo(
+    () =>
+      PROJECT_ICON_OPTIONS.find((option) => option.value === selectedProjectIconValue)?.icon ??
+      FolderKanbanIcon,
+    [selectedProjectIconValue]
+  );
+  const fallbackProjectColor = PROJECT_COLOR_OPTIONS[0] ?? {
+    value: "slate" as const,
+    brand: "#475569",
+    accent: "#94a3b8",
+  };
+  const selectedProjectColor = useMemo(
+    () =>
+      PROJECT_COLOR_OPTIONS.find((option) => option.value === selectedProjectColorValue) ??
+      fallbackProjectColor,
+    [fallbackProjectColor, selectedProjectColorValue]
+  );
 
   const loadTenants = async () => {
     setTenantsLoading(true);
@@ -127,7 +189,7 @@ export function ProjectSwitcher() {
 
   const openCreateDialogFromMenu = () => {
     setMenuOpen(false);
-    setCreateError(null);
+    resetCreateProjectForm();
     window.setTimeout(() => {
       setDialogOpen(true);
     }, 0);
@@ -144,6 +206,14 @@ export function ProjectSwitcher() {
 
   const createProject = async () => {
     if (!newProjectName.trim()) return;
+    if (!createPrefixFormatValid) {
+      setCreateError(t("taskPrefixInvalidFormat"));
+      return;
+    }
+    if (createPrefixDuplicate) {
+      setCreateError(t("taskPrefixDuplicate", { prefix: normalizedNewTaskPrefix }));
+      return;
+    }
     setCreating(true);
     setCreateError(null);
 
@@ -151,7 +221,10 @@ export function ProjectSwitcher() {
       const res = await fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newProjectName.trim() }),
+        body: JSON.stringify({
+          name: newProjectName.trim(),
+          ...(normalizedNewTaskPrefix ? { taskPrefix: normalizedNewTaskPrefix } : {}),
+        }),
       });
       const json = await res.json().catch(() => null);
       if (!res.ok) {
@@ -159,9 +232,21 @@ export function ProjectSwitcher() {
         return;
       }
 
+      const nextIcons = {
+        ...projectIcons,
+        [json.data.id]: newProjectIcon,
+      };
+      const nextColors = {
+        ...projectColors,
+        [json.data.id]: newProjectColor,
+      };
+      setProjectIcons(nextIcons);
+      setProjectColors(nextColors);
+      writeProjectIcons(nextIcons);
+      writeProjectColors(nextColors);
       await reloadProjects();
       await loadTenants();
-      setNewProjectName("");
+      resetCreateProjectForm();
       setDialogOpen(false);
       selectProject(json.data.id);
     } finally {
@@ -178,6 +263,8 @@ export function ProjectSwitcher() {
     setEditProjectName(currentName);
     const p = (currentTaskPrefix ?? "").toUpperCase();
     setEditTaskPrefix(p);
+    setEditProjectIcon(projectIcons[projectId] ?? "folder-kanban");
+    setEditProjectColor(projectColors[projectId] ?? "blue");
     setBaselineTaskPrefix(p || null);
     setPrefixDuplicate(false);
     setEditError(null);
@@ -187,6 +274,8 @@ export function ProjectSwitcher() {
     setEditingProjectId(null);
     setEditProjectName("");
     setEditTaskPrefix("");
+    setEditProjectIcon("folder-kanban");
+    setEditProjectColor("blue");
     setBaselineTaskPrefix(null);
     setPrefixDuplicate(false);
     setPrefixCheckPending(false);
@@ -263,6 +352,18 @@ export function ProjectSwitcher() {
         setEditError(getLocalizedApiErrorFromCode(json?.error?.code, tCommon));
         return;
       }
+      const nextIcons = {
+        ...projectIcons,
+        [editingProjectId]: editProjectIcon,
+      };
+      const nextColors = {
+        ...projectColors,
+        [editingProjectId]: editProjectColor,
+      };
+      setProjectIcons(nextIcons);
+      setProjectColors(nextColors);
+      writeProjectIcons(nextIcons);
+      writeProjectColors(nextColors);
       await reloadProjects();
       cancelEditProject();
     } finally {
@@ -298,8 +399,16 @@ export function ProjectSwitcher() {
               className="h-10 data-[state=open]:bg-sidebar-accent/90 data-[state=open]:text-sidebar-accent-foreground group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-xl"
               tooltip={triggerLabel}
             >
-              <div className="amb-sidebar-brand-mark flex size-8 shrink-0 items-center justify-center rounded-lg text-sidebar-primary-foreground group-data-[collapsible=icon]:size-9">
-                <FolderKanbanIcon className="size-4" />
+              <div
+                className="amb-sidebar-brand-mark flex size-8 shrink-0 items-center justify-center rounded-lg text-sidebar-primary-foreground group-data-[collapsible=icon]:size-9"
+                style={
+                  {
+                    "--amb-project-brand": selectedProjectColor.brand,
+                    "--amb-project-brand-accent": selectedProjectColor.accent,
+                  } as React.CSSProperties
+                }
+              >
+                <SelectedProjectIcon className="size-4" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{triggerLabel}</span>
@@ -353,7 +462,7 @@ export function ProjectSwitcher() {
         onOpenChange={(open) => {
           setDialogOpen(open);
           if (!open) {
-            setCreateError(null);
+            resetCreateProjectForm();
           }
         }}
       >
@@ -367,21 +476,46 @@ export function ProjectSwitcher() {
           {createError && (
             <p className="text-sm text-destructive">{createError}</p>
           )}
-          <Input
-            placeholder={t("projectNamePlaceholder")}
-            value={newProjectName}
-            onChange={(event) => setNewProjectName(event.target.value)}
-            onKeyDown={(event) => {
+          <ProjectDetailsFields
+            t={t}
+            name={newProjectName}
+            onNameChange={setNewProjectName}
+            onNameKeyDown={(event) => {
               if (event.key === "Enter") {
                 createProject();
               }
             }}
+            taskPrefix={newTaskPrefix}
+            onTaskPrefixChange={(value) => {
+              setNewTaskPrefix(value);
+              if (createError) setCreateError(null);
+            }}
+            taskPrefixInvalid={!createPrefixFormatValid}
+            taskPrefixDuplicate={createPrefixDuplicate}
+            taskPrefixDuplicateValue={normalizedNewTaskPrefix}
+            taskPrefixPreviewSample={
+              createPrefixFormatValid && normalizedNewTaskPrefix
+                ? normalizedNewTaskPrefix
+                : "AMB"
+            }
+            iconValue={newProjectIcon}
+            onIconChange={setNewProjectIcon}
+            colorValue={newProjectColor}
+            onColorChange={setNewProjectColor}
           />
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
               {tCommon("cancel")}
             </Button>
-            <Button onClick={createProject} disabled={!newProjectName.trim() || creating}>
+            <Button
+              onClick={createProject}
+              disabled={
+                !newProjectName.trim() ||
+                creating ||
+                !createPrefixFormatValid ||
+                createPrefixDuplicate
+              }
+            >
               {tCommon("create")}
             </Button>
           </DialogFooter>
@@ -432,65 +566,40 @@ export function ProjectSwitcher() {
                   <div key={project.id} className="rounded-md border bg-card p-2">
                     {editingProjectId === project.id ? (
                       <div className="space-y-3">
-                        <div className="space-y-1">
-                          <p className="text-xs font-medium text-muted-foreground">{t("projectNameLabel")}</p>
-                          <Input
-                            value={editProjectName}
-                            onChange={(event) => setEditProjectName(event.target.value)}
-                            onKeyDown={(event) => {
-                              if (event.key === "Enter") void saveProjectSettings();
-                              if (event.key === "Escape") cancelEditProject();
-                            }}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-xs font-medium text-muted-foreground">{t("taskKeyPrefixLabel")}</p>
-                          <Input
-                            className="max-w-[120px] font-mono uppercase tracking-wider"
-                            value={editTaskPrefix}
-                            onChange={(event) => {
-                              const v = event.target.value
-                                .replace(/[^a-zA-Z]/g, "")
-                                .toUpperCase()
-                                .slice(0, 5);
-                              setEditTaskPrefix(v);
-                            }}
-                            onKeyDown={(event) => {
-                              if (event.key === "Enter") void saveProjectSettings();
-                              if (event.key === "Escape") cancelEditProject();
-                            }}
-                            spellCheck={false}
-                            autoCapitalize="characters"
-                            aria-invalid={showPrefixFormatError || prefixDuplicate}
-                          />
-                          <p className="text-xs text-muted-foreground">
-                            {t("taskKeyPrefixPreview", {
-                              sample: prefixFormatValid ? editTaskPrefix : "PPP",
-                            })}
-                          </p>
-                          {!baselineTaskPrefix && editTaskPrefix.length === 0 ? (
-                            <p className="text-xs text-muted-foreground">{t("taskKeyPrefixHintEmpty")}</p>
-                          ) : null}
-                          {showPrefixFormatError ? (
-                            <p className="text-xs text-destructive">{t("taskPrefixInvalidFormat")}</p>
-                          ) : null}
-                          {prefixDuplicate ? (
-                            <p className="text-xs text-destructive">
-                              {t("taskPrefixDuplicate", { prefix: editTaskPrefix })}
-                            </p>
-                          ) : null}
-                          {prefixCheckPending && prefixFormatValid && !prefixDuplicate ? (
-                            <p className="text-xs text-muted-foreground">{t("taskPrefixChecking")}</p>
-                          ) : null}
-                          {showPrefixChangeWarning ? (
-                            <div
-                              className="rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1.5 text-xs text-amber-950 dark:text-amber-100"
-                              role="status"
-                            >
-                              {t("taskPrefixChangeWarning")}
-                            </div>
-                          ) : null}
-                        </div>
+                        <ProjectDetailsFields
+                          t={t}
+                          name={editProjectName}
+                          onNameChange={setEditProjectName}
+                          onNameKeyDown={(event) => {
+                            if (event.key === "Enter") void saveProjectSettings();
+                            if (event.key === "Escape") cancelEditProject();
+                          }}
+                          taskPrefix={editTaskPrefix}
+                          onTaskPrefixChange={setEditTaskPrefix}
+                          onTaskPrefixKeyDown={(event) => {
+                            if (event.key === "Enter") void saveProjectSettings();
+                            if (event.key === "Escape") cancelEditProject();
+                          }}
+                          taskPrefixInvalid={showPrefixFormatError}
+                          taskPrefixDuplicate={prefixDuplicate}
+                          taskPrefixDuplicateValue={editTaskPrefix}
+                          taskPrefixPreviewSample={prefixFormatValid ? editTaskPrefix : "PPP"}
+                          iconValue={editProjectIcon}
+                          onIconChange={setEditProjectIcon}
+                          colorValue={editProjectColor}
+                          onColorChange={setEditProjectColor}
+                        />
+                        {prefixCheckPending && prefixFormatValid && !prefixDuplicate ? (
+                          <p className="text-xs text-muted-foreground">{t("taskPrefixChecking")}</p>
+                        ) : null}
+                        {showPrefixChangeWarning ? (
+                          <div
+                            className="rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1.5 text-xs text-amber-950 dark:text-amber-100"
+                            role="status"
+                          >
+                            {t("taskPrefixChangeWarning")}
+                          </div>
+                        ) : null}
                         {editError ? <p className="text-xs text-destructive">{editError}</p> : null}
                         <div className="flex justify-end gap-2">
                           <Button size="sm" variant="outline" onClick={cancelEditProject}>
