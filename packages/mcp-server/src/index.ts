@@ -13,8 +13,11 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 
 import { handleTool } from "./handlers";
+import { loadProjectEnv } from "./load-project-env";
 import { createMcpCallToolExecutor } from "./server/mcp-call-tool-executor";
 import { tools } from "./schemas";
+
+loadProjectEnv();
 
 // ─────────────────────────────────────────────────────────────
 // Server Setup

@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import {
   CalendarClockIcon,
   CalendarRangeIcon,
@@ -74,6 +74,15 @@ function DetailCard({
   );
 }
 
+const TASK_SHEET_WIDTH_KEY = "tasks:detail-sheet-width";
+const MIN_SHEET_WIDTH = 560;
+const DEFAULT_SHEET_WIDTH = 760;
+
+function clampSheetWidth(width: number, viewportWidth: number) {
+  const max = Math.max(MIN_SHEET_WIDTH, viewportWidth - 160);
+  return Math.min(Math.max(width, MIN_SHEET_WIDTH), max);
+}
+
 export function TaskDetailsSheet({
   task,
   onClose,
@@ -81,15 +90,98 @@ export function TaskDetailsSheet({
   onDelete,
   labels,
 }: TaskDetailsSheetProps) {
+  const [sheetWidth, setSheetWidth] = useState(DEFAULT_SHEET_WIDTH);
+  const [isResizing, setIsResizing] = useState(false);
+  const currentWidthRef = useRef(DEFAULT_SHEET_WIDTH);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const stored = window.localStorage.getItem(TASK_SHEET_WIDTH_KEY);
+    if (!stored) {
+      setSheetWidth(clampSheetWidth(Math.round(window.innerWidth / 2), window.innerWidth));
+      return;
+    }
+
+    const parsed = Number(stored);
+    if (Number.isFinite(parsed)) {
+      setSheetWidth(clampSheetWidth(parsed, window.innerWidth));
+    }
+  }, []);
+
+  useEffect(() => {
+    currentWidthRef.current = sheetWidth;
+  }, [sheetWidth]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const handleResize = () => {
+      setSheetWidth((current) => clampSheetWidth(current, window.innerWidth));
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const sheetStyle = useMemo<CSSProperties>(
+    () => ({
+      ["--task-sheet-width" as string]: `min(${sheetWidth}px, calc(100vw - 1.5rem))`,
+    }),
+    [sheetWidth],
+  );
+
+  const beginResize = () => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    setIsResizing(true);
+
+    const handlePointerMove = (event: PointerEvent) => {
+      const nextWidth = clampSheetWidth(window.innerWidth - event.clientX, window.innerWidth);
+      setSheetWidth(nextWidth);
+    };
+
+    const handlePointerUp = () => {
+      setIsResizing(false);
+      window.localStorage.setItem(TASK_SHEET_WIDTH_KEY, String(currentWidthRef.current));
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+    };
+
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerup", handlePointerUp, { once: true });
+  };
+
   return (
     <Sheet open={Boolean(task)} onOpenChange={(open) => (open ? null : onClose())}>
       <SheetContent
         side="right"
         showCloseButton={false}
-        className="w-full gap-0 overflow-hidden border-l border-border/60 bg-background p-0 data-[side=right]:md:w-[min(52rem,calc(100vw-3rem))] data-[side=right]:md:max-w-none"
+        className="w-full gap-0 overflow-hidden border-l border-border/60 bg-background p-0 data-[side=right]:md:w-[var(--task-sheet-width)] data-[side=right]:md:max-w-none"
+        style={sheetStyle}
       >
         {task ? (
           <>
+            <div
+              className="absolute top-0 left-0 z-20 hidden h-full w-2 -translate-x-1/2 cursor-col-resize md:block"
+              onPointerDown={beginResize}
+              role="separator"
+              aria-orientation="vertical"
+              aria-label="Resize task details panel"
+            >
+              <div
+                className={`absolute top-0 left-1/2 h-full w-px -translate-x-1/2 bg-border/70 transition-colors ${
+                  isResizing ? "bg-primary" : ""
+                }`}
+              />
+            </div>
+
             <div className="pointer-events-none absolute top-4 right-4 z-10">
               <SheetClose
                 render={

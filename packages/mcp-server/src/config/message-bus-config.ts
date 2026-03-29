@@ -1,3 +1,5 @@
+import { loadProjectEnv } from "../load-project-env";
+
 export type MessageBusConfig = {
   baseUrl: string;
   /** Заголовок x-project-id по умолчанию (MESSAGE_BUS_PROJECT_ID). */
@@ -7,6 +9,7 @@ export type MessageBusConfig = {
 };
 
 export function getMessageBusConfig(): MessageBusConfig {
+  loadProjectEnv();
   const baseUrl = process.env.MESSAGE_BUS_URL || "http://localhost:3333";
   const defaultProjectId = process.env.MESSAGE_BUS_PROJECT_ID;
   const accessToken =

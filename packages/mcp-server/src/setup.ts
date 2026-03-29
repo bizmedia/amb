@@ -1,7 +1,9 @@
-import "dotenv/config";
 import { loadOrCreateRegistry } from "./agent-registry";
+import { loadProjectEnv } from "./load-project-env";
 import { runSeedAgents } from "./seed-agents";
 import { runSeedThreads } from "./seed-threads";
+
+loadProjectEnv();
 
 const BASE_URL = process.env.MESSAGE_BUS_URL ?? "http://localhost:3333";
 const PROJECT_ID = process.env.MESSAGE_BUS_PROJECT_ID;
@@ -20,7 +22,9 @@ export async function runSetup(registryPath?: string): Promise<void> {
 
   if (!PROJECT_ID) {
     console.error("MESSAGE_BUS_PROJECT_ID is not set.");
-    console.error("Create a project in the AMB Dashboard, copy its Project ID, and set MESSAGE_BUS_PROJECT_ID.");
+    console.error(
+      "Create a project in the AMB Dashboard, copy its Project ID, and set MESSAGE_BUS_PROJECT_ID in your environment, .cursor/mcp.env, .env.local, or .env."
+    );
     process.exit(1);
   }
 

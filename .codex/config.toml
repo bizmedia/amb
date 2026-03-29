@@ -1,14 +1,9 @@
-# MCP-серверы для Codex.
-# Держим конфиг зеркально к .cursor/mcp.json + .cursor/mcp.env,
-# чтобы Cursor и Codex ходили в один и тот же AMB project.
-
-[mcp_servers.message-bus]
+[mcp_servers.mcp_amb]
 command = "pnpm"
 args = ["exec", "amb-mcp"]
 
-[mcp_servers.message-bus.env]
-MESSAGE_BUS_URL = "http://localhost:3334"
+[mcp_servers.mcp_amb.env]
+MESSAGE_BUS_URL = "http://localhost:4334"
 MESSAGE_BUS_PROJECT_ID = "70275f6d-2528-40b1-9dc3-266cdb72ddfc"
 MESSAGE_BUS_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJwcm9qZWN0IiwidGVuYW50SWQiOiIxMTExMTExMS0xMTExLTQxMTEtODExMS0xMTExMTExMTExMTEiLCJwcm9qZWN0SWQiOiI3MDI3NWY2ZC0yNTI4LTQwYjEtOWRjMy0yNjZjZGI3MmRkZmMiLCJ0eXBlIjoicHJvamVjdCIsImp0aSI6ImIxOWFhZmQwLWZiZGMtNDU1ZS1iYWM5LTljNzkyMjAzYWZhYiIsImlhdCI6MTc3NDc5NTUxMiwiZXhwIjoxNzgyNTcxNTEyfQ.7NuFOjF3DL0pbBYwwov8Cr8OpJ7rePZGxd6EKuSVs_w"
-MESSAGE_BUS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJwcm9qZWN0IiwidGVuYW50SWQiOiIxMTExMTExMS0xMTExLTQxMTEtODExMS0xMTExMTExMTExMTEiLCJwcm9qZWN0SWQiOiI3MDI3NWY2ZC0yNTI4LTQwYjEtOWRjMy0yNjZjZGI3MmRkZmMiLCJ0eXBlIjoicHJvamVjdCIsImp0aSI6ImIxOWFhZmQwLWZiZGMtNDU1ZS1iYWM5LTljNzkyMjAzYWZhYiIsImlhdCI6MTc3NDc5NTUxMiwiZXhwIjoxNzgyNTcxNTEyfQ.7NuFOjF3DL0pbBYwwov8Cr8OpJ7rePZGxd6EKuSVs_w"
 AMB_MCP_BOOTSTRAP_LOG = "1"

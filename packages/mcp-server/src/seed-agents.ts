@@ -3,11 +3,13 @@
  * Reads registry from current working directory (project that installed the package).
  */
 
-import "dotenv/config";
 import { loadOrCreateRegistry } from "./agent-registry";
 import { createFetchMessageBusClient } from "./client/fetch-message-bus-client";
 import { getMessageBusConfig } from "./config/message-bus-config";
+import { loadProjectEnv } from "./load-project-env";
 import { syncRegistryAgents } from "./registry-agent-sync";
+
+loadProjectEnv();
 
 export async function runSeedAgents(registryPath?: string): Promise<void> {
   const loaded = await loadOrCreateRegistry(registryPath);

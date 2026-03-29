@@ -3,8 +3,10 @@
  * Reads registry from current working directory (project that installed the package).
  */
 
-import "dotenv/config";
 import { loadOrCreateRegistry, Registry } from "./agent-registry";
+import { loadProjectEnv } from "./load-project-env";
+
+loadProjectEnv();
 
 const API_URL = process.env.MESSAGE_BUS_URL ?? "http://localhost:3333";
 const PROJECT_ID = process.env.MESSAGE_BUS_PROJECT_ID;

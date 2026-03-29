@@ -14,9 +14,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const readline_1 = require("readline");
 const index_1 = require("./index");
+const load_project_env_1 = require("./load-project-env");
 const seed_agents_1 = require("./seed-agents");
 const seed_threads_1 = require("./seed-threads");
 const setup_1 = require("./setup");
+(0, load_project_env_1.loadProjectEnv)();
 const argv = process.argv.slice(2);
 const cmd = argv[0];
 const sub = argv[1];

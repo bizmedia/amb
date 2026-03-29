@@ -72,7 +72,7 @@ npm install -D @openaisdk/amb-mcp
 | `MESSAGE_BUS_PROJECT_ID` | да | UUID проекта из Dashboard. |
 | `MESSAGE_BUS_ACCESS_TOKEN` | если API требует JWT | Токен доступа к проекту из Dashboard. Допустимо имя `MESSAGE_BUS_TOKEN`. |
 
-Скрипты репозитория (`pnpm seed:*`, примеры) подхватывают те же переменные из **окружения** → **`.cursor/mcp.env`** → устаревший inline `env` в `.cursor/mcp.json` (см. `apps/web/scripts/message-bus-env.ts`).
+`amb-mcp` подхватывает переменные в порядке: **окружение процесса** → **`.cursor/mcp.env`** → **`.env.local`** → **`.env`**. Скрипты репозитория (`pnpm seed:*`, примеры) дополнительно умеют читать legacy inline `env` из MCP-конфигов (см. `apps/web/scripts/message-bus-env.ts`).
 
 ### Cursor (рекомендуется: `.cursor/mcp.env`)
 
@@ -86,7 +86,6 @@ npm install -D @openaisdk/amb-mcp
     "message-bus": {
       "command": "pnpm",
       "args": ["exec", "amb-mcp"],
-      "envFile": "${workspaceFolder}/.cursor/mcp.env",
       "env": {
         "AMB_MCP_BOOTSTRAP_LOG": "1"
       }
@@ -109,14 +108,11 @@ npm install -D @openaisdk/amb-mcp
 [mcp_servers.message-bus]
 command = "pnpm"
 args = ["exec", "amb-mcp"]
-
-[mcp_servers.message-bus.env]
-MESSAGE_BUS_URL = "http://localhost:4334"
-MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
-MESSAGE_BUS_ACCESS_TOKEN = "<токен из Dashboard>"
 ```
 
 При `npm`: `command = "npx"`, `args = ["amb-mcp"]`.
+
+Секреты и URL держите в `.cursor/mcp.env` или в окружении, а не в `.codex/config.toml`.
 
 ### Claude Code
 

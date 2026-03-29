@@ -5,8 +5,9 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.runSeedThreads = runSeedThreads;
-require("dotenv/config");
 const agent_registry_1 = require("./agent-registry");
+const load_project_env_1 = require("./load-project-env");
+(0, load_project_env_1.loadProjectEnv)();
 const API_URL = process.env.MESSAGE_BUS_URL ?? "http://localhost:3333";
 const PROJECT_ID = process.env.MESSAGE_BUS_PROJECT_ID;
 async function createThread(title) {

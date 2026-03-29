@@ -70,7 +70,7 @@ This is the recommended first command for new users.
 
 ## MCP Config
 
-All MCP clients should point to the same AMB **API** base URL, the same `MESSAGE_BUS_PROJECT_ID`, and the same access token when JWT is enabled.
+All MCP clients should point to the same AMB **API** base URL, the same `MESSAGE_BUS_PROJECT_ID`, and the same access token when JWT is enabled. `amb-mcp` resolves variables in this order: **process environment** → **`.cursor/mcp.env`** → **`.env.local`** → **`.env`**.
 
 ### Cursor (recommended: gitignored env file)
 
@@ -84,7 +84,6 @@ All MCP clients should point to the same AMB **API** base URL, the same `MESSAGE
     "message-bus": {
       "command": "pnpm",
       "args": ["exec", "amb-mcp"],
-      "envFile": "${workspaceFolder}/.cursor/mcp.env",
       "env": {
         "AMB_MCP_BOOTSTRAP_LOG": "1"
       }
@@ -93,7 +92,7 @@ All MCP clients should point to the same AMB **API** base URL, the same `MESSAGE
 }
 ```
 
-See [Cursor MCP documentation](https://cursor.com/docs/mcp) for `envFile` and variable interpolation.
+No `envFile`, shell wrapper, or absolute `cwd` is required as long as `.cursor/mcp.env` exists in the project root.
 
 ### Codex
 
@@ -103,12 +102,9 @@ Create `.codex/config.toml`:
 [mcp_servers.message-bus]
 command = "pnpm"
 args = ["exec", "amb-mcp"]
-
-[mcp_servers.message-bus.env]
-MESSAGE_BUS_URL = "http://localhost:4334"
-MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
-MESSAGE_BUS_ACCESS_TOKEN = "<paste token from Dashboard>"
 ```
+
+Keep secrets in `.cursor/mcp.env` (recommended), `.env.local`, `.env`, or your shell environment.
 
 ### Claude Code
 

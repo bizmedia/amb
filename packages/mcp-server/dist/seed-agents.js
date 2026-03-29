@@ -5,11 +5,12 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.runSeedAgents = runSeedAgents;
-require("dotenv/config");
 const agent_registry_1 = require("./agent-registry");
 const fetch_message_bus_client_1 = require("./client/fetch-message-bus-client");
 const message_bus_config_1 = require("./config/message-bus-config");
+const load_project_env_1 = require("./load-project-env");
 const registry_agent_sync_1 = require("./registry-agent-sync");
+(0, load_project_env_1.loadProjectEnv)();
 async function runSeedAgents(registryPath) {
     const loaded = await (0, agent_registry_1.loadOrCreateRegistry)(registryPath);
     const registry = loaded.registry;

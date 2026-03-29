@@ -120,11 +120,11 @@ All clients should point to the same local AMB instance and the same `Project ID
 | `MESSAGE_BUS_PROJECT_ID` | Yes | Project UUID from the Dashboard. |
 | `MESSAGE_BUS_ACCESS_TOKEN` | When your API enforces JWT | Project access token from the Dashboard. You can use `MESSAGE_BUS_TOKEN` instead; the MCP server accepts either name. |
 
-Repository scripts (`pnpm seed:*`, `pnpm example:*`, and similar) resolve the same variables from, in order: **process environment** → **`.cursor/mcp.env`** → **legacy inline `env` in `.cursor/mcp.json`** (and a few other config paths documented in `apps/web/scripts/message-bus-env.ts`).
+`amb-mcp` resolves variables in this order: **process environment** → **`.cursor/mcp.env`** → **`.env.local`** → **`.env`**. Repository scripts (`pnpm seed:*`, `pnpm example:*`, and similar) also support legacy inline config lookup from MCP config files as documented in `apps/web/scripts/message-bus-env.ts`.
 
 ### Cursor
 
-**Recommended:** keep secrets out of Git using a gitignored env file and Cursor’s `envFile` ([MCP docs](https://cursor.com/docs/mcp)):
+**Recommended:** keep secrets out of Git using a gitignored `.cursor/mcp.env` file. `amb-mcp` loads it automatically from the project root, so no `envFile` or shell wrapper is required.
 
 1. Copy `.cursor/mcp.env.example` to `.cursor/mcp.env` (`.cursor/mcp.env` is listed in `.gitignore`).
 2. Set `MESSAGE_BUS_URL`, `MESSAGE_BUS_PROJECT_ID`, and `MESSAGE_BUS_ACCESS_TOKEN` in `.cursor/mcp.env`.
@@ -136,7 +136,6 @@ Repository scripts (`pnpm seed:*`, `pnpm example:*`, and similar) resolve the sa
     "message-bus": {
       "command": "pnpm",
       "args": ["exec", "amb-mcp"],
-      "envFile": "${workspaceFolder}/.cursor/mcp.env",
       "env": {
         "AMB_MCP_BOOTSTRAP_LOG": "1"
       }
@@ -177,11 +176,6 @@ Create `.codex/config.toml` in your project:
 [mcp_servers.message-bus]
 command = "pnpm"
 args = ["exec", "amb-mcp"]
-
-[mcp_servers.message-bus.env]
-MESSAGE_BUS_URL = "http://localhost:4334"
-MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
-MESSAGE_BUS_ACCESS_TOKEN = "<paste token from Dashboard>"
 ```
 
 If your project uses `npm`, use:
@@ -190,12 +184,9 @@ If your project uses `npm`, use:
 [mcp_servers.message-bus]
 command = "npx"
 args = ["amb-mcp"]
-
-[mcp_servers.message-bus.env]
-MESSAGE_BUS_URL = "http://localhost:4334"
-MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
-MESSAGE_BUS_ACCESS_TOKEN = "<paste token from Dashboard>"
 ```
+
+Then keep `MESSAGE_BUS_URL`, `MESSAGE_BUS_PROJECT_ID`, and `MESSAGE_BUS_ACCESS_TOKEN` in `.cursor/mcp.env` (recommended), `.env.local`, `.env`, or your shell environment.
 
 ### Claude Code
 

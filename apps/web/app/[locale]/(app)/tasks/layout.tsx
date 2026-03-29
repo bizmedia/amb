@@ -53,24 +53,20 @@ function TasksLayoutInner({ children }: { children: React.ReactNode }) {
   }
 
   return (
+    <div className="tasks-workspace-surface amb-glass-surface flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="tasks-workspace-inner min-h-0 min-w-0 flex-1 overflow-auto px-5 py-4 md:px-6 md:py-5">
+        <PageHeader className="border-b-0 pb-3">
+          <PageHeaderContent>
+            <PageHeaderEyebrow>{t("tasksTitle")}</PageHeaderEyebrow>
+            <PageHeaderTitle className="font-display text-base sm:text-lg">{sectionHeading}</PageHeaderTitle>
+            <PageHeaderDescription className="truncate">
+              {t("projectLabel")} <span className="font-medium text-foreground">{selectedProject.name}</span>
+            </PageHeaderDescription>
+          </PageHeaderContent>
+        </PageHeader>
 
-      <div className="tasks-workspace-surface amb-glass-surface flex min-h-0 flex-1 flex-col overflow-hidden">
-        <div className="shrink-0 px-5 py-4 md:px-6">
-          <PageHeader className="border-b-0 pb-0">
-            <PageHeaderContent>
-              <PageHeaderEyebrow>{t("tasksTitle")}</PageHeaderEyebrow>
-              <PageHeaderTitle className="font-display text-lg sm:text-xl">{sectionHeading}</PageHeaderTitle>
-              <PageHeaderDescription className="truncate">
-                {t("projectLabel")} <span className="font-medium text-foreground">{selectedProject.name}</span>
-              </PageHeaderDescription>
-            </PageHeaderContent>
-          </PageHeader>
-        </div>
-
-        <div className="tasks-workspace-inner min-h-0 min-w-0 flex-1 overflow-auto px-5 py-4 md:px-6 md:py-5">
-          {children}
-        </div>
+        <div className="space-y-3">{children}</div>
       </div>
-
+    </div>
   );
 }

@@ -64,7 +64,7 @@
     "deploy:k8s:api": "kubectl apply -f deploy/k8s/api-deployment.yaml -f deploy/k8s/api-service.yaml"
   },
   "devDependencies": {
-    "@openaisdk/amb-mcp": "^1.2.5",
+    "@openaisdk/amb-mcp": "^1.2.6",
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.16",
     "shadcn": "^3.7.0",

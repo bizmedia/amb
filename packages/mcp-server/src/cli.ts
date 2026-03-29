@@ -13,9 +13,12 @@
 
 import { createInterface } from "readline";
 import { main as runMcpServer } from "./index";
+import { loadProjectEnv } from "./load-project-env";
 import { runSeedAgents } from "./seed-agents";
 import { runSeedThreads } from "./seed-threads";
 import { runSetup } from "./setup";
+
+loadProjectEnv();
 
 const argv = process.argv.slice(2);
 const cmd = argv[0];

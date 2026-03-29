@@ -11,8 +11,10 @@ const mcp_js_1 = require("@modelcontextprotocol/sdk/server/mcp.js");
 const stdio_js_1 = require("@modelcontextprotocol/sdk/server/stdio.js");
 const types_js_1 = require("@modelcontextprotocol/sdk/types.js");
 const handlers_1 = require("./handlers");
+const load_project_env_1 = require("./load-project-env");
 const mcp_call_tool_executor_1 = require("./server/mcp-call-tool-executor");
 const schemas_1 = require("./schemas");
+(0, load_project_env_1.loadProjectEnv)();
 // ─────────────────────────────────────────────────────────────
 // Server Setup
 // ─────────────────────────────────────────────────────────────
