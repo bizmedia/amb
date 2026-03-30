@@ -9,6 +9,7 @@ export {
 export type {
   Agent,
   Message,
+  MessageTaskLink,
   Thread,
   Project,
   Task,

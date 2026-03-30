@@ -37,6 +37,7 @@ export declare const ModelName: {
     readonly ProjectToken: "ProjectToken";
     readonly ProjectTokenAudit: "ProjectTokenAudit";
     readonly Task: "Task";
+    readonly MessageTaskLink: "MessageTaskLink";
 };
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
 export declare const TransactionIsolationLevel: {
@@ -175,6 +176,14 @@ export declare const TaskScalarFieldEnum: {
     readonly updatedAt: "updatedAt";
 };
 export type TaskScalarFieldEnum = (typeof TaskScalarFieldEnum)[keyof typeof TaskScalarFieldEnum];
+export declare const MessageTaskLinkScalarFieldEnum: {
+    readonly messageId: "messageId";
+    readonly taskId: "taskId";
+    readonly projectId: "projectId";
+    readonly tenantId: "tenantId";
+    readonly createdAt: "createdAt";
+};
+export type MessageTaskLinkScalarFieldEnum = (typeof MessageTaskLinkScalarFieldEnum)[keyof typeof MessageTaskLinkScalarFieldEnum];
 export declare const SortOrder: {
     readonly asc: "asc";
     readonly desc: "desc";

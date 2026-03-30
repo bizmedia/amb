@@ -5,6 +5,8 @@ import request from "supertest";
 import { createHmac } from "node:crypto";
 import { AppModule } from "../src/app.module";
 import { AllExceptionsFilter } from "../src/common/http-exception.filter";
+import { PrismaService } from "../src/prisma/prisma.service";
+import { MessagesService } from "../src/messages/messages.service";
 
 const DEFAULT_TENANT_ID = "11111111-1111-4111-8111-111111111111";
 
@@ -34,6 +36,8 @@ function signJwt(
 
 describe("API (e2e)", () => {
   let app: INestApplication;
+  let prisma: PrismaService;
+  let messagesService: MessagesService;
 
   beforeAll(async () => {
     process.env.JWT_SECRET = process.env.JWT_SECRET ?? "test-jwt-secret";
@@ -46,6 +50,8 @@ describe("API (e2e)", () => {
     app.setGlobalPrefix("api");
     app.useGlobalFilters(new AllExceptionsFilter());
     await app.init();
+    prisma = app.get(PrismaService);
+    messagesService = app.get(MessagesService);
   });
 
   afterAll(async () => {
@@ -179,6 +185,8 @@ describe("API (e2e)", () => {
     let fromAgentId: string;
     let toAgentId: string;
     let messageId: string;
+    let knownTaskId: string;
+    let knownTaskKey: string;
 
     beforeAll(async () => {
       const projectRes = await request(app.getHttpServer())
@@ -206,6 +214,14 @@ describe("API (e2e)", () => {
         fromAgentId = createRes.body.data.id;
         toAgentId = fromAgentId;
       }
+
+      const taskRes = await request(app.getHttpServer())
+        .post(`/api/projects/${projectId}/tasks`)
+        .set("x-project-id", projectId)
+        .send({ title: "Message-linked task" })
+        .expect(201);
+      knownTaskId = taskRes.body.data.id as string;
+      knownTaskKey = taskRes.body.data.key as string;
     });
 
     it("POST /api/messages/send returns 201", async () => {
@@ -216,11 +232,28 @@ describe("API (e2e)", () => {
           threadId,
           fromAgentId,
           toAgentId,
-          payload: { type: "test" },
+          payload: {
+            type: "completion_report",
+            tasksTouched: [knownTaskKey, ` ${knownTaskKey} `, "ZZZZ-9999", 42, ""],
+          },
         })
         .expect(201);
       expect(res.body.data.id).toBeDefined();
       messageId = res.body.data.id;
+
+      const links = await prisma.withProjectContext(projectId, async (tx) =>
+        tx.messageTaskLink.findMany({
+          where: { messageId },
+          orderBy: { taskId: "asc" },
+        })
+      );
+
+      expect(links).toHaveLength(1);
+      expect(links[0]).toMatchObject({
+        messageId,
+        taskId: knownTaskId,
+        projectId,
+      });
     });
 
     it("GET /api/messages/inbox returns 200", async () => {
@@ -239,6 +272,48 @@ describe("API (e2e)", () => {
         .set("x-project-id", projectId)
         .expect(201);
       expect(res.body.data.id).toBe(messageId);
+    });
+
+    it("materialization helper is idempotent for the same message-task pair", async () => {
+      await prisma.withProjectContext(projectId, async (tx, context) => {
+        await (messagesService as unknown as {
+          materializeMessageTaskLinks: (
+            client: typeof tx,
+            data: { messageId: string; projectId: string; tenantId: string; payload: unknown }
+          ) => Promise<void>;
+        }).materializeMessageTaskLinks(tx, {
+          messageId,
+          projectId: context.projectId,
+          tenantId: context.tenantId,
+          payload: {
+            type: "completion_report",
+            tasksTouched: [knownTaskKey, knownTaskKey],
+          },
+        });
+
+        await (messagesService as unknown as {
+          materializeMessageTaskLinks: (
+            client: typeof tx,
+            data: { messageId: string; projectId: string; tenantId: string; payload: unknown }
+          ) => Promise<void>;
+        }).materializeMessageTaskLinks(tx, {
+          messageId,
+          projectId: context.projectId,
+          tenantId: context.tenantId,
+          payload: {
+            type: "completion_report",
+            tasksTouched: [knownTaskKey],
+          },
+        });
+      });
+
+      const links = await prisma.withProjectContext(projectId, async (tx) =>
+        tx.messageTaskLink.findMany({
+          where: { messageId, taskId: knownTaskId },
+        })
+      );
+
+      expect(links).toHaveLength(1);
     });
   });
 

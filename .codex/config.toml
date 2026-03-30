@@ -1,3 +1,4 @@
-[mcp_servers.mcp_amb]
-command = "pnpm"
-args = ["exec", "amb-mcp"]
+[mcp_servers.message-bus]
+command = "zsh"
+args = ["-lc", "set -a; source .cursor/mcp.env; set +a; exec pnpm exec amb-mcp"]
+cwd = "/Users/anatolijtukov/Developer/amb-app"

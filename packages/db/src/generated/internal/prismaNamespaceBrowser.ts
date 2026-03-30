@@ -61,7 +61,8 @@ export const ModelName = {
   Epic: 'Epic',
   ProjectToken: 'ProjectToken',
   ProjectTokenAudit: 'ProjectTokenAudit',
-  Task: 'Task'
+  Task: 'Task',
+  MessageTaskLink: 'MessageTaskLink'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -240,6 +241,17 @@ export const TaskScalarFieldEnum = {
 } as const
 
 export type TaskScalarFieldEnum = (typeof TaskScalarFieldEnum)[keyof typeof TaskScalarFieldEnum]
+
+
+export const MessageTaskLinkScalarFieldEnum = {
+  messageId: 'messageId',
+  taskId: 'taskId',
+  projectId: 'projectId',
+  tenantId: 'tenantId',
+  createdAt: 'createdAt'
+} as const
+
+export type MessageTaskLinkScalarFieldEnum = (typeof MessageTaskLinkScalarFieldEnum)[keyof typeof MessageTaskLinkScalarFieldEnum]
 
 
 export const SortOrder = {

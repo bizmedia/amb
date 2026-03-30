@@ -242,6 +242,7 @@ export declare const ModelName: {
     readonly ProjectToken: "ProjectToken";
     readonly ProjectTokenAudit: "ProjectTokenAudit";
     readonly Task: "Task";
+    readonly MessageTaskLink: "MessageTaskLink";
 };
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
 export interface TypeMapCb<GlobalOmitOptions = {}> extends runtime.Types.Utils.Fn<{
@@ -254,7 +255,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         omit: GlobalOmitOptions;
     };
     meta: {
-        modelProps: "agent" | "thread" | "message" | "tenant" | "user" | "project" | "sprint" | "epic" | "projectToken" | "projectTokenAudit" | "task";
+        modelProps: "agent" | "thread" | "message" | "tenant" | "user" | "project" | "sprint" | "epic" | "projectToken" | "projectTokenAudit" | "task" | "messageTaskLink";
         txIsolationLevel: TransactionIsolationLevel;
     };
     model: {
@@ -1072,6 +1073,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
                 };
             };
         };
+        MessageTaskLink: {
+            payload: Prisma.$MessageTaskLinkPayload<ExtArgs>;
+            fields: Prisma.MessageTaskLinkFieldRefs;
+            operations: {
+                findUnique: {
+                    args: Prisma.MessageTaskLinkFindUniqueArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$MessageTaskLinkPayload> | null;
+                };
+                findUniqueOrThrow: {
+                    args: Prisma.MessageTaskLinkFindUniqueOrThrowArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$MessageTaskLinkPayload>;
+                };
+                findFirst: {
+                    args: Prisma.MessageTaskLinkFindFirstArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$MessageTaskLinkPayload> | null;
+                };
+                findFirstOrThrow: {
+                    args: Prisma.MessageTaskLinkFindFirstOrThrowArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$MessageTaskLinkPayload>;
+                };
+                findMany: {
+                    args: Prisma.MessageTaskLinkFindManyArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$MessageTaskLinkPayload>[];
+                };
+                create: {
+                    args: Prisma.MessageTaskLinkCreateArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$MessageTaskLinkPayload>;
+                };
+                createMany: {
+                    args: Prisma.MessageTaskLinkCreateManyArgs<ExtArgs>;
+                    result: BatchPayload;
+                };
+                createManyAndReturn: {
+                    args: Prisma.MessageTaskLinkCreateManyAndReturnArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$MessageTaskLinkPayload>[];
+                };
+                delete: {
+                    args: Prisma.MessageTaskLinkDeleteArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$MessageTaskLinkPayload>;
+                };
+                update: {
+                    args: Prisma.MessageTaskLinkUpdateArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$MessageTaskLinkPayload>;
+                };
+                deleteMany: {
+                    args: Prisma.MessageTaskLinkDeleteManyArgs<ExtArgs>;
+                    result: BatchPayload;
+                };
+                updateMany: {
+                    args: Prisma.MessageTaskLinkUpdateManyArgs<ExtArgs>;
+                    result: BatchPayload;
+                };
+                updateManyAndReturn: {
+                    args: Prisma.MessageTaskLinkUpdateManyAndReturnArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$MessageTaskLinkPayload>[];
+                };
+                upsert: {
+                    args: Prisma.MessageTaskLinkUpsertArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$MessageTaskLinkPayload>;
+                };
+                aggregate: {
+                    args: Prisma.MessageTaskLinkAggregateArgs<ExtArgs>;
+                    result: runtime.Types.Utils.Optional<Prisma.AggregateMessageTaskLink>;
+                };
+                groupBy: {
+                    args: Prisma.MessageTaskLinkGroupByArgs<ExtArgs>;
+                    result: runtime.Types.Utils.Optional<Prisma.MessageTaskLinkGroupByOutputType>[];
+                };
+                count: {
+                    args: Prisma.MessageTaskLinkCountArgs<ExtArgs>;
+                    result: runtime.Types.Utils.Optional<Prisma.MessageTaskLinkCountAggregateOutputType> | number;
+                };
+            };
+        };
     };
 } & {
     other: {
@@ -1235,6 +1310,14 @@ export declare const TaskScalarFieldEnum: {
     readonly updatedAt: "updatedAt";
 };
 export type TaskScalarFieldEnum = (typeof TaskScalarFieldEnum)[keyof typeof TaskScalarFieldEnum];
+export declare const MessageTaskLinkScalarFieldEnum: {
+    readonly messageId: "messageId";
+    readonly taskId: "taskId";
+    readonly projectId: "projectId";
+    readonly tenantId: "tenantId";
+    readonly createdAt: "createdAt";
+};
+export type MessageTaskLinkScalarFieldEnum = (typeof MessageTaskLinkScalarFieldEnum)[keyof typeof MessageTaskLinkScalarFieldEnum];
 export declare const SortOrder: {
     readonly asc: "asc";
     readonly desc: "desc";
@@ -1449,6 +1532,7 @@ export type GlobalOmitConfig = {
     projectToken?: Prisma.ProjectTokenOmit;
     projectTokenAudit?: Prisma.ProjectTokenAuditOmit;
     task?: Prisma.TaskOmit;
+    messageTaskLink?: Prisma.MessageTaskLinkOmit;
 };
 export type LogLevel = 'info' | 'query' | 'warn' | 'error';
 export type LogDefinition = {

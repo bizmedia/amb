@@ -217,6 +217,7 @@ export type MessageWhereInput = {
     thread?: Prisma.XOR<Prisma.ThreadScalarRelationFilter, Prisma.ThreadWhereInput>;
     parent?: Prisma.XOR<Prisma.MessageNullableScalarRelationFilter, Prisma.MessageWhereInput> | null;
     replies?: Prisma.MessageListRelationFilter;
+    taskLinks?: Prisma.MessageTaskLinkListRelationFilter;
 };
 export type MessageOrderByWithRelationInput = {
     id?: Prisma.SortOrder;
@@ -235,9 +236,11 @@ export type MessageOrderByWithRelationInput = {
     thread?: Prisma.ThreadOrderByWithRelationInput;
     parent?: Prisma.MessageOrderByWithRelationInput;
     replies?: Prisma.MessageOrderByRelationAggregateInput;
+    taskLinks?: Prisma.MessageTaskLinkOrderByRelationAggregateInput;
 };
 export type MessageWhereUniqueInput = Prisma.AtLeast<{
     id?: string;
+    projectId_id?: Prisma.MessageProjectIdIdCompoundUniqueInput;
     AND?: Prisma.MessageWhereInput | Prisma.MessageWhereInput[];
     OR?: Prisma.MessageWhereInput[];
     NOT?: Prisma.MessageWhereInput | Prisma.MessageWhereInput[];
@@ -256,7 +259,8 @@ export type MessageWhereUniqueInput = Prisma.AtLeast<{
     thread?: Prisma.XOR<Prisma.ThreadScalarRelationFilter, Prisma.ThreadWhereInput>;
     parent?: Prisma.XOR<Prisma.MessageNullableScalarRelationFilter, Prisma.MessageWhereInput> | null;
     replies?: Prisma.MessageListRelationFilter;
-}, "id">;
+    taskLinks?: Prisma.MessageTaskLinkListRelationFilter;
+}, "id" | "projectId_id">;
 export type MessageOrderByWithAggregationInput = {
     id?: Prisma.SortOrder;
     tenantId?: Prisma.SortOrderInput | Prisma.SortOrder;
@@ -304,6 +308,7 @@ export type MessageCreateInput = {
     thread: Prisma.ThreadCreateNestedOneWithoutMessagesInput;
     parent?: Prisma.MessageCreateNestedOneWithoutRepliesInput;
     replies?: Prisma.MessageCreateNestedManyWithoutParentInput;
+    taskLinks?: Prisma.MessageTaskLinkCreateNestedManyWithoutMessageInput;
 };
 export type MessageUncheckedCreateInput = {
     id?: string;
@@ -318,6 +323,7 @@ export type MessageUncheckedCreateInput = {
     parentId?: string | null;
     createdAt?: Date | string;
     replies?: Prisma.MessageUncheckedCreateNestedManyWithoutParentInput;
+    taskLinks?: Prisma.MessageTaskLinkUncheckedCreateNestedManyWithoutMessageInput;
 };
 export type MessageUpdateInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -332,6 +338,7 @@ export type MessageUpdateInput = {
     thread?: Prisma.ThreadUpdateOneRequiredWithoutMessagesNestedInput;
     parent?: Prisma.MessageUpdateOneWithoutRepliesNestedInput;
     replies?: Prisma.MessageUpdateManyWithoutParentNestedInput;
+    taskLinks?: Prisma.MessageTaskLinkUpdateManyWithoutMessageNestedInput;
 };
 export type MessageUncheckedUpdateInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -346,6 +353,7 @@ export type MessageUncheckedUpdateInput = {
     parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     replies?: Prisma.MessageUncheckedUpdateManyWithoutParentNestedInput;
+    taskLinks?: Prisma.MessageTaskLinkUncheckedUpdateManyWithoutMessageNestedInput;
 };
 export type MessageCreateManyInput = {
     id?: string;
@@ -394,6 +402,10 @@ export type MessageNullableScalarRelationFilter = {
     is?: Prisma.MessageWhereInput | null;
     isNot?: Prisma.MessageWhereInput | null;
 };
+export type MessageProjectIdIdCompoundUniqueInput = {
+    projectId: string;
+    id: string;
+};
 export type MessageCountOrderByAggregateInput = {
     id?: Prisma.SortOrder;
     tenantId?: Prisma.SortOrder;
@@ -436,6 +448,10 @@ export type MessageMinOrderByAggregateInput = {
 };
 export type MessageSumOrderByAggregateInput = {
     retries?: Prisma.SortOrder;
+};
+export type MessageScalarRelationFilter = {
+    is?: Prisma.MessageWhereInput;
+    isNot?: Prisma.MessageWhereInput;
 };
 export type MessageCreateNestedManyWithoutThreadInput = {
     create?: Prisma.XOR<Prisma.MessageCreateWithoutThreadInput, Prisma.MessageUncheckedCreateWithoutThreadInput> | Prisma.MessageCreateWithoutThreadInput[] | Prisma.MessageUncheckedCreateWithoutThreadInput[];
@@ -610,6 +626,18 @@ export type MessageUncheckedUpdateManyWithoutProjectNestedInput = {
     updateMany?: Prisma.MessageUpdateManyWithWhereWithoutProjectInput | Prisma.MessageUpdateManyWithWhereWithoutProjectInput[];
     deleteMany?: Prisma.MessageScalarWhereInput | Prisma.MessageScalarWhereInput[];
 };
+export type MessageCreateNestedOneWithoutTaskLinksInput = {
+    create?: Prisma.XOR<Prisma.MessageCreateWithoutTaskLinksInput, Prisma.MessageUncheckedCreateWithoutTaskLinksInput>;
+    connectOrCreate?: Prisma.MessageCreateOrConnectWithoutTaskLinksInput;
+    connect?: Prisma.MessageWhereUniqueInput;
+};
+export type MessageUpdateOneRequiredWithoutTaskLinksNestedInput = {
+    create?: Prisma.XOR<Prisma.MessageCreateWithoutTaskLinksInput, Prisma.MessageUncheckedCreateWithoutTaskLinksInput>;
+    connectOrCreate?: Prisma.MessageCreateOrConnectWithoutTaskLinksInput;
+    upsert?: Prisma.MessageUpsertWithoutTaskLinksInput;
+    connect?: Prisma.MessageWhereUniqueInput;
+    update?: Prisma.XOR<Prisma.XOR<Prisma.MessageUpdateToOneWithWhereWithoutTaskLinksInput, Prisma.MessageUpdateWithoutTaskLinksInput>, Prisma.MessageUncheckedUpdateWithoutTaskLinksInput>;
+};
 export type MessageCreateWithoutThreadInput = {
     id?: string;
     fromAgentId: string;
@@ -622,6 +650,7 @@ export type MessageCreateWithoutThreadInput = {
     project: Prisma.ProjectCreateNestedOneWithoutMessagesInput;
     parent?: Prisma.MessageCreateNestedOneWithoutRepliesInput;
     replies?: Prisma.MessageCreateNestedManyWithoutParentInput;
+    taskLinks?: Prisma.MessageTaskLinkCreateNestedManyWithoutMessageInput;
 };
 export type MessageUncheckedCreateWithoutThreadInput = {
     id?: string;
@@ -635,6 +664,7 @@ export type MessageUncheckedCreateWithoutThreadInput = {
     parentId?: string | null;
     createdAt?: Date | string;
     replies?: Prisma.MessageUncheckedCreateNestedManyWithoutParentInput;
+    taskLinks?: Prisma.MessageTaskLinkUncheckedCreateNestedManyWithoutMessageInput;
 };
 export type MessageCreateOrConnectWithoutThreadInput = {
     where: Prisma.MessageWhereUniqueInput;
@@ -685,6 +715,7 @@ export type MessageCreateWithoutRepliesInput = {
     project: Prisma.ProjectCreateNestedOneWithoutMessagesInput;
     thread: Prisma.ThreadCreateNestedOneWithoutMessagesInput;
     parent?: Prisma.MessageCreateNestedOneWithoutRepliesInput;
+    taskLinks?: Prisma.MessageTaskLinkCreateNestedManyWithoutMessageInput;
 };
 export type MessageUncheckedCreateWithoutRepliesInput = {
     id?: string;
@@ -698,6 +729,7 @@ export type MessageUncheckedCreateWithoutRepliesInput = {
     retries?: number;
     parentId?: string | null;
     createdAt?: Date | string;
+    taskLinks?: Prisma.MessageTaskLinkUncheckedCreateNestedManyWithoutMessageInput;
 };
 export type MessageCreateOrConnectWithoutRepliesInput = {
     where: Prisma.MessageWhereUniqueInput;
@@ -715,6 +747,7 @@ export type MessageCreateWithoutParentInput = {
     project: Prisma.ProjectCreateNestedOneWithoutMessagesInput;
     thread: Prisma.ThreadCreateNestedOneWithoutMessagesInput;
     replies?: Prisma.MessageCreateNestedManyWithoutParentInput;
+    taskLinks?: Prisma.MessageTaskLinkCreateNestedManyWithoutMessageInput;
 };
 export type MessageUncheckedCreateWithoutParentInput = {
     id?: string;
@@ -728,6 +761,7 @@ export type MessageUncheckedCreateWithoutParentInput = {
     retries?: number;
     createdAt?: Date | string;
     replies?: Prisma.MessageUncheckedCreateNestedManyWithoutParentInput;
+    taskLinks?: Prisma.MessageTaskLinkUncheckedCreateNestedManyWithoutMessageInput;
 };
 export type MessageCreateOrConnectWithoutParentInput = {
     where: Prisma.MessageWhereUniqueInput;
@@ -758,6 +792,7 @@ export type MessageUpdateWithoutRepliesInput = {
     project?: Prisma.ProjectUpdateOneRequiredWithoutMessagesNestedInput;
     thread?: Prisma.ThreadUpdateOneRequiredWithoutMessagesNestedInput;
     parent?: Prisma.MessageUpdateOneWithoutRepliesNestedInput;
+    taskLinks?: Prisma.MessageTaskLinkUpdateManyWithoutMessageNestedInput;
 };
 export type MessageUncheckedUpdateWithoutRepliesInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -771,6 +806,7 @@ export type MessageUncheckedUpdateWithoutRepliesInput = {
     retries?: Prisma.IntFieldUpdateOperationsInput | number;
     parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    taskLinks?: Prisma.MessageTaskLinkUncheckedUpdateManyWithoutMessageNestedInput;
 };
 export type MessageUpsertWithWhereUniqueWithoutParentInput = {
     where: Prisma.MessageWhereUniqueInput;
@@ -797,6 +833,7 @@ export type MessageCreateWithoutTenantInput = {
     thread: Prisma.ThreadCreateNestedOneWithoutMessagesInput;
     parent?: Prisma.MessageCreateNestedOneWithoutRepliesInput;
     replies?: Prisma.MessageCreateNestedManyWithoutParentInput;
+    taskLinks?: Prisma.MessageTaskLinkCreateNestedManyWithoutMessageInput;
 };
 export type MessageUncheckedCreateWithoutTenantInput = {
     id?: string;
@@ -810,6 +847,7 @@ export type MessageUncheckedCreateWithoutTenantInput = {
     parentId?: string | null;
     createdAt?: Date | string;
     replies?: Prisma.MessageUncheckedCreateNestedManyWithoutParentInput;
+    taskLinks?: Prisma.MessageTaskLinkUncheckedCreateNestedManyWithoutMessageInput;
 };
 export type MessageCreateOrConnectWithoutTenantInput = {
     where: Prisma.MessageWhereUniqueInput;
@@ -844,6 +882,7 @@ export type MessageCreateWithoutProjectInput = {
     thread: Prisma.ThreadCreateNestedOneWithoutMessagesInput;
     parent?: Prisma.MessageCreateNestedOneWithoutRepliesInput;
     replies?: Prisma.MessageCreateNestedManyWithoutParentInput;
+    taskLinks?: Prisma.MessageTaskLinkCreateNestedManyWithoutMessageInput;
 };
 export type MessageUncheckedCreateWithoutProjectInput = {
     id?: string;
@@ -857,6 +896,7 @@ export type MessageUncheckedCreateWithoutProjectInput = {
     parentId?: string | null;
     createdAt?: Date | string;
     replies?: Prisma.MessageUncheckedCreateNestedManyWithoutParentInput;
+    taskLinks?: Prisma.MessageTaskLinkUncheckedCreateNestedManyWithoutMessageInput;
 };
 export type MessageCreateOrConnectWithoutProjectInput = {
     where: Prisma.MessageWhereUniqueInput;
@@ -878,6 +918,75 @@ export type MessageUpdateWithWhereUniqueWithoutProjectInput = {
 export type MessageUpdateManyWithWhereWithoutProjectInput = {
     where: Prisma.MessageScalarWhereInput;
     data: Prisma.XOR<Prisma.MessageUpdateManyMutationInput, Prisma.MessageUncheckedUpdateManyWithoutProjectInput>;
+};
+export type MessageCreateWithoutTaskLinksInput = {
+    id?: string;
+    fromAgentId: string;
+    toAgentId?: string | null;
+    payload: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+    status?: string;
+    retries?: number;
+    createdAt?: Date | string;
+    tenant?: Prisma.TenantCreateNestedOneWithoutMessagesInput;
+    project: Prisma.ProjectCreateNestedOneWithoutMessagesInput;
+    thread: Prisma.ThreadCreateNestedOneWithoutMessagesInput;
+    parent?: Prisma.MessageCreateNestedOneWithoutRepliesInput;
+    replies?: Prisma.MessageCreateNestedManyWithoutParentInput;
+};
+export type MessageUncheckedCreateWithoutTaskLinksInput = {
+    id?: string;
+    tenantId?: string | null;
+    projectId: string;
+    threadId: string;
+    fromAgentId: string;
+    toAgentId?: string | null;
+    payload: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+    status?: string;
+    retries?: number;
+    parentId?: string | null;
+    createdAt?: Date | string;
+    replies?: Prisma.MessageUncheckedCreateNestedManyWithoutParentInput;
+};
+export type MessageCreateOrConnectWithoutTaskLinksInput = {
+    where: Prisma.MessageWhereUniqueInput;
+    create: Prisma.XOR<Prisma.MessageCreateWithoutTaskLinksInput, Prisma.MessageUncheckedCreateWithoutTaskLinksInput>;
+};
+export type MessageUpsertWithoutTaskLinksInput = {
+    update: Prisma.XOR<Prisma.MessageUpdateWithoutTaskLinksInput, Prisma.MessageUncheckedUpdateWithoutTaskLinksInput>;
+    create: Prisma.XOR<Prisma.MessageCreateWithoutTaskLinksInput, Prisma.MessageUncheckedCreateWithoutTaskLinksInput>;
+    where?: Prisma.MessageWhereInput;
+};
+export type MessageUpdateToOneWithWhereWithoutTaskLinksInput = {
+    where?: Prisma.MessageWhereInput;
+    data: Prisma.XOR<Prisma.MessageUpdateWithoutTaskLinksInput, Prisma.MessageUncheckedUpdateWithoutTaskLinksInput>;
+};
+export type MessageUpdateWithoutTaskLinksInput = {
+    id?: Prisma.StringFieldUpdateOperationsInput | string;
+    fromAgentId?: Prisma.StringFieldUpdateOperationsInput | string;
+    toAgentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+    status?: Prisma.StringFieldUpdateOperationsInput | string;
+    retries?: Prisma.IntFieldUpdateOperationsInput | number;
+    createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    tenant?: Prisma.TenantUpdateOneWithoutMessagesNestedInput;
+    project?: Prisma.ProjectUpdateOneRequiredWithoutMessagesNestedInput;
+    thread?: Prisma.ThreadUpdateOneRequiredWithoutMessagesNestedInput;
+    parent?: Prisma.MessageUpdateOneWithoutRepliesNestedInput;
+    replies?: Prisma.MessageUpdateManyWithoutParentNestedInput;
+};
+export type MessageUncheckedUpdateWithoutTaskLinksInput = {
+    id?: Prisma.StringFieldUpdateOperationsInput | string;
+    tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    projectId?: Prisma.StringFieldUpdateOperationsInput | string;
+    threadId?: Prisma.StringFieldUpdateOperationsInput | string;
+    fromAgentId?: Prisma.StringFieldUpdateOperationsInput | string;
+    toAgentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+    status?: Prisma.StringFieldUpdateOperationsInput | string;
+    retries?: Prisma.IntFieldUpdateOperationsInput | number;
+    parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    replies?: Prisma.MessageUncheckedUpdateManyWithoutParentNestedInput;
 };
 export type MessageCreateManyThreadInput = {
     id?: string;
@@ -903,6 +1012,7 @@ export type MessageUpdateWithoutThreadInput = {
     project?: Prisma.ProjectUpdateOneRequiredWithoutMessagesNestedInput;
     parent?: Prisma.MessageUpdateOneWithoutRepliesNestedInput;
     replies?: Prisma.MessageUpdateManyWithoutParentNestedInput;
+    taskLinks?: Prisma.MessageTaskLinkUpdateManyWithoutMessageNestedInput;
 };
 export type MessageUncheckedUpdateWithoutThreadInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -916,6 +1026,7 @@ export type MessageUncheckedUpdateWithoutThreadInput = {
     parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     replies?: Prisma.MessageUncheckedUpdateManyWithoutParentNestedInput;
+    taskLinks?: Prisma.MessageTaskLinkUncheckedUpdateManyWithoutMessageNestedInput;
 };
 export type MessageUncheckedUpdateManyWithoutThreadInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -953,6 +1064,7 @@ export type MessageUpdateWithoutParentInput = {
     project?: Prisma.ProjectUpdateOneRequiredWithoutMessagesNestedInput;
     thread?: Prisma.ThreadUpdateOneRequiredWithoutMessagesNestedInput;
     replies?: Prisma.MessageUpdateManyWithoutParentNestedInput;
+    taskLinks?: Prisma.MessageTaskLinkUpdateManyWithoutMessageNestedInput;
 };
 export type MessageUncheckedUpdateWithoutParentInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -966,6 +1078,7 @@ export type MessageUncheckedUpdateWithoutParentInput = {
     retries?: Prisma.IntFieldUpdateOperationsInput | number;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     replies?: Prisma.MessageUncheckedUpdateManyWithoutParentNestedInput;
+    taskLinks?: Prisma.MessageTaskLinkUncheckedUpdateManyWithoutMessageNestedInput;
 };
 export type MessageUncheckedUpdateManyWithoutParentInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -1003,6 +1116,7 @@ export type MessageUpdateWithoutTenantInput = {
     thread?: Prisma.ThreadUpdateOneRequiredWithoutMessagesNestedInput;
     parent?: Prisma.MessageUpdateOneWithoutRepliesNestedInput;
     replies?: Prisma.MessageUpdateManyWithoutParentNestedInput;
+    taskLinks?: Prisma.MessageTaskLinkUpdateManyWithoutMessageNestedInput;
 };
 export type MessageUncheckedUpdateWithoutTenantInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -1016,6 +1130,7 @@ export type MessageUncheckedUpdateWithoutTenantInput = {
     parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     replies?: Prisma.MessageUncheckedUpdateManyWithoutParentNestedInput;
+    taskLinks?: Prisma.MessageTaskLinkUncheckedUpdateManyWithoutMessageNestedInput;
 };
 export type MessageUncheckedUpdateManyWithoutTenantInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -1053,6 +1168,7 @@ export type MessageUpdateWithoutProjectInput = {
     thread?: Prisma.ThreadUpdateOneRequiredWithoutMessagesNestedInput;
     parent?: Prisma.MessageUpdateOneWithoutRepliesNestedInput;
     replies?: Prisma.MessageUpdateManyWithoutParentNestedInput;
+    taskLinks?: Prisma.MessageTaskLinkUpdateManyWithoutMessageNestedInput;
 };
 export type MessageUncheckedUpdateWithoutProjectInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -1066,6 +1182,7 @@ export type MessageUncheckedUpdateWithoutProjectInput = {
     parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     replies?: Prisma.MessageUncheckedUpdateManyWithoutParentNestedInput;
+    taskLinks?: Prisma.MessageTaskLinkUncheckedUpdateManyWithoutMessageNestedInput;
 };
 export type MessageUncheckedUpdateManyWithoutProjectInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -1084,9 +1201,11 @@ export type MessageUncheckedUpdateManyWithoutProjectInput = {
  */
 export type MessageCountOutputType = {
     replies: number;
+    taskLinks: number;
 };
 export type MessageCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     replies?: boolean | MessageCountOutputTypeCountRepliesArgs;
+    taskLinks?: boolean | MessageCountOutputTypeCountTaskLinksArgs;
 };
 /**
  * MessageCountOutputType without action
@@ -1102,6 +1221,12 @@ export type MessageCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exte
  */
 export type MessageCountOutputTypeCountRepliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     where?: Prisma.MessageWhereInput;
+};
+/**
+ * MessageCountOutputType without action
+ */
+export type MessageCountOutputTypeCountTaskLinksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+    where?: Prisma.MessageTaskLinkWhereInput;
 };
 export type MessageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
     id?: boolean;
@@ -1120,6 +1245,7 @@ export type MessageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     thread?: boolean | Prisma.ThreadDefaultArgs<ExtArgs>;
     parent?: boolean | Prisma.Message$parentArgs<ExtArgs>;
     replies?: boolean | Prisma.Message$repliesArgs<ExtArgs>;
+    taskLinks?: boolean | Prisma.Message$taskLinksArgs<ExtArgs>;
     _count?: boolean | Prisma.MessageCountOutputTypeDefaultArgs<ExtArgs>;
 }, ExtArgs["result"]["message"]>;
 export type MessageSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1176,6 +1302,7 @@ export type MessageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
     thread?: boolean | Prisma.ThreadDefaultArgs<ExtArgs>;
     parent?: boolean | Prisma.Message$parentArgs<ExtArgs>;
     replies?: boolean | Prisma.Message$repliesArgs<ExtArgs>;
+    taskLinks?: boolean | Prisma.Message$taskLinksArgs<ExtArgs>;
     _count?: boolean | Prisma.MessageCountOutputTypeDefaultArgs<ExtArgs>;
 };
 export type MessageIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1198,6 +1325,7 @@ export type $MessagePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
         thread: Prisma.$ThreadPayload<ExtArgs>;
         parent: Prisma.$MessagePayload<ExtArgs> | null;
         replies: Prisma.$MessagePayload<ExtArgs>[];
+        taskLinks: Prisma.$MessageTaskLinkPayload<ExtArgs>[];
     };
     scalars: runtime.Types.Extensions.GetPayloadResult<{
         id: string;
@@ -1545,6 +1673,7 @@ export interface Prisma__MessageClient<T, Null = never, ExtArgs extends runtime.
     thread<T extends Prisma.ThreadDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ThreadDefaultArgs<ExtArgs>>): Prisma.Prisma__ThreadClient<runtime.Types.Result.GetResult<Prisma.$ThreadPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>;
     parent<T extends Prisma.Message$parentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Message$parentArgs<ExtArgs>>): Prisma.Prisma__MessageClient<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>;
     replies<T extends Prisma.Message$repliesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Message$repliesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>;
+    taskLinks<T extends Prisma.Message$taskLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Message$taskLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessageTaskLinkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>;
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2017,6 +2146,29 @@ export type Message$repliesArgs<ExtArgs extends runtime.Types.Extensions.Interna
     take?: number;
     skip?: number;
     distinct?: Prisma.MessageScalarFieldEnum | Prisma.MessageScalarFieldEnum[];
+};
+/**
+ * Message.taskLinks
+ */
+export type Message$taskLinksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessageTaskLink
+     */
+    select?: Prisma.MessageTaskLinkSelect<ExtArgs> | null;
+    /**
+     * Omit specific fields from the MessageTaskLink
+     */
+    omit?: Prisma.MessageTaskLinkOmit<ExtArgs> | null;
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: Prisma.MessageTaskLinkInclude<ExtArgs> | null;
+    where?: Prisma.MessageTaskLinkWhereInput;
+    orderBy?: Prisma.MessageTaskLinkOrderByWithRelationInput | Prisma.MessageTaskLinkOrderByWithRelationInput[];
+    cursor?: Prisma.MessageTaskLinkWhereUniqueInput;
+    take?: number;
+    skip?: number;
+    distinct?: Prisma.MessageTaskLinkScalarFieldEnum | Prisma.MessageTaskLinkScalarFieldEnum[];
 };
 /**
  * Message without action

@@ -232,6 +232,17 @@ export interface PrismaClient<in LogOpts extends Prisma.LogLevel = never, in out
     get task(): Prisma.TaskDelegate<ExtArgs, {
         omit: OmitOpts;
     }>;
+    /**
+     * `prisma.messageTaskLink`: Exposes CRUD operations for the **MessageTaskLink** model.
+      * Example usage:
+      * ```ts
+      * // Fetch zero or more MessageTaskLinks
+      * const messageTaskLinks = await prisma.messageTaskLink.findMany()
+      * ```
+      */
+    get messageTaskLink(): Prisma.MessageTaskLinkDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
 }
 export declare function getPrismaClientClass(): PrismaClientConstructor;
 //# sourceMappingURL=class.d.ts.map

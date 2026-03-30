@@ -74,4 +74,9 @@ export type ProjectTokenAudit = Prisma.ProjectTokenAuditModel;
  *
  */
 export type Task = Prisma.TaskModel;
+/**
+ * Model MessageTaskLink
+ *
+ */
+export type MessageTaskLink = Prisma.MessageTaskLinkModel;
 //# sourceMappingURL=client.d.ts.map

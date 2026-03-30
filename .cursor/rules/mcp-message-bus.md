@@ -123,7 +123,8 @@ Message Bus даёт агентам общий бэкенд для:
 
 1. Определи `threadId` открытого треда (или создай тред оркестратором).
 2. Вызови `send_message` с `payload` вида: `{ "type": "completion_report", "summary": "…", "tasksTouched": ["AMB-00xx"], "files": ["path/…"], "nextSteps": "…" }`.
-3. При смене статуса задачи в шине — по возможности `update_task` / `move_task_state` в том же цикле.
+3. В v1 сервер материализует связи message ↔ task по `tasksTouched` **только** для `payload.type === "completion_report"`. Если положить `tasksTouched` в другой payload type, это не считается поддерживаемым контрактом.
+4. При смене статуса задачи в шине — по возможности `update_task` / `move_task_state` в том же цикле.
 
 ---
 

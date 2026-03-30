@@ -14,6 +14,8 @@
 
 Уточнение от 2026-03-26: человекочитаемые `issue key`, эпики и спринты вынесены в отдельный PRD: [PRD-issue-keys-epics-sprints.md](./PRD-issue-keys-epics-sprints.md). Этот документ остаётся базовым PRD для core issues-модуля.
 
+Уточнение от 2026-03-30: расширенные Plane-like свойства задач (`assignees`, `startDate`, `estimate`, `modules`, `labels`, visibility model) вынесены в отдельный PRD: [PRD-task-properties-plane.md](./PRD-task-properties-plane.md).
+
 ---
 
 ## 2. Решения (Approved)

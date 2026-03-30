@@ -48,7 +48,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NullsOrder = exports.JsonNullValueFilter = exports.QueryMode = exports.JsonNullValueInput = exports.NullableJsonNullValueInput = exports.SortOrder = exports.TaskScalarFieldEnum = exports.ProjectTokenAuditScalarFieldEnum = exports.ProjectTokenScalarFieldEnum = exports.EpicScalarFieldEnum = exports.SprintScalarFieldEnum = exports.ProjectScalarFieldEnum = exports.UserScalarFieldEnum = exports.TenantScalarFieldEnum = exports.MessageScalarFieldEnum = exports.ThreadScalarFieldEnum = exports.AgentScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.Decimal = void 0;
+exports.NullsOrder = exports.JsonNullValueFilter = exports.QueryMode = exports.JsonNullValueInput = exports.NullableJsonNullValueInput = exports.SortOrder = exports.MessageTaskLinkScalarFieldEnum = exports.TaskScalarFieldEnum = exports.ProjectTokenAuditScalarFieldEnum = exports.ProjectTokenScalarFieldEnum = exports.EpicScalarFieldEnum = exports.SprintScalarFieldEnum = exports.ProjectScalarFieldEnum = exports.UserScalarFieldEnum = exports.TenantScalarFieldEnum = exports.MessageScalarFieldEnum = exports.ThreadScalarFieldEnum = exports.AgentScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.Decimal = void 0;
 const runtime = __importStar(require("@prisma/client/runtime/index-browser"));
 exports.Decimal = runtime.Decimal;
 exports.NullTypes = {
@@ -85,7 +85,8 @@ exports.ModelName = {
     Epic: 'Epic',
     ProjectToken: 'ProjectToken',
     ProjectTokenAudit: 'ProjectTokenAudit',
-    Task: 'Task'
+    Task: 'Task',
+    MessageTaskLink: 'MessageTaskLink'
 };
 /*
  * Enums
@@ -213,6 +214,13 @@ exports.TaskScalarFieldEnum = {
     dueDate: 'dueDate',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
+};
+exports.MessageTaskLinkScalarFieldEnum = {
+    messageId: 'messageId',
+    taskId: 'taskId',
+    projectId: 'projectId',
+    tenantId: 'tenantId',
+    createdAt: 'createdAt'
 };
 exports.SortOrder = {
     asc: 'asc',

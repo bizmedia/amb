@@ -79,6 +79,7 @@ Agent Message Bus — это **hosted multi-tenant сервис** для орк�
 
 Основные PRD:
 - [PRD-tasks-module.md](./PRD-tasks-module.md)
+- [PRD-task-properties-plane.md](./PRD-task-properties-plane.md)
 - [PRD-issue-keys-epics-sprints.md](./PRD-issue-keys-epics-sprints.md)
 - [PRD-releases.md](./PRD-releases.md)
 - [PRD-sprint-analytics.md](./PRD-sprint-analytics.md)

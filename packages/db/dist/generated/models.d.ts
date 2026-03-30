@@ -9,5 +9,6 @@ export type * from './models/Epic';
 export type * from './models/ProjectToken';
 export type * from './models/ProjectTokenAudit';
 export type * from './models/Task';
+export type * from './models/MessageTaskLink';
 export type * from './commonInputTypes';
 //# sourceMappingURL=models.d.ts.map

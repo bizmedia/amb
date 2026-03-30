@@ -3,6 +3,13 @@ import { PrismaService } from "../prisma/prisma.service";
 import { ConflictError, NotFoundError } from "@amb-app/shared";
 import type { Message, Prisma } from "@amb-app/db";
 
+type MessageTaskLinkContext = {
+  messageId: string;
+  projectId: string;
+  tenantId: string;
+  payload: unknown;
+};
+
 @Injectable()
 export class MessagesService {
   constructor(private readonly prisma: PrismaService) {}
@@ -26,6 +33,59 @@ export class MessagesService {
     if (!a) throw new NotFoundError(label);
   }
 
+  private extractNormalizedTasksTouched(payload: unknown): string[] {
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+      return [];
+    }
+
+    const record = payload as Record<string, unknown>;
+    if (record.type !== "completion_report" || !Array.isArray(record.tasksTouched)) {
+      return [];
+    }
+
+    const uniqueKeys = new Set<string>();
+    for (const item of record.tasksTouched) {
+      if (typeof item !== "string") continue;
+      const key = item.trim();
+      if (key.length === 0) continue;
+      uniqueKeys.add(key);
+    }
+
+    return [...uniqueKeys];
+  }
+
+  private async materializeMessageTaskLinks(
+    tx: Prisma.TransactionClient,
+    context: MessageTaskLinkContext
+  ): Promise<void> {
+    const taskKeys = this.extractNormalizedTasksTouched(context.payload);
+    if (taskKeys.length === 0) {
+      return;
+    }
+
+    const tasks = await tx.task.findMany({
+      where: {
+        projectId: context.projectId,
+        key: { in: taskKeys },
+      },
+      select: { id: true },
+    });
+
+    if (tasks.length === 0) {
+      return;
+    }
+
+    await tx.messageTaskLink.createMany({
+      data: tasks.map((task) => ({
+        messageId: context.messageId,
+        taskId: task.id,
+        projectId: context.projectId,
+        tenantId: context.tenantId,
+      })),
+      skipDuplicates: true,
+    });
+  }
+
   async send(projectId: string, data: {
     threadId: string;
     fromAgentId: string;
@@ -45,7 +105,7 @@ export class MessagesService {
         });
         if (!p) throw new NotFoundError("Parent message");
       }
-      return tx.message.create({
+      const message = await tx.message.create({
         data: {
           tenantId: context.tenantId,
           projectId: context.projectId,
@@ -58,6 +118,15 @@ export class MessagesService {
           retries: 0,
         },
       });
+
+      await this.materializeMessageTaskLinks(tx, {
+        messageId: message.id,
+        projectId: context.projectId,
+        tenantId: context.tenantId,
+        payload: data.payload,
+      });
+
+      return message;
     });
   }
 
