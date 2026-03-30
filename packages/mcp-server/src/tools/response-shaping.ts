@@ -41,6 +41,30 @@ type TaskLike = {
   updatedAt?: string;
 };
 
+type EpicLike = {
+  id?: string;
+  title?: string;
+  status?: string;
+  description?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  _count?: { tasks?: number };
+  tasks?: unknown;
+};
+
+type SprintLike = {
+  id?: string;
+  name?: string;
+  status?: string;
+  goal?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  _count?: { tasks?: number };
+  tasks?: unknown;
+};
+
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 100;
 
@@ -145,4 +169,90 @@ export function shapeTasks(tasks: TaskLike[], args: ToolArgs) {
     dueDate: task.dueDate,
     updatedAt: task.updatedAt,
   }));
+}
+
+export function shapeEpics(epics: EpicLike[], args: ToolArgs) {
+  const limited = epics.slice(0, getLimit(args));
+  if (!isSummaryMode(args)) return limited;
+
+  return limited.map((epic) => ({
+    id: epic.id,
+    title: epic.title,
+    status: epic.status,
+    taskCount: epic._count?.tasks,
+    updatedAt: epic.updatedAt ?? epic.createdAt,
+  }));
+}
+
+export function shapeEpicDetail(epic: Record<string, unknown>, args: ToolArgs) {
+  if (!isSummaryMode(args)) return epic;
+
+  const e = epic as EpicLike;
+  const tasks = (Array.isArray(epic.tasks) ? epic.tasks : []) as TaskLike[];
+  const limitedTasks = tasks.slice(0, getLimit(args));
+
+  return {
+    id: e.id,
+    title: e.title,
+    status: e.status,
+    description:
+      typeof e.description === "string"
+        ? e.description.length > 240
+          ? `${e.description.slice(0, 240)}…`
+          : e.description
+        : e.description,
+    taskCount: e._count?.tasks ?? tasks.length,
+    tasks: limitedTasks.map((t) => ({
+      id: t.id,
+      key: t.key,
+      title: t.title,
+      state: t.state,
+    })),
+    updatedAt: e.updatedAt ?? e.createdAt,
+  };
+}
+
+export function shapeSprints(sprints: SprintLike[], args: ToolArgs) {
+  const limited = sprints.slice(0, getLimit(args));
+  if (!isSummaryMode(args)) return limited;
+
+  return limited.map((sprint) => ({
+    id: sprint.id,
+    name: sprint.name,
+    status: sprint.status,
+    taskCount: sprint._count?.tasks,
+    startDate: sprint.startDate,
+    endDate: sprint.endDate,
+    updatedAt: sprint.updatedAt ?? sprint.createdAt,
+  }));
+}
+
+export function shapeSprintDetail(sprint: Record<string, unknown>, args: ToolArgs) {
+  if (!isSummaryMode(args)) return sprint;
+
+  const s = sprint as SprintLike;
+  const tasks = (Array.isArray(sprint.tasks) ? sprint.tasks : []) as TaskLike[];
+  const limitedTasks = tasks.slice(0, getLimit(args));
+
+  return {
+    id: s.id,
+    name: s.name,
+    status: s.status,
+    goal:
+      typeof s.goal === "string"
+        ? s.goal.length > 240
+          ? `${s.goal.slice(0, 240)}…`
+          : s.goal
+        : s.goal,
+    startDate: s.startDate,
+    endDate: s.endDate,
+    taskCount: s._count?.tasks ?? tasks.length,
+    tasks: limitedTasks.map((t) => ({
+      id: t.id,
+      key: t.key,
+      title: t.title,
+      state: t.state,
+    })),
+    updatedAt: s.updatedAt ?? s.createdAt,
+  };
 }

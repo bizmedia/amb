@@ -78,13 +78,43 @@ Message Bus даёт агентам общий бэкенд для:
 | Tool | Назначение |
 |------|------------|
 | `list_tasks` | Список задач. Фильтры: `state`, `priority`, `assignee`, и т.д. |
-| `create_task` | Создать задачу. Обязательно: `title`. Опционально: `description`, `state`, `priority`, `assigneeId`, `dueDate`. |
+| `create_task` | Создать задачу. Обязательно: `title`. Опционально: `description`, `state`, `priority`, `assigneeId`, `dueDate`, `epicId`, `sprintId`. |
 | `get_task` | Задача по `taskId` (или legacy `issueId`). |
 | `update_task` | Обновить задачу (`taskId` + поля). |
 | `move_task_state` | Статус-kanban shortcut: `taskId`, `state`. |
 | `delete_task` | Удалить задачу по `taskId`. |
 
 Состояния: `BACKLOG`, `TODO`, `IN_PROGRESS`, `DONE`. Приоритеты: `NONE`, `LOW`, `MEDIUM`, `HIGH`, `URGENT`.
+
+### Эпики (epics)
+
+Те же `projectId` / `MESSAGE_BUS_PROJECT_ID`, что и для задач.
+
+| Tool | Назначение |
+|------|------------|
+| `list_epics` | Список эпиков. По умолчанию API скрывает `ARCHIVED`, если не передан фильтр `status`. Есть `limit`, `summary`. |
+| `create_epic` | Создать эпик: `title`, опционально `description`, `status`. |
+| `get_epic` | Эпик по `epicId`; в ответе связанные задачи (в `summary` — укороченно). |
+| `update_epic` | Обновить эпик: минимум одно из `title`, `description`, `status`. |
+| `archive_epic` | Архивировать эпик (`ARCHIVED`), эквивалент DELETE в API. |
+
+Статусы эпика: `OPEN`, `IN_PROGRESS`, `DONE`, `ARCHIVED`.
+
+### Спринты (sprints)
+
+Те же `projectId` / `MESSAGE_BUS_PROJECT_ID`.
+
+| Tool | Назначение |
+|------|------------|
+| `list_sprints` | Список спринтов; опционально `status`, `limit`, `summary`. |
+| `create_sprint` | Создать спринт (`PLANNED`): `name`, опционально `goal`, `startDate`, `endDate` (ISO). |
+| `get_sprint` | Спринт по `sprintId` + задачи (в `summary` — укороченно). |
+| `update_sprint` | PATCH: минимум одно из `name`, `goal`, `startDate`, `endDate`, `status`. |
+| `start_sprint` | Запустить только `PLANNED` → `ACTIVE` (в проекте не более одного `ACTIVE`). |
+| `complete_sprint` | Завершить спринт → `COMPLETED`. |
+| `delete_sprint` | Удалить только `PLANNED` спринт (не начатый). |
+
+Статусы спринта: `PLANNED`, `ACTIVE`, `COMPLETED`.
 
 ---
 
@@ -100,7 +130,7 @@ Message Bus даёт агентам общий бэкенд для:
   Определи свой `agentId`. `get_inbox(agentId)` → обработай → **`ack_message` по каждому обработанному id** (иначе «непрочитанные» копятся у всех, особенно после broadcast).
 
 * **Вести бэклог в шине**  
-  `list_tasks` с фильтрами → `create_task` / `update_task` / `move_task_state` по необходимости. Назначение: `assigneeId` (UUID агента из `list_project_members`).
+  `list_epics` / `create_epic`, `list_sprints` / `create_sprint` / `start_sprint` при необходимости → `list_tasks` с фильтрами → `create_task` / `update_task` / `move_task_state` по необходимости. Назначение: `assigneeId` (UUID агента из `list_project_members`); привязка: `epicId`, `sprintId` в `create_task` / `update_task`.
 
 * **Проверить DLQ**  
   `get_dlq` — для диагностики и отчётов.

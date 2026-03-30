@@ -19,7 +19,7 @@ It provides:
 - an MCP server for Cursor, Codex, Claude Code, and other MCP clients
 - CLI commands to register agents from your project
 - a fast `setup` command for first-time onboarding
-- access to AMB tools for agents, threads, messages, inbox, and tasks
+- access to AMB tools for agents, threads, messages, inbox, tasks, epics, and sprints
 
 ## Requirements
 
@@ -160,6 +160,26 @@ What they do:
 - `amb-mcp seed agents [path]`: register agents only
 - `amb-mcp seed threads [path]`: create default threads only
 - `amb-mcp seed all [path]`: register agents and create threads
+
+## Epic tools (MCP)
+
+Project-scoped epic management (same `MESSAGE_BUS_PROJECT_ID` / `projectId` as tasks):
+
+- `list_epics` — optional `status`, `limit`, `summary`
+- `create_epic` — `title`, optional `description`, `status`
+- `get_epic` — `epicId`, optional `limit`, `summary` (nested tasks trimmed in summary mode)
+- `update_epic` — `epicId` plus at least one of `title`, `description`, `status`
+- `archive_epic` — `epicId` (sets status to `ARCHIVED`)
+
+## Sprint tools (MCP)
+
+- `list_sprints` — optional `status`, `limit`, `summary`
+- `create_sprint` — `name`, optional `goal`, `startDate`, `endDate` (ISO strings)
+- `get_sprint` — `sprintId`, optional `limit`, `summary`
+- `update_sprint` — `sprintId` plus at least one field (`name`, `goal`, `startDate`, `endDate`, `status`)
+- `start_sprint` — `sprintId` (PLANNED → ACTIVE; one active sprint per project)
+- `complete_sprint` — `sprintId` → COMPLETED
+- `delete_sprint` — `sprintId` (PLANNED only)
 
 ## Token-Efficient Usage
 

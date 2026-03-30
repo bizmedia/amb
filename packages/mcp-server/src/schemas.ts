@@ -1,3 +1,9 @@
+/** API EpicStatus enum. */
+export const EPIC_STATUS_ENUM = ["OPEN", "IN_PROGRESS", "DONE", "ARCHIVED"] as const;
+
+/** API SprintStatus enum. */
+export const SPRINT_STATUS_ENUM = ["PLANNED", "ACTIVE", "COMPLETED"] as const;
+
 /** Kanban column states (API TaskState enum). */
 export const TASK_STATE_ENUM = ["BACKLOG", "TODO", "IN_PROGRESS", "DONE"] as const;
 
@@ -145,6 +151,162 @@ export const tools = [
         taskId: str("Task UUID or key"),
       },
       ["taskId"]
+    ),
+  },
+  {
+    name: "list_epics",
+    description:
+      "List project epics (by default excludes ARCHIVED unless status filter is set). Optional limit/summary like list_tasks.",
+    inputSchema: objectSchema(
+      {
+        projectId: PROJECT_ID_PROP,
+        limit: LIMIT_PROP,
+        summary: SUMMARY_PROP,
+        status: enumString(EPIC_STATUS_ENUM, "Filter by epic status"),
+      },
+      []
+    ),
+  },
+  {
+    name: "create_epic",
+    description: "Create a project epic",
+    inputSchema: objectSchema(
+      {
+        projectId: PROJECT_ID_PROP,
+        title: str("Title (required)"),
+        description: str("Description (optional)"),
+        status: enumString(EPIC_STATUS_ENUM, "Initial status (optional, default OPEN)"),
+      },
+      ["title"]
+    ),
+  },
+  {
+    name: "get_epic",
+    description: "Get an epic by UUID, including linked tasks (trimmed when summary=true)",
+    inputSchema: objectSchema(
+      {
+        projectId: PROJECT_ID_PROP,
+        epicId: str("Epic UUID"),
+        limit: LIMIT_PROP,
+        summary: SUMMARY_PROP,
+      },
+      ["epicId"]
+    ),
+  },
+  {
+    name: "update_epic",
+    description:
+      "Update an epic (provide at least one of title, description, status). Use archive_epic to set ARCHIVED.",
+    inputSchema: objectSchema(
+      {
+        projectId: PROJECT_ID_PROP,
+        epicId: str("Epic UUID"),
+        title: str("Title"),
+        description: str("Description (nullable)"),
+        status: enumString(EPIC_STATUS_ENUM, "Status"),
+      },
+      ["epicId"]
+    ),
+  },
+  {
+    name: "archive_epic",
+    description: "Archive an epic (sets status to ARCHIVED; tasks remain but new assignment may be blocked by API rules)",
+    inputSchema: objectSchema(
+      {
+        projectId: PROJECT_ID_PROP,
+        epicId: str("Epic UUID"),
+      },
+      ["epicId"]
+    ),
+  },
+  {
+    name: "list_sprints",
+    description: "List project sprints. Optional status filter, limit, and summary (like list_tasks).",
+    inputSchema: objectSchema(
+      {
+        projectId: PROJECT_ID_PROP,
+        limit: LIMIT_PROP,
+        summary: SUMMARY_PROP,
+        status: enumString(SPRINT_STATUS_ENUM, "Filter by sprint status"),
+      },
+      []
+    ),
+  },
+  {
+    name: "create_sprint",
+    description: "Create a sprint (PLANNED). Optional goal, startDate, endDate as ISO date or datetime strings.",
+    inputSchema: objectSchema(
+      {
+        projectId: PROJECT_ID_PROP,
+        name: str("Sprint name (required)"),
+        goal: str("Goal (optional)"),
+        startDate: str("Start date (ISO, optional)"),
+        endDate: str("End date (ISO, optional)"),
+      },
+      ["name"]
+    ),
+  },
+  {
+    name: "get_sprint",
+    description: "Get a sprint by UUID with linked tasks (trimmed when summary=true).",
+    inputSchema: objectSchema(
+      {
+        projectId: PROJECT_ID_PROP,
+        sprintId: str("Sprint UUID"),
+        limit: LIMIT_PROP,
+        summary: SUMMARY_PROP,
+      },
+      ["sprintId"]
+    ),
+  },
+  {
+    name: "update_sprint",
+    description:
+      "Update a sprint fields (at least one of name, goal, startDate, endDate, status). Prefer start_sprint / complete_sprint for lifecycle.",
+    inputSchema: objectSchema(
+      {
+        projectId: PROJECT_ID_PROP,
+        sprintId: str("Sprint UUID"),
+        name: str("Name"),
+        goal: str("Goal (nullable)"),
+        startDate: str("Start date (ISO, nullable)"),
+        endDate: str("End date (ISO, nullable)"),
+        status: enumString(SPRINT_STATUS_ENUM, "Status"),
+      },
+      ["sprintId"]
+    ),
+  },
+  {
+    name: "start_sprint",
+    description: "Start a PLANNED sprint (sets ACTIVE). Fails if another sprint is already ACTIVE in the project.",
+    inputSchema: objectSchema(
+      {
+        projectId: PROJECT_ID_PROP,
+        sprintId: str("Sprint UUID"),
+      },
+      ["sprintId"]
+    ),
+  },
+  {
+    name: "complete_sprint",
+    description: "Mark sprint as COMPLETED (from PLANNED or ACTIVE per API rules).",
+    inputSchema: objectSchema(
+      {
+        projectId: PROJECT_ID_PROP,
+        sprintId: str("Sprint UUID"),
+      },
+      ["sprintId"]
+    ),
+  },
+  {
+    name: "delete_sprint",
+    description: "Delete a sprint (API allows only PLANNED sprints without starting them).",
+    inputSchema: objectSchema(
+      {
+        projectId: PROJECT_ID_PROP,
+        sprintId: str("Sprint UUID"),
+      },
+      ["sprintId"]
     ),
   },
   {
