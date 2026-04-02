@@ -26,7 +26,6 @@ export function LocaleSwitcher() {
 
   const tCommon = useTranslations("Common");
   const setLocale = (newLocale: string) => {
-    document.cookie = `NEXT_LOCALE=${newLocale}; Path=/; Max-Age=31536000; SameSite=Lax`;
     window.localStorage.setItem("amb:locale", newLocale);
     router.replace(pathname, { locale: newLocale });
   };

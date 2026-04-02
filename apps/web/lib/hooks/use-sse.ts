@@ -33,6 +33,7 @@ export function useSSE(options: UseSSEOptions = {}) {
 
   const eventSourceRef = useRef<EventSource | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const connectRef = useRef<(() => void) | null>(null);
 
   const connect = useCallback(() => {
     if (eventSourceRef.current) {
@@ -74,13 +75,17 @@ export function useSSE(options: UseSSEOptions = {}) {
       // Auto-reconnect
       reconnectTimeoutRef.current = setTimeout(() => {
         if (effectiveEnabled) {
-          connect();
+          connectRef.current?.();
         }
       }, reconnectInterval);
     };
   }, [effectiveEnabled, reconnectInterval, projectId]);
 
-  const disconnect = useCallback(() => {
+  useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
+
+  const cleanupConnection = useCallback(() => {
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
       reconnectTimeoutRef.current = null;
@@ -89,23 +94,28 @@ export function useSSE(options: UseSSEOptions = {}) {
       eventSourceRef.current.close();
       eventSourceRef.current = null;
     }
-    setState((prev) => ({ ...prev, connected: false }));
   }, []);
+
+  const disconnect = useCallback(() => {
+    cleanupConnection();
+    setState((prev) => ({ ...prev, connected: false }));
+  }, [cleanupConnection]);
 
   useEffect(() => {
     if (effectiveEnabled) {
       connect();
     } else {
-      disconnect();
+      cleanupConnection();
     }
 
     return () => {
-      disconnect();
+      cleanupConnection();
     };
-  }, [effectiveEnabled, connect, disconnect]);
+  }, [effectiveEnabled, connect, cleanupConnection]);
 
   return {
     ...state,
+    connected: effectiveEnabled ? state.connected : false,
     reconnect: connect,
     disconnect,
   };

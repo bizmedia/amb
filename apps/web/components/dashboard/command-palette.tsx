@@ -20,7 +20,6 @@ import {
   PlusIcon,
   RefreshCwIcon,
   SearchIcon,
-  KeyboardIcon,
   ArrowUpIcon,
   ArrowDownIcon,
   CheckIcon,

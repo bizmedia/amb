@@ -83,6 +83,24 @@ function clampSheetWidth(width: number, viewportWidth: number) {
   return Math.min(Math.max(width, MIN_SHEET_WIDTH), max);
 }
 
+function getInitialSheetWidth() {
+  if (typeof window === "undefined") {
+    return DEFAULT_SHEET_WIDTH;
+  }
+
+  const stored = window.localStorage.getItem(TASK_SHEET_WIDTH_KEY);
+  if (!stored) {
+    return clampSheetWidth(Math.round(window.innerWidth / 2), window.innerWidth);
+  }
+
+  const parsed = Number(stored);
+  if (Number.isFinite(parsed)) {
+    return clampSheetWidth(parsed, window.innerWidth);
+  }
+
+  return DEFAULT_SHEET_WIDTH;
+}
+
 export function TaskDetailsSheet({
   task,
   onClose,
@@ -90,26 +108,9 @@ export function TaskDetailsSheet({
   onDelete,
   labels,
 }: TaskDetailsSheetProps) {
-  const [sheetWidth, setSheetWidth] = useState(DEFAULT_SHEET_WIDTH);
+  const [sheetWidth, setSheetWidth] = useState(getInitialSheetWidth);
   const [isResizing, setIsResizing] = useState(false);
   const currentWidthRef = useRef(DEFAULT_SHEET_WIDTH);
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    const stored = window.localStorage.getItem(TASK_SHEET_WIDTH_KEY);
-    if (!stored) {
-      setSheetWidth(clampSheetWidth(Math.round(window.innerWidth / 2), window.innerWidth));
-      return;
-    }
-
-    const parsed = Number(stored);
-    if (Number.isFinite(parsed)) {
-      setSheetWidth(clampSheetWidth(parsed, window.innerWidth));
-    }
-  }, []);
 
   useEffect(() => {
     currentWidthRef.current = sheetWidth;

@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@amb-app/ui/components/button";
-import { Input } from "@amb-app/ui/components/input";
 import { Badge } from "@amb-app/ui/components/badge";
 import {
   Dialog,
@@ -167,16 +166,19 @@ export function ProjectSwitcher() {
       FolderKanbanIcon,
     [selectedProjectIconValue]
   );
-  const fallbackProjectColor = PROJECT_COLOR_OPTIONS[0] ?? {
-    value: "slate" as const,
-    brand: "#475569",
-    accent: "#94a3b8",
-  };
   const selectedProjectColor = useMemo(
-    () =>
-      PROJECT_COLOR_OPTIONS.find((option) => option.value === selectedProjectColorValue) ??
-      fallbackProjectColor,
-    [fallbackProjectColor, selectedProjectColorValue]
+    () => {
+      const fallbackProjectColor = PROJECT_COLOR_OPTIONS[0] ?? {
+        value: "slate" as const,
+        brand: "#475569",
+        accent: "#94a3b8",
+      };
+      return (
+        PROJECT_COLOR_OPTIONS.find((option) => option.value === selectedProjectColorValue) ??
+        fallbackProjectColor
+      );
+    },
+    [selectedProjectColorValue]
   );
 
   const loadTenants = async () => {

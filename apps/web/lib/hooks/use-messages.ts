@@ -167,15 +167,15 @@ export function useDlq() {
   return { messages, loading, error, refetch: fetchDlq, retryMessage, retryAll };
 }
 
-export function useAgentInboxCounts(_agentIds: string[], _pollInterval = 5000) {
+export function useAgentInboxCounts() {
   // SSE-based implementation - uses global SSE stream instead of polling
   // agentIds and pollInterval are ignored - SSE provides all counts
   const { inboxCounts, connected } = useSSE();
 
-  return { 
-    counts: inboxCounts, 
-    loading: !connected, 
-    refetch: () => {} // SSE auto-updates, no manual refetch needed
+  return {
+    counts: inboxCounts,
+    loading: !connected,
+    refetch: () => {}, // SSE auto-updates, no manual refetch needed
   };
 }
 

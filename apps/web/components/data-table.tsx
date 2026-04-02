@@ -16,7 +16,6 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
 import {
   arrayMove,
   SortableContext,
-  useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
 import {
@@ -84,7 +83,7 @@ import {
 import { DragHandle } from "./data-table/DragHandle"
 import { DraggableRow } from "./data-table/DraggableRow"
 import { TableCellViewer } from "./data-table/TableCellViewer"
-import { schema, type DataTableRow } from "./data-table/types"
+import { type DataTableRow } from "./data-table/types"
 
 const columns: ColumnDef<DataTableRow>[] = [
   {

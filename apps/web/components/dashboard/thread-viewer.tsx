@@ -24,7 +24,7 @@ import {
   AlertTriangleIcon,
   ChevronDownIcon,
 } from "lucide-react";
-import type { Agent, Message } from "@/lib/types";
+import type { Agent } from "@/lib/types";
 import { MentionInput } from "./mention-input";
 import { AgentSelector } from "./agent-selector";
 import { extractToAgentId } from "@/lib/mentions";
