@@ -167,7 +167,7 @@ jobs:
         run: pnpm --filter amb-web lint
 
       - name: API lint
-        run: pnpm --filter amb-api exec eslint "{src,apps,libs,test}/**/*.ts"
+        run: pnpm exec eslint "apps/api/{src,apps,libs,test}/**/*.ts"
 
       - name: Workspace typecheck
         run: pnpm typecheck
