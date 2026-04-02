@@ -2,6 +2,15 @@ name: Deploy AMB to Timeweb Kubernetes
 
 on:
   workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Docker image tag to deploy. Leave empty to use the current commit SHA."
+        required: false
+        default: ""
+      bootstrap:
+        description: "Override AMB_BOOTSTRAP for this run."
+        required: false
+        default: ""
   push:
     branches:
       - main
@@ -21,10 +30,12 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  IMAGE_TAG: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.image_tag || github.sha }}
   AMB_NAMESPACE: ${{ vars.AMB_K8S_NAMESPACE || 'megaretro' }}
   AMB_CLUSTER_ISSUER: ${{ vars.AMB_K8S_CLUSTER_ISSUER || 'letsencrypt-prod' }}
   AMB_IMAGE_PULL_SECRET: ${{ vars.AMB_K8S_IMAGE_PULL_SECRET || 'timeweb-registry-secret' }}
-  AMB_BOOTSTRAP: ${{ vars.AMB_BOOTSTRAP || 'true' }}
+  AMB_BOOTSTRAP: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.bootstrap || vars.AMB_BOOTSTRAP || 'true' }}
   AMB_WEB_HOST: ${{ vars.AMB_WEB_HOST || 'amb.megaretro.ru' }}
   AMB_API_HOST: ${{ vars.AMB_API_HOST || 'api.amb.megaretro.ru' }}
   AMB_WEB_TLS_SECRET: amb-megaretro-ru-tls
@@ -37,6 +48,7 @@ jobs:
     name: Validate Config
     runs-on: ubuntu-latest
     environment: PROD
+    timeout-minutes: 5
     permissions:
       contents: read
 
@@ -70,6 +82,35 @@ jobs:
             exit 1
           fi
 
+      - name: Validate required variables
+        env:
+          AMB_NAMESPACE_VALUE: ${{ vars.AMB_K8S_NAMESPACE }}
+          AMB_CLUSTER_ISSUER_VALUE: ${{ vars.AMB_K8S_CLUSTER_ISSUER }}
+          AMB_IMAGE_PULL_SECRET_VALUE: ${{ vars.AMB_K8S_IMAGE_PULL_SECRET }}
+          AMB_WEB_HOST_VALUE: ${{ vars.AMB_WEB_HOST }}
+          AMB_API_HOST_VALUE: ${{ vars.AMB_API_HOST }}
+          TWC_REGISTRY_NAMESPACE_VALUE: ${{ vars.TWC_REGISTRY_NAMESPACE }}
+        run: |
+          set -eu
+          missing=""
+          for key in \
+            AMB_NAMESPACE_VALUE \
+            AMB_CLUSTER_ISSUER_VALUE \
+            AMB_IMAGE_PULL_SECRET_VALUE \
+            AMB_WEB_HOST_VALUE \
+            AMB_API_HOST_VALUE \
+            TWC_REGISTRY_NAMESPACE_VALUE; do
+            eval "value=\${$key:-}"
+            if [ -z "$value" ]; then
+              missing="$missing $key"
+            fi
+          done
+
+          if [ -n "$missing" ]; then
+            echo "Missing required GitHub variables:$missing" >&2
+            exit 1
+          fi
+
       - name: Print deploy summary
         run: |
           echo "Namespace: $AMB_NAMESPACE"
@@ -77,13 +118,130 @@ jobs:
           echo "Web host: $AMB_WEB_HOST"
           echo "API host: $AMB_API_HOST"
           echo "Registry: $REGISTRY_HOST/$REGISTRY_NAMESPACE"
-          echo "Image tag: $GITHUB_SHA"
+          echo "Image tag: $IMAGE_TAG"
+          echo "Bootstrap: $AMB_BOOTSTRAP"
 
-  build_images:
-    name: Build And Push Images
+      - name: Write step summary
+        run: |
+          {
+            echo "## Deploy Summary"
+            echo ""
+            echo "- Namespace: \`$AMB_NAMESPACE\`"
+            echo "- Cluster issuer: \`$AMB_CLUSTER_ISSUER\`"
+            echo "- Web host: \`$AMB_WEB_HOST\`"
+            echo "- API host: \`$AMB_API_HOST\`"
+            echo "- Registry: \`$REGISTRY_HOST/$REGISTRY_NAMESPACE\`"
+            echo "- Image tag: \`$IMAGE_TAG\`"
+            echo "- Bootstrap: \`$AMB_BOOTSTRAP\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  quality_checks:
+    name: Lint And Typecheck
     needs: validate
     runs-on: ubuntu-latest
     environment: PROD
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.19.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Web lint
+        run: pnpm --filter amb-web lint
+
+      - name: API lint
+        run: pnpm --filter amb-api lint
+
+      - name: Workspace typecheck
+        run: pnpm typecheck
+
+  api_e2e:
+    name: API E2E
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: PROD
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: amb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d amb"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/amb
+      JWT_SECRET: ci-jwt-secret
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.19.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build workspace dependencies
+        run: |
+          pnpm --filter @amb-app/shared build
+          pnpm --filter @amb-app/db build
+
+      - name: Migrate DB
+        run: pnpm db:migrate:deploy
+
+      - name: API typecheck
+        run: pnpm --filter amb-api typecheck
+
+      - name: API E2E tests
+        run: pnpm --filter amb-api test:e2e
+
+  build_images:
+    name: Build And Push Images
+    needs:
+      - validate
+      - quality_checks
+      - api_e2e
+    runs-on: ubuntu-latest
+    environment: PROD
+    timeout-minutes: 30
     permissions:
       contents: read
 
@@ -107,14 +265,15 @@ jobs:
         with:
           node-version: "20"
           cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Define image tags
         run: |
-          echo "AMB_API_IMAGE=${REGISTRY_HOST}/${REGISTRY_NAMESPACE}/amb-api:${GITHUB_SHA}" >> "$GITHUB_ENV"
-          echo "AMB_WEB_IMAGE=${REGISTRY_HOST}/${REGISTRY_NAMESPACE}/amb-web:${GITHUB_SHA}" >> "$GITHUB_ENV"
+          echo "AMB_API_IMAGE=${REGISTRY_HOST}/${REGISTRY_NAMESPACE}/amb-api:${IMAGE_TAG}" >> "$GITHUB_ENV"
+          echo "AMB_WEB_IMAGE=${REGISTRY_HOST}/${REGISTRY_NAMESPACE}/amb-web:${IMAGE_TAG}" >> "$GITHUB_ENV"
 
       - name: Log in to Timeweb Container Registry
         uses: docker/login-action@v3
@@ -128,7 +287,8 @@ jobs:
         env:
           CONTAINER_CLI: docker
           REGISTRY_PREFIX: ${{ env.REGISTRY_HOST }}/${{ env.REGISTRY_NAMESPACE }}
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
+          DOCKER_BUILDX_CACHE: "true"
           PUBLISH_LATEST: "false"
           PUBLISH_WEB: "true"
           PUBLISH_API: "true"
@@ -142,6 +302,7 @@ jobs:
     needs: build_images
     runs-on: ubuntu-latest
     environment: PROD
+    timeout-minutes: 15
     permissions:
       contents: read
 
@@ -189,6 +350,7 @@ jobs:
     needs: migrate_database
     runs-on: ubuntu-latest
     environment: PROD
+    timeout-minutes: 15
     permissions:
       contents: read
 
@@ -214,6 +376,25 @@ jobs:
           kubectl rollout status -n "$AMB_NAMESPACE" deployment/amb-api --timeout=300s
           kubectl rollout status -n "$AMB_NAMESPACE" deployment/amb-web --timeout=300s
 
+      - name: Smoke check API and web
+        run: |
+          set -euo pipefail
+          kubectl get pods -n "$AMB_NAMESPACE" -l app=amb-api
+          kubectl get pods -n "$AMB_NAMESPACE" -l app=amb-web
+          curl -fsS "https://$AMB_API_HOST/api/health"
+          curl -IfsS "https://$AMB_WEB_HOST"
+
       - name: Show ingress status
         run: |
           kubectl get ingress -n "$AMB_NAMESPACE" amb-api-ingress amb-web-ingress -o wide
+
+      - name: Write rollout summary
+        run: |
+          {
+            echo "## Rollout Result"
+            echo ""
+            echo "- API image: \`$REGISTRY_HOST/$REGISTRY_NAMESPACE/amb-api:$IMAGE_TAG\`"
+            echo "- Web image: \`$REGISTRY_HOST/$REGISTRY_NAMESPACE/amb-web:$IMAGE_TAG\`"
+            echo "- Web URL: https://$AMB_WEB_HOST"
+            echo "- API URL: https://$AMB_API_HOST/api/health"
+          } >> "$GITHUB_STEP_SUMMARY"

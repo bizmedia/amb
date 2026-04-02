@@ -1,179 +1,239 @@
-# AMB deployment on Timeweb Cloud and Yandex Cloud
+# Runbook CI/CD для AMB на Timeweb Kubernetes
 
-This runbook uses one deployment topology for both providers:
+Этот документ описывает только CI/CD-путь для production-развёртывания AMB в Timeweb Kubernetes через GitHub Actions.
 
-- `amb.megaretro.ru` -> AMB dashboard (`web`)
-- `api.amb.megaretro.ru` -> Nest API (`api`)
-- managed PostgreSQL outside the app containers
-- Caddy for TLS and reverse proxy
+Текущая схема:
 
-## Why this topology
+- Kubernetes cluster: `twc-k8scluster`
+- namespace: `megaretro`
+- GitHub Actions workflow: `Deploy AMB to Timeweb Kubernetes`
+- GitHub Environment: `PROD`
+- dashboard: `amb.megaretro.ru`
+- API: `api.amb.megaretro.ru`
 
-Use a VM, not Timeweb App Platform, for this setup.
+## Что уже ожидается готовым
 
-Timeweb currently states that in App Platform with Docker Compose:
+- в Timeweb существует рабочий Kubernetes-кластер
+- в кластере установлен `ingress-nginx`
+- в кластере установлен `cert-manager`
+- доступен `ClusterIssuer` `letsencrypt-prod`
+- домены `amb.megaretro.ru` и `api.amb.megaretro.ru` смотрят на ingress балансировщик кластера
+- в GitHub repository уже запушен workflow
 
-- `80` and `443` host ports are reserved
-- only the first service in `docker-compose.yml` is proxied by default
-- other services are reachable only with explicit ports
+Основной workflow:
 
-Source: Timeweb Cloud docs, "Деплой из Docker Compose", accessed April 2, 2026:
-https://timeweb.cloud/docs/apps/deploying-with-docker-compose
+- [deploy-timeweb-k8s.yml](/Users/anatolijtukov/Developer/amb-app/.github/workflows/deploy-timeweb-k8s.yml)
 
-That conflicts with the target layout where both:
+Основные манифесты:
 
-- `amb.megaretro.ru`
-- `api.amb.megaretro.ru`
+- [apply.yaml](/Users/anatolijtukov/Developer/amb-app/deploy/k8s/timeweb/apply.yaml)
+- [migrate-job.yaml](/Users/anatolijtukov/Developer/amb-app/deploy/k8s/timeweb/migrate-job.yaml)
 
-must work cleanly over HTTPS without exposing raw ports.
+## Как работает CI/CD
 
-For Timeweb Cloud servers, root access is available on the VM.
-Source: Timeweb Cloud docs, "Облачные серверы Timeweb Cloud", accessed April 2, 2026:
-https://timeweb.cloud/docs/cloud-servers
+Workflow делает следующее:
 
-For Yandex Cloud, Docker Compose deployment on a VM is also supported.
-Source: Yandex Cloud docs, "Creating a VM from a Container Optimized Image with multiple Docker containers", updated June 9, 2025:
-https://yandex.cloud/en/docs/cos/tutorials/docker-compose
+1. Берёт код из репозитория.
+2. Проверяет обязательные secrets.
+3. Собирает Docker-образы `amb-api` и `amb-web`.
+4. Публикует их в Timeweb Container Registry.
+5. Обновляет Kubernetes image pull secret.
+6. Обновляет Kubernetes secret `amb-secrets`.
+7. Запускает Prisma migration job.
+8. Выкатывает `Deployment`, `Service` и `Ingress`.
+9. Ждёт успешный rollout `amb-api` и `amb-web`.
 
-## Files added in this repo
+Теги образов:
 
-- `deploy/compose/docker-compose.hosting.yml`
-- `deploy/compose/.env.hosting.example`
-- `deploy/compose/Caddyfile`
-- `scripts/deploy/hosting-deploy.sh`
+- `amb-api:${GITHUB_SHA}`
+- `amb-web:${GITHUB_SHA}`
 
-## Environment file
+## Где хранить настройки в GitHub
 
-On the server:
+Все production-настройки должны лежать в:
 
-```bash
-cp deploy/compose/.env.hosting.example deploy/compose/.env.hosting
+- `GitHub -> Settings -> Environments -> PROD`
+
+Не в обычных repository secrets, а именно в environment `PROD`.
+
+## Secrets для Environment PROD
+
+Нужно создать такие secrets:
+
+```text
+TWC_KUBECONFIG=<полный kubeconfig кластера twc-k8scluster>
+TWC_REGISTRY_HOST=966b2a59-megaretro-register.registry.twcstorage.ru
+TWC_REGISTRY_USERNAME=<логин Timeweb Container Registry>
+TWC_REGISTRY_PASSWORD=<пароль или token Timeweb Container Registry>
+AMB_DATABASE_URL=postgresql://amb_user:xrZf49KLyfu_A@5.129.247.123:5432/amb_db
+AMB_JWT_SECRET=9aabf4f24c40d7d072ba416aa34cc9bbc062db72b42a771b7e4ff830f9768935
 ```
 
-Then edit:
+Назначение:
 
-```dotenv
-WEB_DOMAIN=amb.megaretro.ru
-API_DOMAIN=api.amb.megaretro.ru
-DATABASE_URL=postgresql://amb_user:password@db-host:6432/amb?sslmode=require
-JWT_SECRET=<long-random-secret>
+- `TWC_KUBECONFIG`: доступ GitHub Actions к кластеру
+- `TWC_REGISTRY_HOST`: адрес Timeweb registry
+- `TWC_REGISTRY_USERNAME` / `TWC_REGISTRY_PASSWORD`: логин в registry
+- `AMB_DATABASE_URL`: строка подключения к production PostgreSQL
+- `AMB_JWT_SECRET`: production JWT secret для API
+
+## Variables для Environment PROD
+
+Нужно создать такие variables:
+
+```text
+AMB_K8S_NAMESPACE=megaretro
+AMB_K8S_CLUSTER_ISSUER=letsencrypt-prod
+AMB_K8S_IMAGE_PULL_SECRET=timeweb-registry-secret
+AMB_WEB_HOST=amb.megaretro.ru
+AMB_API_HOST=api.amb.megaretro.ru
+TWC_REGISTRY_NAMESPACE=megaretro
 AMB_BOOTSTRAP=true
 ```
 
-Notes:
+Назначение:
 
-- Keep `AMB_BOOTSTRAP=true` on first deploy so the default admin and default project are created.
-- After the first successful login, you can set `AMB_BOOTSTRAP=false`.
-- If the managed PostgreSQL instance does not require TLS, remove `?sslmode=require`.
+- `AMB_K8S_NAMESPACE`: namespace деплоя
+- `AMB_K8S_CLUSTER_ISSUER`: issuer для TLS сертификатов
+- `AMB_K8S_IMAGE_PULL_SECRET`: имя docker-registry secret внутри Kubernetes
+- `AMB_WEB_HOST`: публичный домен dashboard
+- `AMB_API_HOST`: публичный домен API
+- `TWC_REGISTRY_NAMESPACE`: namespace репозитория образов в registry
+- `AMB_BOOTSTRAP`: включить первичный bootstrap проекта и admin user
 
-## DNS
+## Что такое AMB_K8S_IMAGE_PULL_SECRET
 
-Create or verify these records:
+`AMB_K8S_IMAGE_PULL_SECRET` это не пароль, а имя Kubernetes secret, через который кластер тянет Docker-образы из registry.
 
-- `amb.megaretro.ru` -> A record to the VM public IP
-- `api.amb.megaretro.ru` -> A record to the same VM public IP
+В текущей схеме:
 
-If DNS was just changed, wait for propagation before requesting certificates.
-
-## Timeweb Cloud
-
-Recommended target:
-
-1. Create a Cloud Server with Ubuntu 24.04 LTS.
-2. Open inbound ports `22`, `80`, and `443`.
-3. Point both subdomains to the server IP.
-4. Install Docker Engine and Docker Compose plugin.
-5. Clone this repo on the server.
-6. Fill `deploy/compose/.env.hosting`.
-7. Run the deploy script.
-
-Server bootstrap:
-
-```bash
-sudo apt-get update
-sudo apt-get install -y ca-certificates curl git
-curl -fsSL https://get.docker.com | sh
-sudo usermod -aG docker "$USER"
-newgrp docker
+```text
+AMB_K8S_IMAGE_PULL_SECRET=timeweb-registry-secret
 ```
 
-Deploy:
+Почему это `Variables`, а не `Secrets`:
 
-```bash
-git clone <your-repo-url> amb-app
-cd amb-app
-cp deploy/compose/.env.hosting.example deploy/compose/.env.hosting
-$EDITOR deploy/compose/.env.hosting
-sh scripts/deploy/hosting-deploy.sh
+- это не чувствительное значение
+- это только имя объекта в Kubernetes
+- реальные секретные данные лежат в:
+  - `TWC_REGISTRY_USERNAME`
+  - `TWC_REGISTRY_PASSWORD`
+
+## Первый запуск
+
+Для первого production deploy:
+
+```text
+AMB_BOOTSTRAP=true
 ```
 
-Verify:
+Это нужно, чтобы API создал:
+
+- default tenant
+- default project
+- default admin user
+
+После первого успешного deploy и первого входа в систему нужно изменить variable:
+
+```text
+AMB_BOOTSTRAP=false
+```
+
+## Как запускать deploy
+
+Вариант 1. Ручной запуск:
+
+1. Открыть `GitHub -> Actions`.
+2. Выбрать workflow `Deploy AMB to Timeweb Kubernetes`.
+3. Нажать `Run workflow`.
+4. Выбрать ветку.
+5. Запустить workflow.
+
+Вариант 2. Автоматически:
+
+- workflow уже запускается на `push` в `main`, если изменились релевантные файлы
+
+## Что проверять после запуска
+
+В GitHub Actions должны успешно пройти шаги:
+
+- `Validate required secrets`
+- `Log in to Timeweb Container Registry`
+- `Build and push deployment images`
+- `Update image pull secret`
+- `Update app secrets`
+- `Run database migrations`
+- `Deploy workloads and ingress`
+- `Wait for rollout`
+
+После этого проверить вручную:
 
 ```bash
 curl -I https://amb.megaretro.ru
 curl https://api.amb.megaretro.ru/api/health
 ```
 
-Login:
+Ожидаемое поведение:
 
-- email: `admin@local.test`
-- password: `ChangeMe123!`
+- `amb.megaretro.ru` отвечает по HTTPS
+- `api.amb.megaretro.ru/api/health` возвращает успешный health response
 
-Change the password immediately after first login.
+## Типовые проблемы
 
-## Yandex Cloud
+### 1. Missing required GitHub secrets
 
-Two workable options:
+Причина:
 
-1. Standard Ubuntu VM in Compute Cloud, then use the same steps as Timeweb.
-2. Container Optimized Image VM with Docker Compose.
+- secrets добавлены не в `Environment -> PROD`
+- workflow не видит нужные значения
 
-For the quickest and most maintainable setup, I recommend the standard Ubuntu VM because:
+Проверить:
 
-- SSH administration is simpler
-- updating files and Caddy config is straightforward
-- the exact same runbook matches Timeweb
+- secrets созданы именно в `PROD`
+- job использует `environment: PROD`
 
-Minimum network rules:
+### 2. Username and password required
 
-- TCP `22` from your IP
-- TCP `80` from `0.0.0.0/0`
-- TCP `443` from `0.0.0.0/0`
+Причина:
 
-If you prefer Yandex Container Optimized Image, Yandex documents `yc compute instance create-with-container` with a Docker Compose file. In that case, use `deploy/compose/docker-compose.hosting.yml` as the base manifest and provide the env file on the VM.
+- это обычно не Timeweb deploy workflow, а `docker-publish.yml`
+- для него не хватает `DOCKERHUB_USERNAME` и `DOCKERHUB_TOKEN`
 
-## Managed PostgreSQL
+Если нужен именно production deploy на Timeweb, запускайте workflow:
 
-I still need these DB values from you before the final deploy:
+- `Deploy AMB to Timeweb Kubernetes`
 
-- hostname
-- port
-- database name
-- username
-- password
-- whether TLS is required
-- whether provider-side IP allowlisting is enabled
+### 3. Ingress создан, но домен не открывается
 
-## Operational notes
+Проверить:
 
-- The deployment uses published images from Docker Hub:
-  - `openaisdk/amb-api:latest`
-  - `openaisdk/amb-web-ui:latest`
-- TLS is issued automatically by Caddy via Let's Encrypt after DNS starts resolving to the VM.
-- API stays internal on the Docker network; only Caddy binds public ports.
-- To update later:
+- DNS реально указывает на ingress IP кластера
+- сертификат успел выпуститься через `cert-manager`
+- rollout `amb-api` и `amb-web` завершился успешно
 
-```bash
-cd amb-app
-git pull
-sh scripts/deploy/hosting-deploy.sh
-```
+### 4. Ошибка на migration step
 
-## What I still need from you
+Проверить:
 
-To complete the real deployment, send:
+- `AMB_DATABASE_URL`
+- доступность PostgreSQL с кластера
+- права пользователя БД
 
-1. Which provider you want first: `Timeweb Cloud VM` or `Yandex Cloud VM`.
-2. SSH access method or server IP if the VM already exists.
-3. PostgreSQL connection details.
-4. Whether DNS for both subdomains already points to the target server IP.
+## Операционный минимум
+
+Если нужна короткая рабочая памятка, то порядок такой:
+
+1. Заполнить `PROD secrets`.
+2. Заполнить `PROD variables`.
+3. Оставить `AMB_BOOTSTRAP=true` на первом запуске.
+4. Запустить `Deploy AMB to Timeweb Kubernetes`.
+5. Проверить `amb.megaretro.ru`.
+6. Проверить `api.amb.megaretro.ru/api/health`.
+7. После первого успешного запуска переключить `AMB_BOOTSTRAP=false`.
+
+## Связанные файлы
+
+- [deploy-timeweb-k8s.yml](/Users/anatolijtukov/Developer/amb-app/.github/workflows/deploy-timeweb-k8s.yml)
+- [README.md](/Users/anatolijtukov/Developer/amb-app/deploy/k8s/timeweb/README.md)
+- [apply.yaml](/Users/anatolijtukov/Developer/amb-app/deploy/k8s/timeweb/apply.yaml)
+- [migrate-job.yaml](/Users/anatolijtukov/Developer/amb-app/deploy/k8s/timeweb/migrate-job.yaml)
