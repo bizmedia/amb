@@ -22,7 +22,6 @@ concurrency:
 
 jobs:
   deploy:
-    if: ${{ secrets.TWC_KUBECONFIG != '' && secrets.TWC_REGISTRY_HOST != '' && secrets.TWC_REGISTRY_USERNAME != '' && secrets.TWC_REGISTRY_PASSWORD != '' && secrets.AMB_DATABASE_URL != '' && secrets.AMB_JWT_SECRET != '' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -43,6 +42,35 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+
+      - name: Validate required secrets
+        env:
+          TWC_KUBECONFIG: ${{ secrets.TWC_KUBECONFIG }}
+          TWC_REGISTRY_HOST: ${{ secrets.TWC_REGISTRY_HOST }}
+          TWC_REGISTRY_USERNAME: ${{ secrets.TWC_REGISTRY_USERNAME }}
+          TWC_REGISTRY_PASSWORD: ${{ secrets.TWC_REGISTRY_PASSWORD }}
+          AMB_DATABASE_URL: ${{ secrets.AMB_DATABASE_URL }}
+          AMB_JWT_SECRET: ${{ secrets.AMB_JWT_SECRET }}
+        run: |
+          set -eu
+          missing=""
+          for key in \
+            TWC_KUBECONFIG \
+            TWC_REGISTRY_HOST \
+            TWC_REGISTRY_USERNAME \
+            TWC_REGISTRY_PASSWORD \
+            AMB_DATABASE_URL \
+            AMB_JWT_SECRET; do
+            eval "value=\${$key:-}"
+            if [ -z "$value" ]; then
+              missing="$missing $key"
+            fi
+          done
+
+          if [ -n "$missing" ]; then
+            echo "Missing required GitHub secrets:$missing" >&2
+            exit 1
+          fi
 
       - name: Define image tags
         run: |
