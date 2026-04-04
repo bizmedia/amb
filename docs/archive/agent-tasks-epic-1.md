@@ -90,5 +90,5 @@
 
 ## Отслеживание
 
-- **Завершил задачу** → обновить статус в [backlog.md](./backlog.md) (колонка Story), в [feature-workflow-epic-1.md](./feature-workflow-epic-1.md) (таблица), здесь — пометить задачу выполненной и снять assigned.
+- **Завершил задачу** → обновить статус в [backlog](../product/backlog.md) (колонка Story), в [feature-workflow-epic-1.md](./feature-workflow-epic-1.md) (таблица), здесь — пометить задачу выполненной и снять assigned.
 - **Блокер** → записать в [feature-workflow-epic-1.md](./feature-workflow-epic-1.md) раздел «Блокеры» и при необходимости назначить Architect / эскалировать пользователю.

@@ -15,8 +15,8 @@
 - ✅ Workers & Scaling: Вопросы переданы Architect
 
 ### 2. Документация обновлена
-- ✅ `docs/product-vision.md` — обновлен раздел "Принятые решения"
-- ✅ `docs/backlog.md` — обновлены stories с учетом ADR
+- ✅ `docs/product/product-vision.md` — обновлен раздел "Принятые решения"
+- ✅ `docs/product/backlog.md` — обновлены stories с учетом ADR
 - ✅ `docs/adr/README.md` — добавлены новые ADR
 
 ---
@@ -42,7 +42,7 @@
 
 **Статус:** 🚧 В работе (тред открыт 2026-03-15)
 
-**Раздача задач:** [docs/agent-tasks-epic-1.md](./agent-tasks-epic-1.md) | Тред: [docs/feature-workflow-epic-1.md](./feature-workflow-epic-1.md)
+**Раздача задач:** [agent-tasks-epic-1](../archive/agent-tasks-epic-1.md) | Тред: [feature-workflow-epic-1](../archive/feature-workflow-epic-1.md)
 
 | Story   | Назначено | Статус     |
 |---------|-----------|------------|

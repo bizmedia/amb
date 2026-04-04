@@ -1,6 +1,6 @@
 # Epic E9B: Epics (Issue Grouping)
 
-**PRD:** [docs/PRD-issue-keys-epics-sprints.md](../PRD-issue-keys-epics-sprints.md)  
+**PRD:** [docs/prd/PRD-issue-keys-epics-sprints.md](../prd/PRD-issue-keys-epics-sprints.md)  
 **Stories:** E9-S4  
 **Приоритет:** P1  
 **Статус:** ✅ Done  

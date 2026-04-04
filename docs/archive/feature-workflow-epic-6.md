@@ -47,7 +47,7 @@
 
 ## Контекст
 
-- **Backlog:** [docs/backlog.md](./backlog.md) — Epic 6, E6-S1…E6-S6  
+- **Backlog:** [backlog](../product/backlog.md) — Epic 6, E6-S1…E6-S6  
 - **Стек:** apps/api (Nest.js), инфраструктура.
 
 
@@ -71,5 +71,5 @@
 
 ## Отслеживание
 
-- Завершение story → обновить [backlog.md](./backlog.md) и эту таблицу.  
+- Завершение story → обновить [backlog](../product/backlog.md) и эту таблицу.  
 - **MCP:** тред `4f897ce3-754c-45af-bed3-0efe0c38c3ca`. nest-engineer `d0e135a6-…`, Architect `d6703179-…`, QA `aa052ead-…`.

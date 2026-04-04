@@ -48,8 +48,8 @@
 
 ## Контекст
 
-- **Backlog:** [docs/backlog.md](./backlog.md) — Epic 2, E2-S1…E2-S6  
-- **ADR:** [docs/adr/ADR-006-multi-tenant-model.md](./adr/ADR-006-multi-tenant-model.md), [docs/adr/ADR-008-postgres-rls.md](./adr/ADR-008-postgres-rls.md)  
+- **Backlog:** [backlog](../product/backlog.md) — Epic 2, E2-S1…E2-S6  
+- **ADR:** [ADR-006](../adr/ADR-006-multi-tenant-model.md), [ADR-008](../adr/ADR-008-postgres-rls.md)  
 - **Схема/миграции:** packages/db (Prisma); API — apps/api (Nest.js).
 
 ---
@@ -70,13 +70,13 @@
 | —            | QA                        | Проверки после stories                      | —           | 📋 Queued     |
 
 
-**Детали:** [docs/agent-tasks-epic-2.md](./agent-tasks-epic-2.md)
+**Детали:** [agent-tasks-epic-2](./agent-tasks-epic-2.md)
 
 ---
 
 ## Отслеживание
 
-- Завершение story → обновить [backlog.md](./backlog.md) и эту таблицу.  
+- Завершение story → обновить [backlog](../product/backlog.md) и эту таблицу.  
 - Блокеры → эскалировать пользователю / Architect.  
 - **MCP:** тред `66ddc5d9-baa6-4040-ae1e-a51d19988e25` (closed). Агенты: nest-engineer `d0e135a6-…`, react-next-engineer `72c8cb90-…`, Dev `67600e80-…`, Architect `d6703179-…`, QA `aa052ead-…`.
 

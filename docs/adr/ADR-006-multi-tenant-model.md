@@ -48,4 +48,4 @@
 
 - При **регистрации** (`signup`) создаются **новый** `Tenant` и первый `User` с ролью **`tenant-admin`** (владелец tenant). Это не путать с legacy default tenant/project из миграций.
 - Дополнительные пользователи в одном tenant (**приглашения коллег**) — **вне текущей версии** продукта (post-MVP).
-- Операционное описание: `docs/developer-runbook.md` (§ 3).
+- Операционное описание: `docs/guides/developer-runbook.md` (§ 3).

@@ -102,4 +102,4 @@ curl -X GET "$AMB_URL/api/threads" \
 
 - [integration-guide.md](./integration-guide.md)
 - [migration-guide-v1-vnext.md](./migration-guide-v1-vnext.md)
-- [api.md](./api.md)
+- [api.md](../reference/api.md)

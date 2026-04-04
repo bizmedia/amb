@@ -15,7 +15,7 @@ pnpm install
 pnpm dev
 ```
 
-Поднимаются **web** (Dashboard / BFF) и **api** (Nest). Актуальные порты смотрите в выводе `pnpm dev` и в [README.md](../README.md) (часто web **3333**, API **3334**).
+Поднимаются **web** (Dashboard / BFF) и **api** (Nest). Актуальные порты смотрите в выводе `pnpm dev` и в [README.md](../../README.md) (часто web **3333**, API **3334**).
 
 Проверка API: запрос к **`/api/health`** на базовом URL API.
 
@@ -100,4 +100,4 @@ pnpm dev
 
 ---
 
-См. также: [QUICKSTART.md](../QUICKSTART.md), [README.md](../README.md), [architecture.md](architecture.md) (п. 4.0 — мультитенантность и владелец), [ADR-006](adr/ADR-006-multi-tenant-model.md).
+См. также: [QUICKSTART.md](../../QUICKSTART.md), [README.md](../../README.md), [Чеклист продакшена](../production-checklist.md), [architecture.md](../architecture.md) (п. 4.0 — мультитенантность и владелец), [ADR-006](../adr/ADR-006-multi-tenant-model.md).

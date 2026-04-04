@@ -259,7 +259,7 @@ export default async function UseCasesPage() {
               </li>
               <li>
                 <span className="text-sm text-muted-foreground">
-                  Full scenarios in the repo: <code className="rounded bg-muted px-1">docs/use-cases.md</code>
+                  Full scenarios in the repo: <code className="rounded bg-muted px-1">docs/product/use-cases.md</code>
                 </span>
               </li>
             </ul>

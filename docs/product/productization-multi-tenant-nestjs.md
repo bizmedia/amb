@@ -16,8 +16,8 @@
 - `.cursor/agents`: проектно-специфичная папка, не входит в продуктовую поставку и не является переиспользуемым слоем.
 
 См. также:
-- `docs/productization-multi-tenant-implementation-plan.md` (baseline план реализации по фазам/итерациям)
-- `docs/qa-plan-productization-multi-tenant.md` (QA стратегия и минимальная матрица для MVP)
+- `docs/product/productization-multi-tenant-implementation-plan.md` (baseline план реализации по фазам/итерациям)
+- `docs/product/qa-plan-productization-multi-tenant.md` (QA стратегия и минимальная матрица для MVP)
 
 ---
 

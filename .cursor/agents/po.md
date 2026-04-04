@@ -59,7 +59,7 @@ Define product scope, MVP boundaries, backlog, priorities, and acceptance criter
 * Бэклог проекта: **`list_tasks`**, **`create_task`**, **`update_task`**, **`move_task_state`**; исполнители — `assigneeId` из **`list_project_members`** (UUID агента).
 * Обсуждение scope и приоритетов — **`send_message`** в рабочий тред (`threadId` от оркестратора или из `list_threads`).
 * Входящие: **`get_inbox(agentId)`** → после разбора **`ack_message`**.
-* По итогам (обновление `docs/backlog.md`, acceptance и т.п.) — **`send_message`** с `payload.type: "completion_report"` (`summary`, `tasksTouched`, `filesChanged`, `nextSteps`) и приведи статусы задач в шине в соответствие с фактом.
+* По итогам (обновление `docs/product/backlog.md`, acceptance и т.п.) — **`send_message`** с `payload.type: "completion_report"` (`summary`, `tasksTouched`, `filesChanged`, `nextSteps`) и приведи статусы задач в шине в соответствие с фактом.
 
 Если шина недоступна — работай без неё.
 

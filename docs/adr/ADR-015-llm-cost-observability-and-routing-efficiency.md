@@ -6,7 +6,7 @@
 
 ## Разбиение на дочерние ADR
 
-Исходный зонтичный ADR заменён каноничным набором решений (см. [kernel-architecture-enterprise.md](../kernel-architecture-enterprise.md)):
+Исходный зонтичный ADR заменён каноничным набором решений (см. [kernel-architecture-enterprise.md](../architecture/kernel-architecture-enterprise.md)):
 
 | Тема ADR-015 | Дочерний ADR |
 |--------------|--------------|

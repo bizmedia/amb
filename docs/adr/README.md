@@ -49,7 +49,7 @@
 
 ## Принятые ADR-016–019: acceptance gates, kernel и плоскости
 
-Каноничный baseline: [Kernel Architecture (Enterprise)](../kernel-architecture-enterprise.md).
+Каноничный baseline: [Kernel Architecture (Enterprise)](../architecture/kernel-architecture-enterprise.md).
 
 | ADR | Acceptance gates (кратко) | Kernel | Control Plane | Data Plane |
 |-----|---------------------------|--------|---------------|------------|

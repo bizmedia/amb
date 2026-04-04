@@ -2,7 +2,7 @@
 
 **Дата:** 2026-01-28  
 **Автор:** Product Owner Agent  
-**Документ:** `docs/productization-multi-tenant-nestjs.md`
+**Документ:** `docs/product/productization-multi-tenant-nestjs.md`
 
 ---
 
@@ -186,10 +186,10 @@ Phase 5: Dashboard миграция - зависит от Phase 4
 
 ### Созданные документы
 
-- ✅ `docs/product-vision.md` — продуктовое видение
-- ✅ `docs/backlog.md` — детальный backlog (6 Epic'ов, 35 Stories)
-- ✅ `docs/sprint-1-2-action-plan.md` — план Sprint 1-2
-- ✅ `docs/inbox-status.md` — статус входящих
+- ✅ `docs/product/product-vision.md` — продуктовое видение
+- ✅ `docs/product/backlog.md` — детальный backlog (6 Epic'ов, 35 Stories)
+- ✅ `docs/archive/sprint-1-2-action-plan.md` — план Sprint 1-2
+- ✅ `docs/reference/inbox-status.md` — статус входящих
 
 ### ADR (Architecture Decision Records)
 

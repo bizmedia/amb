@@ -45,7 +45,7 @@
 
 ## Контекст
 
-- **Backlog:** [docs/backlog.md](./backlog.md) — Epic 5, E5-S1…E5-S5  
+- **Backlog:** [backlog](../product/backlog.md) — Epic 5, E5-S1…E5-S5  
 - **SDK:** packages/sdk (JWT уже в E5-S1).
 
 ---
@@ -64,5 +64,5 @@
 
 ## Отслеживание
 
-- Завершение story → обновить [backlog.md](./backlog.md) и эту таблицу.  
+- Завершение story → обновить [backlog](../product/backlog.md) и эту таблицу.  
 - **MCP:** тред `c7a52a0e-fa39-4f05-9109-3fd740c74125`. Dev `67600e80-…`, Architect `d6703179-…`, QA `aa052ead-…`.

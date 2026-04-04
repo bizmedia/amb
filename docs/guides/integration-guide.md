@@ -44,7 +44,7 @@ await client.sendMessage({
 
 ## API Reference
 
-- Полный REST справочник: [api.md](./api.md)
+- Полный REST справочник: [api.md](../reference/api.md)
 - Swagger UI: `http://localhost:3333/api-docs`
 - OpenAPI JSON: `http://localhost:3333/api/openapi`
 
@@ -92,5 +92,5 @@ try {
 ## Code Examples
 
 - Базовые сценарии: [getting-started.md](./getting-started.md)
-- Практические use-cases: [use-cases.md](./use-cases.md)
+- Практические use-cases: [use-cases.md](../product/use-cases.md)
 - Примеры скриптов: [`examples/`](../examples/)

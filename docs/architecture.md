@@ -8,8 +8,8 @@
 > Примечание (2026-04-04): документ актуализирован под vNext-архитектуру
 > (hosted + local, multi-tenant, JWT, Nest.js backend, PostgreSQL RLS, Kubernetes).
 > Дополнительные детали см.:
-> - `docs/productization-multi-tenant-nestjs.md`
-> - `docs/developer-runbook.md` — пошаговый онбординг: tenant / владелец при регистрации, первый проект, MCP
+> - `docs/product/productization-multi-tenant-nestjs.md`
+> - `docs/guides/developer-runbook.md` — пошаговый онбординг: tenant / владелец при регистрации, первый проект, MCP
 > - `docs/adr/ADR-005-nestjs-backend.md`
 > - `docs/adr/ADR-006-multi-tenant-model.md`
 > - `docs/adr/ADR-007-jwt-and-project-tokens.md`
@@ -38,7 +38,7 @@
 
 ### 1.1 Назначение
 
-Agent Message Bus — локальная шина сообщений для оркестрации AI-агентов в процессе разработки. Система обеспечивает структурированную коммуникацию между агентами через потоки сообщений (threads) с гарантией доставки.
+Agent Message Bus — шина сообщений для оркестрации AI-агентов в локальном и hosted-сценариях. Система обеспечивает структурированную коммуникацию между агентами через потоки сообщений (threads) с гарантией доставки.
 
 ### 1.2 Контекст
 
@@ -59,7 +59,7 @@ Agent Message Bus — локальная шина сообщений для ор
 │                   │  Message Bus  │                                     │
 │                   │               │                                     │
 │                   │  ┌─────────┐  │                                     │
-│                   │  │ Next.js │  │                                     │
+│                   │  │ Nest.js │  │                                     │
 │                   │  │   API   │  │                                     │
 │                   │  └────┬────┘  │                                     │
 │                   │       │       │                                     │
@@ -101,25 +101,26 @@ Agent Message Bus — локальная шина сообщений для ор
 
 ### 2.2 Архитектурный стиль
 
-**Monolithic Modular Architecture**
+**Modular Monorepo Architecture (Web + API + Packages)**
 
-- Единое Next.js приложение
-- Модульная структура сервисов
-- Чёткое разделение ответственности
+- `apps/web` (Next.js App Router) — Dashboard/UI и BFF-функции
+- `apps/api` (Nest.js) — основной backend API с auth, RBAC и project-scoped операциями
+- `packages/*` — переиспользуемые модули (`core`, `db`, `shared`, `sdk`, `mcp-server`)
+- Чёткое разделение ответственности между презентационным слоем, API и storage
 
 ```
 ┌─────────────────────────────────────────────┐
 │              Presentation Layer              │
 │  ┌─────────────┐  ┌─────────────────────┐   │
-│  │  Dashboard  │  │    REST API         │   │
-│  │    (React)  │  │  (App Router)       │   │
+│  │  Dashboard  │  │  MCP Server (stdio) │   │
+│  │ (Next.js)   │  │  -> API client      │   │
 │  └─────────────┘  └─────────────────────┘   │
 ├─────────────────────────────────────────────┤
-│               Service Layer                  │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐    │
-│  │ Agents   │ │ Threads  │ │ Messages │    │
-│  │ Service  │ │ Service  │ │ Service  │    │
-│  └──────────┘ └──────────┘ └──────────┘    │
+│                  API Layer                   │
+│      ┌────────────────────────────────┐      │
+│      │ Nest.js modules (auth/projects │      │
+│      │ agents/threads/messages/...)   │      │
+│      └────────────────────────────────┘      │
 ├─────────────────────────────────────────────┤
 │                Data Layer                    │
 │  ┌──────────────────────────────────────┐   │
@@ -131,7 +132,7 @@ Agent Message Bus — локальная шина сообщений для ор
 ├─────────────────────────────────────────────┤
 │              Storage Layer                   │
 │  ┌──────────────────────────────────────┐   │
-│  │            PostgreSQL                 │   │
+│  │      PostgreSQL + RLS policies        │   │
 │  └──────────────────────────────────────┘   │
 └─────────────────────────────────────────────┘
 ```
@@ -258,7 +259,7 @@ Agent Message Bus — локальная шина сообщений для ор
 |---------|----------|
 | Технология | @modelcontextprotocol/sdk |
 | Транспорт | stdio |
-| Расположение | `mcp-server/` |
+| Расположение | `packages/mcp-server/` |
 | Назначение | Интеграция с Cursor IDE |
 
 **Инструменты MCP:**
@@ -280,7 +281,7 @@ Agent Message Bus — локальная шина сообщений для ор
 
 | Атрибут | Значение |
 |---------|----------|
-| Расположение | `lib/sdk/` |
+| Расположение | `packages/sdk/src/` |
 | Назначение | Типизированный клиент для внешних приложений |
 
 **Возможности:**
@@ -299,7 +300,7 @@ Agent Message Bus — локальная шина сообщений для ор
 - **Приглашения** других пользователей в тот же tenant — **post-MVP**; в текущей версии у нового tenant один участник (владелец).
 - Список и создание проектов в API привязаны к **`tenantId` из токена**, чтобы новый пользователь не видел чужие проекты (в т.ч. legacy *Default Project* из миграций).
 
-Подробнее для разработчиков: `docs/developer-runbook.md` (§ 3).
+Подробнее для разработчиков: `docs/guides/developer-runbook.md` (§ 3).
 
 ### 4.1 ER-диаграмма
 
@@ -965,8 +966,18 @@ amb-app/
 │   ├── shared/           # Типы, ошибки, схемы, константы
 │   └── sdk/              # TypeScript SDK (createClient, API)
 └── docs/
+    ├── README.md         # Индекс документации
     ├── architecture.md   # Этот документ
-    └── adr/              # Architecture Decision Records
+    ├── adr/              # Architecture Decision Records
+    ├── prd/              # Product Requirements Documents
+    ├── product/          # Видение, бэклог, productization
+    ├── guides/           # Онбординг, интеграция, миграции
+    ├── reference/        # API, SCRIPTS
+    ├── runbooks/         # Деплой, disaster recovery
+    ├── architecture/     # Доп. архитектурные материалы (kernel, multi-tenant options)
+    ├── epics/            # Декомпозиция крупных эпиков
+    ├── ux/               # UX review, design system
+    └── archive/          # Исторические workflow / agent-tasks по эпикам
 ```
 
 ---

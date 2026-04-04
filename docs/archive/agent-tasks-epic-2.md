@@ -22,7 +22,7 @@
 3. Настроить relations (Project принадлежит Tenant; привязать существующую модель Project к Tenant при необходимости).
 
 **AC:** Prisma модели Tenant и Project; миграция создана и применяется; relations настроены.  
-**Справочно:** [ADR-006](./adr/ADR-006-multi-tenant-model.md), [backlog](./backlog.md) Epic 2.
+**Справочно:** [ADR-006](../adr/ADR-006-multi-tenant-model.md), [backlog](../product/backlog.md) Epic 2.
 
 ### Очередь (Backend)
 
@@ -46,7 +46,7 @@
 
 ## Architect Agent
 
-**По запросу / блокерам:** модель Tenant/Project; RLS (E2-S5); контекст (E2-S6). ADR: [ADR-006](./adr/ADR-006-multi-tenant-model.md), [ADR-008](./adr/ADR-008-postgres-rls.md).
+**По запросу / блокерам:** модель Tenant/Project; RLS (E2-S5); контекст (E2-S6). ADR: [ADR-006](../adr/ADR-006-multi-tenant-model.md), [ADR-008](../adr/ADR-008-postgres-rls.md).
 
 ---
 

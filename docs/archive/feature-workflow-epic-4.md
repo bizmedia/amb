@@ -47,7 +47,7 @@
 
 ## Контекст
 
-- **Backlog:** [docs/backlog.md](./backlog.md) — Epic 4, E4-S1…E4-S6  
+- **Backlog:** [backlog](../product/backlog.md) — Epic 4, E4-S1…E4-S6  
 - **API:** apps/api (Nest.js) с JWT, login, project tokens, admin API — готов (Epic 3).  
 - **Стек:** apps/web (Next.js), HTTP клиент к apps/api.
 
@@ -72,6 +72,6 @@
 
 ## Отслеживание
 
-- Завершение story → обновить [backlog.md](./backlog.md) и эту таблицу.  
+- Завершение story → обновить [backlog](../product/backlog.md) и эту таблицу.  
 - Блокеры → эскалировать пользователю / Architect.  
 - **MCP:** тред `fb0290b6-57a7-45ea-89c2-7d7af8bae5f8`. react-next-engineer `72c8cb90-7f34-469b-be89-5ab518559c16`, Architect `d6703179-…`, QA `aa052ead-…`.

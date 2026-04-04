@@ -5,7 +5,7 @@
 **Статус:** Draft  
 **Автор:** Product Owner Agent
 
-**Связанные документы:** [PRD: ключи задач, эпики, спринты](./PRD-issue-keys-epics-sprints.md) · [PRD: модуль задач](./PRD-tasks-module.md) · [PRD: связи между задачами](./PRD-task-links.md) · [MCP Message Bus — правила агентов](../.cursor/rules/mcp-message-bus.md) · [Архитектура](./architecture.md)
+**Связанные документы:** [PRD: ключи задач, эпики, спринты](./PRD-issue-keys-epics-sprints.md) · [PRD: модуль задач](./PRD-tasks-module.md) · [PRD: связи между задачами](./PRD-task-links.md) · [MCP Message Bus — правила агентов](../../.cursor/rules/mcp-message-bus.md) · [Архитектура](../architecture.md)
 
 ---
 

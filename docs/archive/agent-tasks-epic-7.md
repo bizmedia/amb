@@ -24,7 +24,7 @@ next-intl подключена, маршрутизация по locale, UI в к
 
 ### ✅ E7-S4 — Документация для переводчиков — Done
 
-Подготовлен процесс для переводчиков: [i18n-translator-guide.md](./i18n-translator-guide.md) (формат файлов, добавление локали, конвенции ключей, API error mapping, чеклист).
+Подготовлен процесс для переводчиков: [i18n-translator-guide.md](../guides/i18n-translator-guide.md) (формат файлов, добавление локали, конвенции ключей, API error mapping, чеклист).
 
 ---
 

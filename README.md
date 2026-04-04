@@ -450,9 +450,10 @@ If you want to develop AMB itself instead of only using it in your own project, 
 Useful entry points:
 
 - [QUICKSTART.md](QUICKSTART.md) for the short onboarding path
-- [docs/developer-runbook.md](docs/developer-runbook.md) for multi-tenancy, signup (tenant + owner), first project, and MCP setup
+- [docs/guides/developer-runbook.md](docs/guides/developer-runbook.md) for multi-tenancy, signup (tenant + owner), first project, and MCP setup
 - [docs/architecture.md](docs/architecture.md) for the system architecture overview
-- [docs/SCRIPTS.md](docs/SCRIPTS.md) for repository scripts and dev workflows
+- [docs/reference/SCRIPTS.md](docs/reference/SCRIPTS.md) for repository scripts and dev workflows
+- [docs/README.md](docs/README.md) for the full documentation index
 
 From a cloned repository you can also start the same published stack with:
 

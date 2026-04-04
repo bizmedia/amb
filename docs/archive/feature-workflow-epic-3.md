@@ -46,7 +46,7 @@
 
 ## Контекст
 
-- **Backlog:** [docs/backlog.md](./backlog.md) — Epic 3, E3-S1…E3-S6  
+- **Backlog:** [backlog](../product/backlog.md) — Epic 3, E3-S1…E3-S6  
 - **ADR:** ADR-010 (users table) при необходимости; JWT claims, RBAC.  
 - **Стек:** apps/api (Nest.js), packages/db (Prisma).
 
@@ -71,6 +71,6 @@
 
 ## Отслеживание
 
-- Завершение story → обновить [backlog.md](./backlog.md) и эту таблицу.  
+- Завершение story → обновить [backlog](../product/backlog.md) и эту таблицу.  
 - Блокеры → эскалировать пользователю / Architect.  
 - **MCP:** тред `398ec109-2932-4dca-bc85-e91718a50272`. nest-engineer `d0e135a6-c9e0-49c1-8bac-cbe770c154f8`, Architect `d6703179-…`, QA `aa052ead-…`.

@@ -8,7 +8,7 @@
 
 ## 1. Цель
 
-Провести triage записей ADR-015…019 относительно [kernel baseline](../kernel-architecture-enterprise.md), зафиксировать статусы (принять / отклонить / разбить), обновить [указатель ADR](./README.md) и зафиксировать итог в отчёте.
+Провести triage записей ADR-015…019 относительно [kernel baseline](../architecture/kernel-architecture-enterprise.md), зафиксировать статусы (принять / отклонить / разбить), обновить [указатель ADR](./README.md) и зафиксировать итог в отчёте.
 
 ---
 
@@ -46,7 +46,7 @@
 | [README.md](./README.md) | Секция triage, таблицы принятых/разбитых, сводка gates и kernel/plane для 016–019 |
 | [ADR-015](./ADR-015-llm-cost-observability-and-routing-efficiency.md) | Статус «Разбито», таблица замены |
 | [ADR-016](./ADR-016-kernel-boundary-and-plane-model.md) … [ADR-019](./ADR-019-routing-efficiency-and-broadcast-governance.md) | Статус «Принято» |
-| [kernel-architecture-enterprise.md](../kernel-architecture-enterprise.md) | Ссылка на принятые ADR и примечание по ADR-015 |
+| [kernel-architecture-enterprise.md](../architecture/kernel-architecture-enterprise.md) | Ссылка на принятые ADR и примечание по ADR-015 |
 | `completion-report-adr-015-019.md` | Настоящий отчёт |
 
 ---

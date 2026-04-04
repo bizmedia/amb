@@ -5,7 +5,7 @@
 
 Цель: определить минимальную QA матрицу и тест-уровни для MVP vNext, с фокусом на tenant/project isolation и auth.
 
-См. также: `docs/productization-multi-tenant-implementation-plan.md`.
+См. также: `docs/product/productization-multi-tenant-implementation-plan.md`.
 
 ---
 
@@ -96,6 +96,6 @@
 
 ## Где хранить артефакты
 
-- Этот QA план: `docs/qa-plan-productization-multi-tenant.md`.
+- Этот QA план: `docs/product/qa-plan-productization-multi-tenant.md`.
 - Тест-кейсы/таблицы (если потребуется детализация): можно расширить этот файл или добавить `docs/qa/` по решению команды.
 

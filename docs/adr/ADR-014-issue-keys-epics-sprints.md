@@ -3,7 +3,7 @@
 Статус: Принято  
 Дата: 2026-03-26  
 Автор: Architect Agent  
-PRD: [docs/PRD-issue-keys-epics-sprints.md](../PRD-issue-keys-epics-sprints.md)  
+PRD: [docs/prd/PRD-issue-keys-epics-sprints.md](../prd/PRD-issue-keys-epics-sprints.md)  
 Epics: E9A, E9B, E9C
 
 ---

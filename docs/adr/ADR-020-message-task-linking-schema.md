@@ -3,7 +3,7 @@
 Статус: Принято  
 Дата: 2026-03-30  
 Автор: Architect Agent  
-PRD: [docs/PRD-message-task-linking.md](../PRD-message-task-linking.md)  
+PRD: [docs/prd/PRD-message-task-linking.md](../prd/PRD-message-task-linking.md)  
 Task: AMB-0011
 
 ---

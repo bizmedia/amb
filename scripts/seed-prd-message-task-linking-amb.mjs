@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Создаёт в AMB эпик, спринт и декомпозицию по docs/PRD-message-task-linking.md (§12).
+ * Создаёт в AMB эпик, спринт и декомпозицию по docs/prd/PRD-message-task-linking.md (§12).
  * Идемпотентно: совпадение по точному title задачи — пропуск создания, при необходимости PATCH epic/sprint.
  *
  *   node scripts/seed-prd-message-task-linking-amb.mjs
@@ -109,7 +109,7 @@ const TASKS = [
   {
     title: "E10-S0: Закрыть открытые вопросы PRD (§10)",
     description:
-      "Решить: только completion_report или любой payload; warnings.unknownTaskKeys в v1; минимальный путь MCP. Зафиксировать в PRD/ADR.\n\nPRD: docs/PRD-message-task-linking.md",
+      "Решить: только completion_report или любой payload; warnings.unknownTaskKeys в v1; минимальный путь MCP. Зафиксировать в PRD/ADR.\n\nPRD: docs/prd/PRD-message-task-linking.md",
     priority: "HIGH",
   },
   {
@@ -200,7 +200,7 @@ async function main() {
     const created = await api("POST", `/projects/${PROJECT_ID}/epics`, {
       title: EPIC_TITLE,
       description:
-        "Материализация связи Message ↔ Task по payload.tasksTouched. PRD: docs/PRD-message-task-linking.md §12.",
+        "Материализация связи Message ↔ Task по payload.tasksTouched. PRD: docs/prd/PRD-message-task-linking.md §12.",
       status: "IN_PROGRESS",
     });
     epic = created.data;

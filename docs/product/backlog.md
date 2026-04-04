@@ -140,10 +140,10 @@
 | ID    | Story                                   | Приоритет | Статус     | Acceptance Criteria                                                                        |
 | ----- | --------------------------------------- | --------- | ---------- | ------------------------------------------------------------------------------------------ |
 | E5-S1 | Обновить SDK с JWT поддержкой           | P1        | ✅ Done    | • `createClient({ baseUrl, token })` • Authorization Bearer + x-project-id • MessageBusError: isUnauthorized/isForbidden/isAuthError |
-| E5-S2 | Документация по интеграции              | P1        | ✅ Done    | • Quick start: docs/integration-guide.md • API reference: docs/api.md (+ auth headers) • Примеры кода: README + docs/getting-started.md |
+| E5-S2 | Документация по интеграции              | P1        | ✅ Done    | • Quick start: docs/guides/integration-guide.md • API reference: docs/reference/api.md (+ auth headers) • Примеры кода: README + docs/guides/getting-started.md |
 | E5-S3 | Docker Compose для локальной разработки | P1        | ✅ Done    | • docker-compose: postgres + api + web + seed • auth-aware seed script • проверка `compose up` (api/web healthy, seed exit 0) |
-| E5-S4 | Migration guide                         | P1        | ✅ Done    | • `docs/migration-guide-v1-vnext.md` • SDK migration steps • breaking changes и checklist  |
-| E5-S5 | Примеры интеграций                      | P1        | ✅ Done    | • `docs/integration-examples.md` (TypeScript/Python/curl) • best practices • common patterns |
+| E5-S4 | Migration guide                         | P1        | ✅ Done    | • `docs/guides/migration-guide-v1-vnext.md` • SDK migration steps • breaking changes и checklist  |
+| E5-S5 | Примеры интеграций                      | P1        | ✅ Done    | • `docs/guides/integration-examples.md` (TypeScript/Python/curl) • best practices • common patterns |
 
 
 **Definition of Done:**
@@ -199,7 +199,7 @@
 | E7-S1 | Инфраструктура i18n в Dashboard    | P1        | ✅ Done         | • Выбрана и подключена библиотека i18n (решение — Architect/Dev) • Все тексты UI вынесены в ключи переводов • Есть как минимум 2 языка (напр. en + ru) с полным набором ключей |
 | E7-S2 | Переключатель языка и персистенция | P1        | ✅ Done         | • В UI есть переключатель языка • Выбранный язык сохраняется между сессиями (localStorage или user prefs) • Приложение при загрузке отображает сохранённый язык                |
 | E7-S3 | Перевод сообщений API в UI         | P1        | ✅ Done         | • Ошибки и сообщения от API, показываемые в Dashboard, переводимы • Используются ключи или маппинг к переводам в UI • Нет «сырых» непереведённых строк от API в интерфейсе     |
-| E7-S4 | Документация для переводчиков      | P2        | ✅ Done         | • Описан процесс добавления нового языка • Формат файлов переводов и конвенции ключей задокументированы • При необходимости — инструкция для внешних переводчиков (`docs/i18n-translator-guide.md`) |
+| E7-S4 | Документация для переводчиков      | P2        | ✅ Done         | • Описан процесс добавления нового языка • Формат файлов переводов и конвенции ключей задокументированы • При необходимости — инструкция для внешних переводчиков (`docs/guides/i18n-translator-guide.md`) |
 
 
 **Definition of Done:**
@@ -239,7 +239,7 @@
 - ✅ Удаление проекта доступно по API и в Dashboard с каскадом и подтверждением
 - ✅ Редактирование агента (имя, роль) доступно по API и в UI (P2)
 
-**Зависимости:** Паттерн деструктивных действий описан в [UX Design System](./ux-design-system.md) (п. 5).
+**Зависимости:** Паттерн деструктивных действий описан в [UX Design System](../ux/ux-design-system.md) (п. 5).
 
 ---
 
@@ -247,15 +247,15 @@
 
 **Цель:** Добавить человекочитаемые ключи задач, проектные эпики и спринты для планирования delivery.
 
-**PRD:** [docs/PRD-issue-keys-epics-sprints.md](./PRD-issue-keys-epics-sprints.md)
+**PRD:** [docs/prd/PRD-issue-keys-epics-sprints.md](../prd/PRD-issue-keys-epics-sprints.md)
 
 ### Sub-Epics (детальная декомпозиция)
 
 | Sub-Epic | Stories | Приоритет | Статус | Файл |
 |----------|---------|-----------|--------|------|
-| E9A: Project Prefix & Task Keys | E9-S1, E9-S2, E9-S3 | P0 | ✅ Phase 1–3 Done | [epics/E9A](./epics/E9A-project-prefix-issue-keys.md) |
-| E9B: Epics | E9-S4 | P1 | ✅ Done | [epics/E9B](./epics/E9B-epics.md) |
-| E9C: Sprints & Navigation | E9-S5, E9-S6 | P1 | ✅ Done | [epics/E9C](./epics/E9C-sprints-navigation.md) |
+| E9A: Project Prefix & Task Keys | E9-S1, E9-S2, E9-S3 | P0 | ✅ Phase 1–3 Done | [epics/E9A](../epics/E9A-project-prefix-issue-keys.md) |
+| E9B: Epics | E9-S4 | P1 | ✅ Done | [epics/E9B](../epics/E9B-epics.md) |
+| E9C: Sprints & Navigation | E9-S5, E9-S6 | P1 | ✅ Done | [epics/E9C](../epics/E9C-sprints-navigation.md) |
 
 ### Stories
 
@@ -351,4 +351,4 @@
 
 - [Product Vision](./product-vision.md)
 - [Productization Plan](./productization-multi-tenant-nestjs.md)
-- [Architecture](./architecture.md)
+- [Architecture](../architecture.md)

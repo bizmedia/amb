@@ -1,6 +1,6 @@
 # UX Review: Issue Keys, Epics & Sprints
 
-**PRD:** [docs/PRD-issue-keys-epics-sprints.md](./PRD-issue-keys-epics-sprints.md)  
+**PRD:** [docs/prd/PRD-issue-keys-epics-sprints.md](../prd/PRD-issue-keys-epics-sprints.md)  
 **Автор:** UX Agent  
 **Дата:** 2026-03-26  
 **Статус:** Review  

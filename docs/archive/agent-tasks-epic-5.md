@@ -17,9 +17,9 @@ createClient({ baseUrl, token }), Authorization Bearer + x-project-id, MessageBu
 ### ✅ E5-S2 — Документация по интеграции (Done)
 
 Сделано:
-1. Quick start guide: `docs/integration-guide.md`.
-2. API reference: обновлён `docs/api.md` (auth headers + curl).
-3. Примеры кода: актуализированы `README.md` и `docs/getting-started.md` под `createClient({ baseUrl, token, projectId })`.
+1. Quick start guide: `docs/guides/integration-guide.md`.
+2. API reference: обновлён `docs/reference/api.md` (auth headers + curl).
+3. Примеры кода: актуализированы `README.md` и `docs/guides/getting-started.md` под `createClient({ baseUrl, token, projectId })`.
 
 ### Очередь
 
@@ -39,14 +39,14 @@ createClient({ baseUrl, token }), Authorization Bearer + x-project-id, MessageBu
 ### ✅ E5-S4 — Migration guide (Done)
 
 Сделано:
-1. Добавлен документ `docs/migration-guide-v1-vnext.md`.
+1. Добавлен документ `docs/guides/migration-guide-v1-vnext.md`.
 2. Описаны breaking changes v1 -> vNext.
 3. Добавлены SDK/API/Docker migration steps + checklist.
 
 ### ✅ E5-S5 — Примеры интеграций (Done)
 
 Сделано:
-1. Добавлен `docs/integration-examples.md`.
+1. Добавлен `docs/guides/integration-examples.md`.
 2. Примеры для TypeScript SDK, Python requests и curl.
 3. Добавлены best practices и common patterns.
 

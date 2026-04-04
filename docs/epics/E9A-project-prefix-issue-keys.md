@@ -1,6 +1,6 @@
 # Epic E9A: Project Prefix & Task Keys
 
-**PRD:** [docs/PRD-issue-keys-epics-sprints.md](../PRD-issue-keys-epics-sprints.md)  
+**PRD:** [docs/prd/PRD-issue-keys-epics-sprints.md](../prd/PRD-issue-keys-epics-sprints.md)  
 **Stories:** E9-S1, E9-S2, E9-S3  
 **Приоритет:** P0  
 **Статус:** ✅ Phase 1–4 Done (E9A)  

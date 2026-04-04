@@ -3,8 +3,8 @@
 **Версия:** 1.0  
 **Дата:** 2026-03-26  
 **Роль:** UX Agent  
-**Источники:** [PRD](../PRD-issue-keys-epics-sprints.md), [E9A](../epics/E9A-project-prefix-issue-keys.md), [E9B](../epics/E9B-epics.md), [E9C](../epics/E9C-sprints-navigation.md)  
-**Дизайн-система:** [ux-design-system.md](../ux-design-system.md)  
+**Источники:** [PRD](../prd/PRD-issue-keys-epics-sprints.md), [E9A](../epics/E9A-project-prefix-issue-keys.md), [E9B](../epics/E9B-epics.md), [E9C](../epics/E9C-sprints-navigation.md)  
+**Дизайн-система:** [ux-design-system.md](./ux-design-system.md)  
 **Текущий UI:** `apps/web/components/tasks/tasks-module.tsx`, `apps/web/app/[locale]/tasks/page.tsx`, навигация из `project-switcher.tsx`
 
 ---
@@ -76,7 +76,7 @@
 
 ### Обоснование
 
-- PRD требует узнаваемости ключа как у Jira/Linear — **mono** согласуется с [ux-design-system.md §2.3](../ux-design-system.md) (IBM Plex Mono для кода/идентификаторов).
+- PRD требует узнаваемости ключа как у Jira/Linear — **mono** согласуется с [ux-design-system.md §2.3](./ux-design-system.md) (IBM Plex Mono для кода/идентификаторов).
 - В списке ключ — **сканируемый идентификатор**; отдельная колонка упрощает сортировку визуально (даже если сортировка по key добавится позже).
 - Badge на карточке оставить для **epic/sprint** (см. PRD FR5), чтобы не превратить карточку в «стену бейджей».
 
@@ -95,7 +95,7 @@
 
 1. **Основной путь:** поля **Epic** в форме создания/редактирования issue — `Select` или **Combobox** (поиск по названию эпика при >~8 элементах), плюс пункт «Без эпика» / `null`.
 2. **Быстрый просмотр:** в списке и на карточке — `Badge` с усечённым названием эпика (tooltip с полным названием); клик по badge опционально ведёт на `/tasks/epics/[id]`.
-3. **Bulk:** не блокировать P1; заложить **тот же паттерн**, что в [ux-design-system §5](../ux-design-system.md): при появлении multi-select — панель «Выбрано N» и один dropdown «Назначить эпик».
+3. **Bulk:** не блокировать P1; заложить **тот же паттерн**, что в [ux-design-system §5](./ux-design-system.md): при появлении multi-select — панель «Выбрано N» и один dropdown «Назначить эпик».
 
 ### Обоснование
 
@@ -193,7 +193,7 @@ Sprints
 
 ### Рекомендация
 
-Следовать [ux-design-system §4](../ux-design-system.md): иконка приглушённая, заголовок, подпись, **один primary CTA**.
+Следовать [ux-design-system §4](./ux-design-system.md): иконка приглушённая, заголовок, подпись, **один primary CTA**.
 
 **Epics (`/tasks/epics`, список пуст)**
 

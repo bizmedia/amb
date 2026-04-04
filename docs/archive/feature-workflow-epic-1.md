@@ -35,8 +35,8 @@
 
 ## Контекст для агентов
 
-- **Детальный план:** [docs/sprint-1-2-action-plan.md](./sprint-1-2-action-plan.md)
-- **Backlog:** [docs/backlog.md](./backlog.md) — Epic 1, E1-S1…E1-S6
+- **Детальный план:** [sprint plan](./sprint-1-2-action-plan.md)
+- **Backlog:** [backlog](../product/backlog.md) — Epic 1, E1-S1…E1-S6
 - **Исходный код:** доменная логика в `apps/web/lib/services/`, Prisma в `apps/web/prisma/`, типы/ошибки в `apps/web/lib/`. После выделения packages — `apps/web` продолжает работать (обратная совместимость).
 
 ---
@@ -54,7 +54,7 @@
 | Architect | Интерфейсы (storage, RLS) | — | 📋 On demand | при блокерах |
 | QA        | Проверки после каждой story | — | 📋 После Dev | см. agent-tasks |
 
-**Раздаточный документ:** [docs/agent-tasks-epic-1.md](./agent-tasks-epic-1.md) — конкретные формулировки для каждого агента.
+**Раздаточный документ:** [agent-tasks-epic-1](./agent-tasks-epic-1.md) — конкретные формулировки для каждого агента.
 
 ---
 
@@ -78,7 +78,7 @@
 
 ## Отслеживание
 
-- Завершение story → обновить статус в [backlog.md](./backlog.md), в таблице выше и в [agent-tasks-epic-1.md](./agent-tasks-epic-1.md).
+- Завершение story → обновить статус в [backlog](../product/backlog.md), в таблице выше и в [agent-tasks-epic-1.md](./agent-tasks-epic-1.md).
 - Блокеры → записать в этот документ, эскалировать пользователю / Architect.
 
 **Отслеживание через MCP message bus:** тред `1c0afd9c-cdad-4f50-bcd6-080232702c3e`. Проверить inbox агента: `get_inbox(agentId)` — Dev `67600e80-f780-4aa6-9948-8eb2a77e4e5a`, Architect `d6703179-7d31-45ca-870a-2f9e39d3da78`, QA `aa052ead-9406-40da-9a00-4ab21ca7d128`. Сообщения в статусе pending/delivered до ack.

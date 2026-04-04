@@ -2,7 +2,7 @@
 
 Дата: 2026-01-28
 
-Источник: `docs/productization-multi-tenant-nestjs.md`
+Источник: `docs/product/productization-multi-tenant-nestjs.md`
 
 ## Контекст и допущения
 

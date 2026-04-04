@@ -6,9 +6,9 @@
 Этот документ консолидирует: требования PO, инженерный план по фазам, и точки интеграции QA/DevOps/Docs для MVP vNext.
 
 См. также:
-- `docs/productization-multi-tenant-nestjs.md` (контекст/целевая архитектура/принципы)
-- `docs/multi-tenant-architecture-options.md` (варианты изоляции, target = Postgres + RLS)
-- `docs/qa-plan-productization-multi-tenant.md` (QA стратегия/матрица для P0)
+- `docs/product/productization-multi-tenant-nestjs.md` (контекст/целевая архитектура/принципы)
+- `docs/architecture/multi-tenant-architecture-options.md` (варианты изоляции, target = Postgres + RLS)
+- `docs/product/qa-plan-productization-multi-tenant.md` (QA стратегия/матрица для P0)
 
 ---
 
@@ -196,5 +196,5 @@ DB:
 ## Следующие шаги (после утверждения baseline)
 
 1) Утвердить ADR и значения SLA (revoke) + минимальные `/v1` endpoints.
-2) Согласовать структуру QA артефактов: `docs/qa-plan-productization-multi-tenant.md`.
+2) Согласовать структуру QA артефактов: `docs/product/qa-plan-productization-multi-tenant.md`.
 3) Получить от DevOps решение по окружениям Postgres+RLS и runbook миграций.

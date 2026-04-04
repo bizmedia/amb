@@ -34,7 +34,7 @@ Prioritize correctness and usefulness over completeness.
 Maintain and create:
 
 * `README.md` (overview + setup)
-* `docs/api.md` (API reference)
+* `docs/reference/api.md` (API reference)
 * `docs/qa.md` (smoke tests & scenarios)
 * `docs/runbook.md` (troubleshooting)
 * `docs/architecture.md`

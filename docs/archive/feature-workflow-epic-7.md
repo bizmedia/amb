@@ -44,7 +44,7 @@
 
 ## Контекст
 
-- **Backlog:** [docs/backlog.md](./backlog.md) — Epic 7, E7-S1…E7-S4  
+- **Backlog:** [backlog](../product/backlog.md) — Epic 7, E7-S1…E7-S4  
 - **Scope:** Dashboard UI (apps/web), сообщения API в UI, выбор языка (localStorage / user prefs).
 
 
@@ -65,6 +65,6 @@
 
 ## Отслеживание
 
-- Завершение story → обновить [backlog.md](./backlog.md) и эту таблицу.  
+- Завершение story → обновить [backlog](../product/backlog.md) и эту таблицу.  
 - **MCP:** тред `496d879e-a160-47b4-b51d-04ae9f3586c8`. react-next-engineer `72c8cb90-…`, Architect `d6703179-…`, QA `aa052ead-…`.
-- **Docs:** translator guide — [i18n-translator-guide.md](./i18n-translator-guide.md).
+- **Docs:** translator guide — [i18n-translator-guide.md](../guides/i18n-translator-guide.md).
