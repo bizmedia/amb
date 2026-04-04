@@ -1,4 +1,4 @@
-# Локальный стек: postgres + apps/api (Nest, сервис api) + apps/web (Next, сервис web) + seed.
+# Локальный стек: postgres + apps/api (Nest) + apps/web (Next).
 # Сборка web/api из смонтированного репозитория (./ → /workspace).
 
 services:
@@ -74,30 +74,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
-
-  seed:
-    image: node:20-alpine
-    container_name: amb-seed
-    working_dir: /workspace
-    volumes:
-      - ./:/workspace
-      - /workspace/node_modules
-    environment:
-      API_URL: http://api:3334
-      AMB_SEED_EMAIL: admin@local.test
-      AMB_SEED_PASSWORD: ChangeMe123!
-      AMB_SEED_THREADS: "false"
-      CI: "true"
-    command: >
-      sh -lc "corepack enable &&
-      sh scripts/compose-pre-pnpm-install.sh &&
-      pnpm install --frozen-lockfile &&
-      until nc -z api 3334; do echo 'waiting for api...'; sleep 2; done &&
-      until nc -z web 3333; do echo 'waiting for web...'; sleep 2; done &&
-      pnpm --filter amb-web run seed:docker"
-    depends_on:
-      - web
-    restart: "no"
 
 volumes:
   postgres_data:

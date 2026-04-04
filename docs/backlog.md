@@ -228,7 +228,7 @@
 | E8-S1 | Удаление треда с каскадом сообщений     | P1        | ✅ Done    | • API: при удалении треда удаляются все сообщения треда (уже есть в apps/api) • Dashboard: кнопка/меню «Удалить тред» с диалогом подтверждения и текстом о необратимости • i18n ключи |
 | E8-S2 | Удаление агента                         | P1        | ✅ Done    | • API: DELETE /api/agents/:id (project-scoped, RBAC) • При удалении агента: связанные Task.assigneeId — SetNull (Prisma) • Dashboard: меню строки, AlertDialog, UX п. 5 • i18n |
 | E8-S3 | Редактирование названия проекта         | P1        | ✅ Done    | • API: PATCH /api/projects/:id с полем name (уже есть) • Dashboard: в переключателе проектов возможность редактировать название (уже есть в ProjectSwitcher) • Валидация и отображение ошибок |
-| E8-S4 | Удаление проекта                        | P1        | ✅ Done    | • API: DELETE /api/projects/:id, RBAC (user token), каскад (токены, сообщения с parentId, треды, агенты, задачи, epic/sprint), запрет default project • Dashboard: ProjectSwitcher, AlertDialog • смена контекста при удалении текущего проекта |
+| E8-S4 | Удаление проекта                        | P1        | ✅ Done    | • API: DELETE /api/projects/:id, RBAC (user token), каскад (токены, сообщения с parentId, треды, агенты, задачи, epic/sprint) • Dashboard: ProjectSwitcher, AlertDialog • смена контекста при удалении текущего проекта |
 | E8-S5 | Редактирование агента (имя, роль)      | P2        | ✅ Done    | • API: PATCH /api/agents/:id (name, role), RBAC, Zod refine • Dashboard: диалог редактирования в списке агентов • i18n |
 
 **Definition of Done:**

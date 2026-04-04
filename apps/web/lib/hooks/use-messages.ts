@@ -17,8 +17,13 @@ export function useThreadMessages(threadId: string | null) {
   const [error, setError] = useState<string | null>(null);
 
   const fetchMessages = useCallback(async () => {
-    if (!threadId) return;
-    
+    if (!threadId || !projectId) {
+      setMessages([]);
+      setError(null);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       const data = await fetchApiData<Message[]>(
@@ -39,7 +44,7 @@ export function useThreadMessages(threadId: string | null) {
     payload: unknown;
     parentId?: string | null;
   }) => {
-    if (!threadId) return;
+    if (!threadId || !projectId) return;
 
     const data = await fetchApiData<Message>(withProjectId(projectId, "/api/messages/send"), {
       method: "POST",
@@ -54,12 +59,13 @@ export function useThreadMessages(threadId: string | null) {
   }, [threadId, fetchMessages, projectId]);
 
   useEffect(() => {
-    if (threadId) {
-      fetchMessages();
+    if (threadId && projectId) {
+      void fetchMessages();
     } else {
       setMessages([]);
+      setLoading(false);
     }
-  }, [threadId, fetchMessages]);
+  }, [threadId, projectId, fetchMessages]);
 
   return { messages, loading, error, refetch: fetchMessages, sendMessage };
 }
@@ -71,8 +77,11 @@ export function useInbox(agentId: string | null, pollInterval = 3000) {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchInbox = useCallback(async () => {
-    if (!agentId) return;
-    
+    if (!agentId || !projectId) {
+      setLoading(false);
+      return;
+    }
+
     try {
       const data = await fetchApiData<Message[]>(
         withProjectId(projectId, `/api/messages/inbox?agentId=${agentId}`)
@@ -86,6 +95,7 @@ export function useInbox(agentId: string | null, pollInterval = 3000) {
   }, [agentId, projectId]);
 
   const ackMessage = useCallback(async (messageId: string) => {
+    if (!projectId) return;
     await fetchApiData<Message>(withProjectId(projectId, `/api/messages/${messageId}/ack`), {
       method: "POST",
     });
@@ -93,21 +103,25 @@ export function useInbox(agentId: string | null, pollInterval = 3000) {
   }, [fetchInbox, projectId]);
 
   useEffect(() => {
-    if (agentId) {
+    if (agentId && projectId) {
       setLoading(true);
-      fetchInbox();
-      
-      intervalRef.current = setInterval(fetchInbox, pollInterval);
+      void fetchInbox();
+
+      intervalRef.current = setInterval(() => {
+        void fetchInbox();
+      }, pollInterval);
     } else {
       setMessages([]);
+      setLoading(false);
     }
 
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     };
-  }, [agentId, pollInterval, fetchInbox]);
+  }, [agentId, projectId, pollInterval, fetchInbox]);
 
   return { messages, loading, ackMessage, refetch: fetchInbox };
 }
@@ -120,6 +134,12 @@ export function useDlq() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchDlq = useCallback(async () => {
+    if (!projectId) {
+      setMessages([]);
+      setError(null);
+      setLoading(false);
+      return;
+    }
     try {
       const data = await fetchApiData<Message[]>(withProjectId(projectId, "/api/dlq"));
       setMessages(data);
@@ -132,9 +152,10 @@ export function useDlq() {
   }, [projectId, tCommon]);
 
   const retryMessage = useCallback(async (messageId: string) => {
+    if (!projectId) return;
     // Optimistic update
     setMessages((prev) => prev.filter((m) => m.id !== messageId));
-    
+
     try {
       await fetchApiData<Message>(withProjectId(projectId, `/api/dlq/${messageId}/retry`), {
         method: "POST",
@@ -147,9 +168,10 @@ export function useDlq() {
   }, [fetchDlq, projectId]);
 
   const retryAll = useCallback(async () => {
+    if (!projectId) return { count: 0 };
     const previousMessages = messages;
     setMessages([]);
-    
+
     try {
       return await fetchApiData<{ count: number }>(withProjectId(projectId, "/api/dlq/retry-all"), {
         method: "POST",

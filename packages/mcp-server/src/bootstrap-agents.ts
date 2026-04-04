@@ -7,7 +7,7 @@ let bootstrapPromise: Promise<void> | null = null;
 
 /**
  * Один раз за процесс MCP: загружает registry с диска и досоздаёт агентов в проекте шины.
- * Без MESSAGE_BUS_PROJECT_ID контекст проекта в API не задаётся — пропускаем (как и раньше).
+ * Без MESSAGE_BUS_PROJECT_ID контекст проекта в API не задаётся — пропускаем.
  */
 export function ensureRegistryAgentsOnFirstToolCall(
   client: MessageBusClient,

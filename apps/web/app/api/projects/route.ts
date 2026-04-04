@@ -8,6 +8,9 @@ import { createProjectSchema } from "@amb-app/shared";
 export async function GET(request: Request) {
   try {
     const token = getRequestAuthToken(request);
+    if (!token) {
+      return NextResponse.json({ data: [] });
+    }
     const client = getApiClient({ token });
     const projects = await client.listProjects();
     return NextResponse.json({ data: projects });

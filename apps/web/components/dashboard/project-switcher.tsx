@@ -62,7 +62,6 @@ import {
   writeProjectColors,
   writeProjectIcons,
 } from "./project-switcher/ProjectDetailsFields";
-import { DEFAULT_BOOTSTRAP_PROJECT_ID } from "@/lib/constants/bootstrap-project";
 
 type Tenant = {
   id: string;
@@ -234,6 +233,7 @@ export function ProjectSwitcher() {
     try {
       const res = await fetch("/api/projects", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: newProjectName.trim(),
@@ -655,21 +655,17 @@ export function ProjectSwitcher() {
                                 <PencilIcon className="size-4 mr-2" />
                                 {t("editProject")}
                               </DropdownMenuItem>
-                              {project.id !== DEFAULT_BOOTSTRAP_PROJECT_ID ? (
-                                <>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    className="text-destructive focus:text-destructive"
-                                    onClick={() => {
-                                      setProjectToDelete({ id: project.id, name: project.name });
-                                      setDeleteProjectDialogOpen(true);
-                                    }}
-                                  >
-                                    <Trash2Icon className="size-4 mr-2" />
-                                    {t("deleteProject")}
-                                  </DropdownMenuItem>
-                                </>
-                              ) : null}
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onClick={() => {
+                                  setProjectToDelete({ id: project.id, name: project.name });
+                                  setDeleteProjectDialogOpen(true);
+                                }}
+                              >
+                                <Trash2Icon className="size-4 mr-2" />
+                                {t("deleteProject")}
+                              </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>

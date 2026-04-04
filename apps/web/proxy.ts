@@ -16,7 +16,7 @@ function isProtectedLocalePath(pathname: string, locale: string): boolean {
 }
 
 function isAuthPath(pathname: string, locale: string): boolean {
-  return pathname === `/${locale}/login`;
+  return pathname === `/${locale}/login` || pathname === `/${locale}/register`;
 }
 
 export default function proxy(request: NextRequest) {

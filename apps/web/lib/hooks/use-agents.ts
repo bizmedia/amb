@@ -42,6 +42,7 @@ export function useAgents() {
 
   const deleteAgent = useCallback(
     async (agentId: string) => {
+      if (!projectId) return;
       const res = await fetch(withProjectId(projectId, `/api/agents/${agentId}`), {
         method: "DELETE",
         credentials: "include",
@@ -57,6 +58,7 @@ export function useAgents() {
 
   const updateAgent = useCallback(
     async (agentId: string, data: { name?: string; role?: string }) => {
+      if (!projectId) return;
       const res = await fetch(withProjectId(projectId, `/api/agents/${agentId}`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },

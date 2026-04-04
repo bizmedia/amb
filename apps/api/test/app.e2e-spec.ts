@@ -7,8 +7,13 @@ import { AppModule } from "../src/app.module";
 import { AllExceptionsFilter } from "../src/common/http-exception.filter";
 import { PrismaService } from "../src/prisma/prisma.service";
 import { MessagesService } from "../src/messages/messages.service";
+import { hashPassword } from "../src/auth/password";
 
 const DEFAULT_TENANT_ID = "11111111-1111-4111-8111-111111111111";
+/** Login user for e2e (no default admin@local.test in app or migrations). */
+const E2E_USER_EMAIL = "e2e-tenant-admin@local.test";
+const E2E_USER_PASSWORD = "E2E_Local_Pass123!";
+const E2E_USER_ID = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1";
 
 function base64Url(input: string) {
   return Buffer.from(input)
@@ -41,6 +46,7 @@ describe("API (e2e)", () => {
 
   beforeAll(async () => {
     process.env.JWT_SECRET = process.env.JWT_SECRET ?? "test-jwt-secret";
+    process.env.AMB_UNSCOPED_PROJECT_LIST_FOR_E2E = "true";
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -52,6 +58,26 @@ describe("API (e2e)", () => {
     await app.init();
     prisma = app.get(PrismaService);
     messagesService = app.get(MessagesService);
+
+    await prisma.user.upsert({
+      where: { email: E2E_USER_EMAIL },
+      update: {
+        tenantId: DEFAULT_TENANT_ID,
+        passwordHash: hashPassword(E2E_USER_PASSWORD),
+        displayName: "E2E Tenant Admin",
+        roles: ["tenant-admin"],
+        isActive: true,
+      },
+      create: {
+        id: E2E_USER_ID,
+        tenantId: DEFAULT_TENANT_ID,
+        email: E2E_USER_EMAIL,
+        passwordHash: hashPassword(E2E_USER_PASSWORD),
+        displayName: "E2E Tenant Admin",
+        roles: ["tenant-admin"],
+        isActive: true,
+      },
+    });
   });
 
   afterAll(async () => {
@@ -612,30 +638,35 @@ describe("API (e2e)", () => {
     });
 
     it("returns 409 when signup email already exists", async () => {
+      const email = `dup-user-${Date.now().toString(36)}@local.test`;
       await request(app.getHttpServer())
         .post("/api/auth/signup")
-        .send({ email: "admin@local.test", password: "ChangeMe123!" })
+        .send({ email, password: "SignupPass123!", displayName: "Once" })
+        .expect(201);
+      await request(app.getHttpServer())
+        .post("/api/auth/signup")
+        .send({ email, password: "SignupPass123!", displayName: "Twice" })
         .expect(409);
     });
 
     it("returns 401 for invalid credentials", async () => {
       await request(app.getHttpServer())
         .post("/api/auth/login")
-        .send({ email: "admin@local.test", password: "wrong-password" })
+        .send({ email: E2E_USER_EMAIL, password: "wrong-password" })
         .expect(401);
     });
 
     it("returns user JWT for valid credentials", async () => {
       const loginRes = await request(app.getHttpServer())
         .post("/api/auth/login")
-        .send({ email: "admin@local.test", password: "ChangeMe123!" })
+        .send({ email: E2E_USER_EMAIL, password: E2E_USER_PASSWORD })
         .expect(200);
 
       const token = loginRes.body.data?.accessToken as string;
       expect(typeof token).toBe("string");
       expect(token.split(".")).toHaveLength(3);
       expect(loginRes.body.data?.tokenType).toBe("Bearer");
-      expect(loginRes.body.data?.user?.email).toBe("admin@local.test");
+      expect(loginRes.body.data?.user?.email).toBe(E2E_USER_EMAIL);
       expect(loginRes.body.data?.user?.roles).toContain("tenant-admin");
 
       const payload = JSON.parse(
@@ -661,7 +692,7 @@ describe("API (e2e)", () => {
 
       const loginRes = await request(app.getHttpServer())
         .post("/api/auth/login")
-        .send({ email: "admin@local.test", password: "ChangeMe123!" })
+        .send({ email: E2E_USER_EMAIL, password: E2E_USER_PASSWORD })
         .expect(200);
       const token = loginRes.body.data?.accessToken as string;
 
@@ -675,7 +706,7 @@ describe("API (e2e)", () => {
     it("changes password with user token and restores default credentials", async () => {
       const loginRes = await request(app.getHttpServer())
         .post("/api/auth/login")
-        .send({ email: "admin@local.test", password: "ChangeMe123!" })
+        .send({ email: E2E_USER_EMAIL, password: E2E_USER_PASSWORD })
         .expect(200);
       const token = loginRes.body.data?.accessToken as string;
 
@@ -688,29 +719,29 @@ describe("API (e2e)", () => {
       await request(app.getHttpServer())
         .post("/api/auth/change-password")
         .set("Authorization", `Bearer ${token}`)
-        .send({ currentPassword: "ChangeMe123!", newPassword: "TempPass999!" })
+        .send({ currentPassword: E2E_USER_PASSWORD, newPassword: "TempPass999!" })
         .expect(200);
 
       await request(app.getHttpServer())
         .post("/api/auth/login")
-        .send({ email: "admin@local.test", password: "TempPass999!" })
+        .send({ email: E2E_USER_EMAIL, password: "TempPass999!" })
         .expect(200);
 
       const loginAfter = await request(app.getHttpServer())
         .post("/api/auth/login")
-        .send({ email: "admin@local.test", password: "TempPass999!" })
+        .send({ email: E2E_USER_EMAIL, password: "TempPass999!" })
         .expect(200);
       const tokenAfter = loginAfter.body.data?.accessToken as string;
 
       await request(app.getHttpServer())
         .post("/api/auth/change-password")
         .set("Authorization", `Bearer ${tokenAfter}`)
-        .send({ currentPassword: "TempPass999!", newPassword: "ChangeMe123!" })
+        .send({ currentPassword: "TempPass999!", newPassword: E2E_USER_PASSWORD })
         .expect(200);
 
       await request(app.getHttpServer())
         .post("/api/auth/login")
-        .send({ email: "admin@local.test", password: "ChangeMe123!" })
+        .send({ email: E2E_USER_EMAIL, password: E2E_USER_PASSWORD })
         .expect(200);
     });
   });
@@ -725,7 +756,7 @@ describe("API (e2e)", () => {
 
       const loginRes = await request(app.getHttpServer())
         .post("/api/auth/login")
-        .send({ email: "admin@local.test", password: "ChangeMe123!" })
+        .send({ email: E2E_USER_EMAIL, password: E2E_USER_PASSWORD })
         .expect(200);
       const userToken = loginRes.body.data?.accessToken as string;
 
@@ -795,7 +826,7 @@ describe("API (e2e)", () => {
 
       const loginRes = await request(app.getHttpServer())
         .post("/api/auth/login")
-        .send({ email: "admin@local.test", password: "ChangeMe123!" })
+        .send({ email: E2E_USER_EMAIL, password: E2E_USER_PASSWORD })
         .expect(200);
       const userToken = loginRes.body.data?.accessToken as string;
 
@@ -823,7 +854,7 @@ describe("API (e2e)", () => {
 
       const loginRes = await request(app.getHttpServer())
         .post("/api/auth/login")
-        .send({ email: "admin@local.test", password: "ChangeMe123!" })
+        .send({ email: E2E_USER_EMAIL, password: E2E_USER_PASSWORD })
         .expect(200);
       const userToken = loginRes.body.data?.accessToken as string;
 

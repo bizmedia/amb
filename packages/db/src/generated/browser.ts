@@ -34,12 +34,12 @@ export type Thread = Prisma.ThreadModel
 export type Message = Prisma.MessageModel
 /**
  * Model Tenant
- * 
+ * Изолированное рабочее пространство. Сейчас у каждого tenant ровно один пользователь — владелец (см. `User`: @@unique([tenantId])).
  */
 export type Tenant = Prisma.TenantModel
 /**
  * Model User
- * 
+ * Учётная запись человека. Один пользователь на tenant: владелец workspace (создаётся вместе с tenant при signup).
  */
 export type User = Prisma.UserModel
 /**

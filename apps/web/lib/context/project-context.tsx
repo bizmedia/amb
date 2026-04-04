@@ -39,11 +39,18 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
   const reloadProjects = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/projects");
-      const json = await res.json();
-      if (res.ok && json?.data) {
+      const res = await fetch("/api/projects", {
+        credentials: "include",
+        cache: "no-store",
+      });
+      const json = await res.json().catch(() => null);
+      if (res.ok && Array.isArray(json?.data)) {
         setProjects(json.data);
+      } else {
+        setProjects([]);
       }
+    } catch {
+      setProjects([]);
     } finally {
       setLoading(false);
     }

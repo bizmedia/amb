@@ -99,7 +99,7 @@ AMB_BOOTSTRAP=true
 - `AMB_WEB_HOST`: публичный домен dashboard
 - `AMB_API_HOST`: публичный домен API
 - `TWC_REGISTRY_NAMESPACE`: namespace репозитория образов в registry
-- `AMB_BOOTSTRAP`: включить первичный bootstrap проекта и admin user
+- `AMB_BOOTSTRAP`: включить первичный upsert **default tenant** (без пользователя и без проекта)
 
 ## Что такое AMB_K8S_IMAGE_PULL_SECRET
 
@@ -127,13 +127,9 @@ AMB_K8S_IMAGE_PULL_SECRET=timeweb-registry-secret
 AMB_BOOTSTRAP=true
 ```
 
-Это нужно, чтобы API создал:
+Это нужно, чтобы API при старте **гарантировал** запись default tenant в БД. Пользователя и проект создаёте через Dashboard (**sign up**, затем **create project**).
 
-- default tenant
-- default project
-- default admin user
-
-После первого успешного deploy и первого входа в систему нужно изменить variable:
+После первого успешного deploy нужно изменить variable:
 
 ```text
 AMB_BOOTSTRAP=false

@@ -29,10 +29,7 @@ docker compose -f amb-compose.yml logs -f seed
 - Dashboard: `http://localhost:3333`
 - API health: `http://localhost:3334/api/health`
 
-Вход:
-
-- email: `admin@local.test`
-- password: `ChangeMe123!`
+Вход: зарегистрируйтесь через **Sign up** в Dashboard (дефолтного пользователя нет).
 
 ## 2. Создать общий проект
 
@@ -79,7 +76,7 @@ npm install -D @openaisdk/amb-mcp
       "args": ["exec", "amb-mcp"],
       "env": {
         "MESSAGE_BUS_URL": "http://localhost:3333",
-        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
+        "MESSAGE_BUS_PROJECT_ID": "<YOUR_PROJECT_ID>"
       }
     }
   }
@@ -96,7 +93,7 @@ npm install -D @openaisdk/amb-mcp
       "args": ["amb-mcp"],
       "env": {
         "MESSAGE_BUS_URL": "http://localhost:3333",
-        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
+        "MESSAGE_BUS_PROJECT_ID": "<YOUR_PROJECT_ID>"
       }
     }
   }
@@ -114,7 +111,7 @@ args = ["exec", "amb-mcp"]
 
 [mcp_servers.message-bus.env]
 MESSAGE_BUS_URL = "http://localhost:3333"
-MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
+MESSAGE_BUS_PROJECT_ID = "<YOUR_PROJECT_ID>"
 ```
 
 Если проект использует `npm`, используйте:
@@ -126,7 +123,7 @@ args = ["amb-mcp"]
 
 [mcp_servers.message-bus.env]
 MESSAGE_BUS_URL = "http://localhost:3333"
-MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
+MESSAGE_BUS_PROJECT_ID = "<YOUR_PROJECT_ID>"
 ```
 
 ### Claude Code
@@ -141,7 +138,7 @@ MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
       "args": ["exec", "amb-mcp"],
       "env": {
         "MESSAGE_BUS_URL": "http://localhost:3333",
-        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
+        "MESSAGE_BUS_PROJECT_ID": "<YOUR_PROJECT_ID>"
       }
     }
   }
@@ -158,7 +155,7 @@ MESSAGE_BUS_PROJECT_ID = "22222222-2222-4222-8222-222222222222"
       "args": ["amb-mcp"],
       "env": {
         "MESSAGE_BUS_URL": "http://localhost:3333",
-        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222"
+        "MESSAGE_BUS_PROJECT_ID": "<YOUR_PROJECT_ID>"
       }
     }
   }

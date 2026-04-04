@@ -118,7 +118,7 @@ Add the server to your Claude MCP config:
       "args": ["exec", "amb-mcp"],
       "env": {
         "MESSAGE_BUS_URL": "http://localhost:4334",
-        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222",
+        "MESSAGE_BUS_PROJECT_ID": "<YOUR_PROJECT_ID>",
         "MESSAGE_BUS_ACCESS_TOKEN": "<paste token from Dashboard>"
       }
     }

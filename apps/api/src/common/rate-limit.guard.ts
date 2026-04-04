@@ -6,6 +6,7 @@ import {
   Injectable,
 } from "@nestjs/common";
 import type { RequestWithAuth } from "./auth-context";
+import { DEFAULT_TENANT_ID } from "./default-tenant.constants";
 
 type Bucket = {
   windowStart: number;
@@ -15,8 +16,6 @@ type Bucket = {
 const DEFAULT_WINDOW_MS = 60_000;
 /** Большой запас: 20k req/min на бакет. Отключить: RATE_LIMIT_MAX_REQUESTS=0 */
 const DEFAULT_MAX_REQUESTS = 20_000;
-const DEFAULT_TENANT_KEY = "11111111-1111-4111-8111-111111111111";
-
 @Injectable()
 export class RateLimitGuard implements CanActivate {
   private readonly buckets = new Map<string, Bucket>();
@@ -70,7 +69,7 @@ export class RateLimitGuard implements CanActivate {
       headerProject ??
       "default-project";
 
-    const tenantId = request.auth?.tenantId ?? DEFAULT_TENANT_KEY;
+    const tenantId = request.auth?.tenantId ?? DEFAULT_TENANT_ID;
     const ip =
       (Array.isArray(request.headers["x-forwarded-for"])
         ? request.headers["x-forwarded-for"][0]

@@ -38,17 +38,14 @@ curl http://localhost:4334/api/health
 - Dashboard: `http://localhost:4333`
 - API health: `http://localhost:4334/api/health`
 
-Логин:
-
-- email: `admin@local.test`
-- password: `ChangeMe123!`
-
-Published stack автоматически создаёт default user и `Default Project`.
+Учётная запись **не** создаётся автоматически: зарегистрируйтесь через **Sign up** в Dashboard (email и пароль по вашему выбору).
 
 После входа:
 
-1. Откройте `Default Project` в Dashboard
-2. Скопируйте `Project ID`
+1. **Создайте проект** в Dashboard (если ещё нет).
+2. Откройте проект и скопируйте **Project ID**.
+
+На «чистой» БД после миграций может оставаться только legacy default tenant/project из старых SQL-миграций — отдельного пользователя по умолчанию нет.
 
 ## 2. Установить MCP package в свой проект
 
@@ -124,7 +121,7 @@ args = ["exec", "amb-mcp"]
       "args": ["exec", "amb-mcp"],
       "env": {
         "MESSAGE_BUS_URL": "http://localhost:4334",
-        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222",
+        "MESSAGE_BUS_PROJECT_ID": "<YOUR_PROJECT_ID>",
         "MESSAGE_BUS_ACCESS_TOKEN": "<токен из Dashboard>"
       }
     }

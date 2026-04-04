@@ -59,7 +59,6 @@ jobs:
           IMAGES=(
             "docker.io/openaisdk/amb-web-ui:$PACKAGE_VERSION"
             "docker.io/openaisdk/amb-api:$PACKAGE_VERSION"
-            "docker.io/openaisdk/amb-seed:$PACKAGE_VERSION"
           )
 
           for image in "${IMAGES[@]}"; do

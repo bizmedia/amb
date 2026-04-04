@@ -2,13 +2,43 @@
 
 import { useTranslations } from "next-intl";
 import {
+  BanknoteIcon,
   BotIcon,
+  BoxesIcon,
   BriefcaseIcon,
+  Building2Icon,
+  CalculatorIcon,
+  ChartCandlestickIcon,
+  ChartLineIcon,
+  CircleDollarSignIcon,
+  CodeIcon,
+  CoinsIcon,
+  CompassIcon,
+  CreditCardIcon,
   CpuIcon,
+  DatabaseIcon,
   FolderKanbanIcon,
+  GitBranchIcon,
+  GlobeIcon,
+  HandCoinsIcon,
+  LandmarkIcon,
+  LayersIcon,
+  LightbulbIcon,
   PackageIcon,
+  PercentIcon,
+  PiggyBankIcon,
+  ReceiptIcon,
   RocketIcon,
+  ScaleIcon,
   ShieldIcon,
+  SparklesIcon,
+  TargetIcon,
+  TrendingUpIcon,
+  UsersIcon,
+  WalletIcon,
+  WorkflowIcon,
+  WrenchIcon,
+  ZapIcon,
 } from "lucide-react";
 import { Button } from "@amb-app/ui/components/button";
 import { Input } from "@amb-app/ui/components/input";
@@ -24,6 +54,36 @@ export const PROJECT_ICON_OPTIONS = [
   { value: "cpu", icon: CpuIcon },
   { value: "shield", icon: ShieldIcon },
   { value: "package", icon: PackageIcon },
+  { value: "sparkles", icon: SparklesIcon },
+  { value: "layers", icon: LayersIcon },
+  { value: "globe", icon: GlobeIcon },
+  { value: "database", icon: DatabaseIcon },
+  { value: "code", icon: CodeIcon },
+  { value: "zap", icon: ZapIcon },
+  { value: "target", icon: TargetIcon },
+  { value: "lightbulb", icon: LightbulbIcon },
+  { value: "workflow", icon: WorkflowIcon },
+  { value: "boxes", icon: BoxesIcon },
+  { value: "git-branch", icon: GitBranchIcon },
+  { value: "compass", icon: CompassIcon },
+  { value: "wrench", icon: WrenchIcon },
+  { value: "users", icon: UsersIcon },
+  { value: "building-2", icon: Building2Icon },
+  { value: "landmark", icon: LandmarkIcon },
+  { value: "banknote", icon: BanknoteIcon },
+  { value: "circle-dollar-sign", icon: CircleDollarSignIcon },
+  { value: "credit-card", icon: CreditCardIcon },
+  { value: "chart-line", icon: ChartLineIcon },
+  { value: "chart-candlestick", icon: ChartCandlestickIcon },
+  { value: "trending-up", icon: TrendingUpIcon },
+  { value: "piggy-bank", icon: PiggyBankIcon },
+  { value: "coins", icon: CoinsIcon },
+  { value: "wallet", icon: WalletIcon },
+  { value: "receipt", icon: ReceiptIcon },
+  { value: "hand-coins", icon: HandCoinsIcon },
+  { value: "scale", icon: ScaleIcon },
+  { value: "percent", icon: PercentIcon },
+  { value: "calculator", icon: CalculatorIcon },
 ] as const;
 
 export type ProjectIconValue = (typeof PROJECT_ICON_OPTIONS)[number]["value"];
@@ -170,7 +230,7 @@ export function ProjectDetailsFields({
       <div className="space-y-2">
         <p className="text-sm font-medium text-foreground">{t("projectIconLabel")}</p>
         <p className="text-xs text-muted-foreground">{t("projectIconHint")}</p>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
           {PROJECT_ICON_OPTIONS.map(({ value, icon: Icon }) => {
             const isActive = iconValue === value;
             return (

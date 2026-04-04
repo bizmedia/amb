@@ -58,17 +58,14 @@ Open:
 - Dashboard: `http://localhost:4333`
 - API health: `http://localhost:4334/api/health`
 
-Sign in with:
-
-- email: `admin@local.test`
-- password: `ChangeMe123!`
-
-The published stack bootstraps the default user and the `Default Project` automatically.
+No default user is created: **sign up** in the Dashboard with your own email and password.
 
 Then:
 
-1. Open `Default Project` in the Dashboard
-2. Copy its `Project ID`
+1. **Create a project** in the Dashboard if you do not have one yet
+2. Open it and copy its **Project ID**
+
+With `AMB_BOOTSTRAP=true`, only the default **tenant** row is ensured (no default user). A legacy **Default Project** may still exist on fresh databases from older migrations.
 
 Install the MCP package in your own project:
 
@@ -156,7 +153,7 @@ If your project uses `npm`, use `"command": "npx"` and `"args": ["amb-mcp"]` ins
       "args": ["exec", "amb-mcp"],
       "env": {
         "MESSAGE_BUS_URL": "http://localhost:4334",
-        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222",
+        "MESSAGE_BUS_PROJECT_ID": "<YOUR_PROJECT_ID>",
         "MESSAGE_BUS_ACCESS_TOKEN": "<paste token from Dashboard>"
       }
     }
@@ -200,7 +197,7 @@ Add the same server to your Claude MCP config:
       "args": ["exec", "amb-mcp"],
       "env": {
         "MESSAGE_BUS_URL": "http://localhost:4334",
-        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222",
+        "MESSAGE_BUS_PROJECT_ID": "<YOUR_PROJECT_ID>",
         "MESSAGE_BUS_ACCESS_TOKEN": "<paste token from Dashboard>"
       }
     }
@@ -218,7 +215,7 @@ If your project uses `npm`, use:
       "args": ["amb-mcp"],
       "env": {
         "MESSAGE_BUS_URL": "http://localhost:4334",
-        "MESSAGE_BUS_PROJECT_ID": "22222222-2222-4222-8222-222222222222",
+        "MESSAGE_BUS_PROJECT_ID": "<YOUR_PROJECT_ID>",
         "MESSAGE_BUS_ACCESS_TOKEN": "<paste token from Dashboard>"
       }
     }
@@ -453,6 +450,8 @@ If you want to develop AMB itself instead of only using it in your own project, 
 Useful entry points:
 
 - [QUICKSTART.md](QUICKSTART.md) for the short onboarding path
+- [docs/developer-runbook.md](docs/developer-runbook.md) for multi-tenancy, signup (tenant + owner), first project, and MCP setup
+- [docs/architecture.md](docs/architecture.md) for the system architecture overview
 - [docs/SCRIPTS.md](docs/SCRIPTS.md) for repository scripts and dev workflows
 
 From a cloned repository you can also start the same published stack with:

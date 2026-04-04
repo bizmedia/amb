@@ -1,7 +1,5 @@
 import { loadOrCreateRegistry } from "./agent-registry";
 import { loadProjectEnv } from "./load-project-env";
-import { runSeedAgents } from "./seed-agents";
-import { runSeedThreads } from "./seed-threads";
 
 loadProjectEnv();
 
@@ -40,20 +38,12 @@ export async function runSetup(registryPath?: string): Promise<void> {
   console.log(`Using AMB URL: ${BASE_URL}`);
   console.log(`Using Project ID: ${PROJECT_ID}`);
   console.log(`Using registry: ${loaded.registryFile}`);
-  console.log(`Detected agents: ${loaded.registry.agents.length}\n`);
+  console.log(`Detected agents in registry: ${loaded.registry.agents.length}\n`);
 
-  if (!loaded.registry.agents.length) {
-    console.error("No agents found.");
-    console.error("Add .md agent files to .cursor/agents or create registry.json, then run setup again.");
-    process.exit(1);
-  }
+  console.log("No automatic seeding: register agents and threads from the Dashboard or via the API when you are ready.\n");
 
-  await runSeedAgents(registryPath);
-  console.log("");
-  await runSeedThreads(registryPath);
-
-  console.log("\nNext:");
+  console.log("Next:");
   console.log(`- Open Dashboard: ${BASE_URL}`);
-  console.log("- Select the same project and confirm your agents are visible");
-  console.log("- Ask your orchestrator to run the first workflow");
+  console.log("- Confirm the selected project matches MESSAGE_BUS_PROJECT_ID");
+  console.log("- Add agents (API / UI) and threads as needed");
 }

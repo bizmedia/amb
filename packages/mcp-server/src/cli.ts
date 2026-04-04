@@ -4,27 +4,21 @@
  *
  * Usage:
  *   amb-mcp                         — run MCP server (stdio, for Cursor)
- *   amb-mcp seed agents [path]      — seed agents (path: file or folder with registry.json)
- *   amb-mcp seed threads [path]    — seed threads
- *   amb-mcp seed all [path]        — seed agents and threads
- *   amb-mcp seed agents -r <path>  — same, path via --registry / -r
+ *   amb-mcp setup [path]            — validate env, API health, registry (no data seeding)
  *   Без path — интерактивный запрос "Введите путь до..."
  */
 
 import { createInterface } from "readline";
 import { main as runMcpServer } from "./index";
 import { loadProjectEnv } from "./load-project-env";
-import { runSeedAgents } from "./seed-agents";
-import { runSeedThreads } from "./seed-threads";
 import { runSetup } from "./setup";
 
 loadProjectEnv();
 
 const argv = process.argv.slice(2);
 const cmd = argv[0];
-const sub = argv[1];
 
-/** Путь к registry: из --registry/-r или позиционный аргумент после setup/agents/threads/all. */
+/** Путь к registry: из --registry/-r или позиционный аргумент после setup. */
 function getRegistryPath(): string | undefined {
   const rIdx = argv.indexOf("--registry");
   if (rIdx !== -1 && argv[rIdx + 1]) return argv[rIdx + 1];
@@ -33,9 +27,6 @@ function getRegistryPath(): string | undefined {
   if (cmd === "setup" && argv[1] && !argv[1].startsWith("-")) {
     return argv[1];
   }
-  // Позиционный аргумент: seed agents <path> / seed threads <path> / seed all <path>
-  if ((sub === "agents" || sub === "threads" || sub === "all") && argv[2] && !argv[2].startsWith("-"))
-    return argv[2];
   return undefined;
 }
 
@@ -59,40 +50,25 @@ function askRegistryPath(): Promise<string | undefined> {
 
 async function main(): Promise<void> {
   let registryPath = getRegistryPath();
-  if (
-    registryPath === undefined &&
-    (cmd === "setup" || (cmd === "seed" && (sub === "agents" || sub === "threads" || sub === "all")))
-  ) {
+  if (registryPath === undefined && cmd === "setup") {
     registryPath = await askRegistryPath();
   }
 
-  if (cmd === "seed" && sub === "agents") {
-    await runSeedAgents(registryPath);
-  } else if (cmd === "seed" && sub === "threads") {
-    await runSeedThreads(registryPath);
-  } else if (cmd === "seed" && sub === "all") {
-    await runSeedAgents(registryPath);
-    console.log("");
-    await runSeedThreads(registryPath);
-  } else if (cmd === "setup") {
+  if (cmd === "setup") {
     await runSetup(registryPath);
   } else if (!cmd || cmd === "server") {
     await runMcpServer();
   } else {
     console.error("Usage:");
     console.error("  amb-mcp                        Run MCP server (for Cursor)");
-    console.error("  amb-mcp setup [path]           Setup agents and threads for the current project");
-    console.error("  amb-mcp seed agents [path]     Seed agents (path: file or folder)");
-    console.error("  amb-mcp seed threads [path]   Seed threads");
-    console.error("  amb-mcp seed all [path]       Seed agents and threads");
-    console.error("  amb-mcp seed agents -r <path> Same, path via --registry / -r");
+    console.error("  amb-mcp setup [path]           Check API, PROJECT_ID, registry (no seeding)");
     console.error("");
     console.error("  path: .cursor/agents, .agents, ./my-registry.json, /abs/path/to/agents");
     console.error("  If registry.json is missing, agent markdown files are inferred automatically.");
     console.error("");
     console.error("Environment:");
     console.error("  MESSAGE_BUS_URL (default: http://localhost:3333)");
-    console.error("  MESSAGE_BUS_PROJECT_ID (required for setup, recommended for seed)");
+    console.error("  MESSAGE_BUS_PROJECT_ID (required for setup)");
     process.exit(1);
   }
 }

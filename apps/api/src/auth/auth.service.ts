@@ -91,23 +91,12 @@ export class AuthService {
     const resolvedDisplayName = deriveDisplayName(normalizedEmail, displayName);
     const tenantSlugBase = slugify(resolvedDisplayName) || slugify(normalizedEmail.split("@")[0] ?? "");
     const tenantSlug = `${tenantSlugBase || "workspace"}-${randomUUID().slice(0, 8)}`;
-    const projectSlug = `default-${tenantSlug}`;
 
     const user = await this.prisma.$transaction(async (tx) => {
       const tenant = await tx.tenant.create({
         data: {
           name: `${resolvedDisplayName}'s Workspace`,
           slug: tenantSlug,
-        },
-      });
-
-      await tx.project.create({
-        data: {
-          tenantId: tenant.id,
-          name: "Default Project",
-          slug: projectSlug,
-          taskPrefix: "AMB",
-          taskSequence: 0,
         },
       });
 

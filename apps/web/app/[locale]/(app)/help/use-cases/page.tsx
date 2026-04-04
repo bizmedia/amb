@@ -50,7 +50,7 @@ const flowTable = [
 ];
 
 const roleTable = [
-  { role: "Developer (local)", goal: "Run the bus, debug agents.", actions: "pnpm dev, seed:agents, API/SDK, examples/." },
+  { role: "Developer (local)", goal: "Run the bus, debug agents.", actions: "pnpm dev, create a project in the Dashboard, API/SDK, examples/." },
   { role: "Developer (integration)", goal: "Integrate AMB into a service or script.", actions: "HTTP, SDK or MCP in your code." },
   { role: "AI agent in Cursor", goal: "Execute tasks via the bus.", actions: "MCP: create_thread, send_message, get_inbox, ack_message." },
   { role: "Orchestrator (script)", goal: "Agent chains, pipelines.", actions: "SDK: createThread, loop sendMessage, wait for replies." },

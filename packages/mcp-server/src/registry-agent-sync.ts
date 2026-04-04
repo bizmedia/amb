@@ -1,42 +1,40 @@
-import type { MessageBusClient } from "./client/message-bus-client";
 import type { Registry } from "./agent-registry";
+import type { MessageBusClient } from "./client/message-bus-client";
 
-type AgentRow = { id: string; name: string; role: string };
+export type SyncRegistryAgentsSummary = {
+  created: number;
+  skipped: number;
+};
 
 /**
- * Создаёт в API агентов из registry, если для роли ещё нет записи в текущем проекте.
+ * Регистрирует в API агентов из registry, если роли ещё нет в проекте (x-project-id на клиенте).
  */
 export async function syncRegistryAgents(
   client: MessageBusClient,
   registry: Registry
-): Promise<{ created: number; skipped: number; createdRows: AgentRow[] }> {
-  if (!registry.agents.length) {
-    return { created: 0, skipped: 0, createdRows: [] };
-  }
-
-  const existing = await client.requestJson<AgentRow[]>("/api/agents");
-  const byRole = new Map(existing.map((a) => [a.role, a]));
+): Promise<SyncRegistryAgentsSummary> {
+  const existingAgents = await client.requestJson<Array<{ role: string }>>("/api/agents");
+  const roleSet = new Set(existingAgents.map((a) => a.role));
 
   let created = 0;
   let skipped = 0;
-  const createdRows: AgentRow[] = [];
 
   for (const agent of registry.agents) {
-    if (byRole.has(agent.role)) {
-      skipped++;
+    if (roleSet.has(agent.role)) {
+      skipped += 1;
       continue;
     }
-    const row = await client.requestJson<AgentRow>("/api/agents", {
+
+    await client.requestJson("/api/agents", {
       method: "POST",
       body: JSON.stringify({
         name: agent.name,
         role: agent.role,
       }),
     });
-    created++;
-    createdRows.push(row);
-    byRole.set(agent.role, row);
+    roleSet.add(agent.role);
+    created += 1;
   }
 
-  return { created, skipped, createdRows };
+  return { created, skipped };
 }

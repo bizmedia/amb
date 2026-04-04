@@ -20,7 +20,8 @@ export default function TasksLayout({ children }: { children: React.ReactNode })
 
 function TasksLayoutInner({ children }: { children: React.ReactNode }) {
   const t = useTranslations("Tasks");
-  const { selectedProject, loading } = useProjectContext();
+  const tDash = useTranslations("Dashboard");
+  const { selectedProject, loading, projects } = useProjectContext();
   const pathname = usePathname();
   const sectionHeading = pathname.includes("/tasks/epics")
     ? t("navEpics")
@@ -37,13 +38,23 @@ function TasksLayoutInner({ children }: { children: React.ReactNode }) {
   }
 
   if (!selectedProject) {
+    const noProjectsYet = projects.length === 0;
     return (
       <div className="flex flex-1 items-center justify-center px-4 py-12">
         <EmptyState
           icon={<FolderKanbanIcon className="size-6" />}
-          title={t("selectProject")}
+          title={noProjectsYet ? tDash("emptyStateTitle") : t("selectProject")}
+          description={
+            noProjectsYet ? (
+              <span>
+                {tDash("emptyStateDescription")}
+                <br />
+                {tDash("emptyStateHint")}
+              </span>
+            ) : undefined
+          }
           action={
-            <Button variant="outline">
+            <Button variant="outline" asChild>
               <Link href="/">{t("toDashboard")}</Link>
             </Button>
           }

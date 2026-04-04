@@ -69,6 +69,7 @@ export function useThreads() {
 
   const updateThreadStatus = useCallback(
     async (threadId: string, status: "open" | "closed" | "archived") => {
+      if (!projectId) return;
       // Optimistic update
       const previousThreads = threads;
       setThreads((prev) =>
@@ -92,6 +93,7 @@ export function useThreads() {
 
   const deleteThread = useCallback(
     async (threadId: string) => {
+      if (!projectId) return;
       // Optimistic update
       const previousThreads = threads;
       setThreads((prev) => prev.filter((t) => t.id !== threadId));

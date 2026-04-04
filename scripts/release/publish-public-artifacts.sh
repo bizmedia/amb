@@ -10,14 +10,12 @@ NPM_TAG="${NPM_TAG:-latest}"
 PUBLISH_LATEST="${PUBLISH_LATEST:-true}"
 PUBLISH_WEB="${PUBLISH_WEB:-true}"
 PUBLISH_API="${PUBLISH_API:-true}"
-PUBLISH_SEED="${PUBLISH_SEED:-true}"
 PUBLISH_NPM="${PUBLISH_NPM:-true}"
 DOCKER_BUILDX_TIMEOUT_MS="${DOCKER_BUILDX_TIMEOUT_MS:-5000}"
 # Comma-separated; registry clients pick the matching digest per host arch.
 IMAGE_PLATFORMS="${IMAGE_PLATFORMS:-linux/amd64,linux/arm64}"
 WEB_IMAGE_NAME="${WEB_IMAGE_NAME:-amb-web-ui}"
 API_IMAGE_NAME="${API_IMAGE_NAME:-amb-api}"
-SEED_IMAGE_NAME="${SEED_IMAGE_NAME:-amb-seed}"
 
 is_multi_platforms() {
   case "$IMAGE_PLATFORMS" in
@@ -68,10 +66,8 @@ export CONTAINER_CLI IMAGE_PLATFORMS ROOT_DIR
 
 WEB_IMAGE="$REGISTRY_PREFIX/$WEB_IMAGE_NAME:$IMAGE_TAG"
 API_IMAGE="$REGISTRY_PREFIX/$API_IMAGE_NAME:$IMAGE_TAG"
-SEED_IMAGE="$REGISTRY_PREFIX/$SEED_IMAGE_NAME:$IMAGE_TAG"
 WEB_LATEST_IMAGE="$REGISTRY_PREFIX/$WEB_IMAGE_NAME:latest"
 API_LATEST_IMAGE="$REGISTRY_PREFIX/$API_IMAGE_NAME:latest"
-SEED_LATEST_IMAGE="$REGISTRY_PREFIX/$SEED_IMAGE_NAME:latest"
 
 BUILD_PUSH="$ROOT_DIR/scripts/release/build-push-image-multiarch.sh"
 
@@ -92,7 +88,6 @@ echo "Version image tag: $IMAGE_TAG"
 echo "Publish latest tag: $PUBLISH_LATEST"
 echo "Publish web image: $PUBLISH_WEB"
 echo "Publish api image: $PUBLISH_API"
-echo "Publish seed image: $PUBLISH_SEED"
 echo "Publishing images:"
 if [ "$PUBLISH_WEB" = "true" ]; then
   echo "  $WEB_IMAGE"
@@ -104,12 +99,6 @@ if [ "$PUBLISH_API" = "true" ]; then
   echo "  $API_IMAGE"
   if [ "$PUBLISH_LATEST" = "true" ] && [ "$IMAGE_TAG" != "latest" ]; then
     echo "  $API_LATEST_IMAGE"
-  fi
-fi
-if [ "$PUBLISH_SEED" = "true" ]; then
-  echo "  $SEED_IMAGE"
-  if [ "$PUBLISH_LATEST" = "true" ] && [ "$IMAGE_TAG" != "latest" ]; then
-    echo "  $SEED_LATEST_IMAGE"
   fi
 fi
 if [ "$PUBLISH_NPM" = "true" ]; then
@@ -129,16 +118,6 @@ if [ "$PUBLISH_API" = "true" ]; then
     sh "$BUILD_PUSH" -f Dockerfile.api "$API_IMAGE" "$API_LATEST_IMAGE"
   else
     sh "$BUILD_PUSH" -f Dockerfile.api "$API_IMAGE"
-  fi
-fi
-
-if [ "$PUBLISH_SEED" = "true" ]; then
-  echo ""
-  echo "Building and pushing seed image..."
-  if [ "$PUBLISH_LATEST" = "true" ] && [ "$IMAGE_TAG" != "latest" ]; then
-    sh "$BUILD_PUSH" -f Dockerfile.seed "$SEED_IMAGE" "$SEED_LATEST_IMAGE"
-  else
-    sh "$BUILD_PUSH" -f Dockerfile.seed "$SEED_IMAGE"
   fi
 fi
 

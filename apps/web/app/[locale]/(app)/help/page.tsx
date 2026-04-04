@@ -119,7 +119,7 @@ export default async function HelpPage() {
               </p>
               <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
                 <li>
-                  <strong className="text-foreground">Start AMB.</strong> In this repo: <code className="rounded bg-muted px-1 font-mono text-xs">pnpm dev</code> (and separately — PostgreSQL, migrations, and if needed <code className="rounded bg-muted px-1 font-mono text-xs">pnpm seed:agents</code>). Or run AMB via Docker.
+                  <strong className="text-foreground">Start AMB.</strong> In this repo: <code className="rounded bg-muted px-1 font-mono text-xs">pnpm dev</code> (and separately — PostgreSQL and migrations). Or run AMB via Docker. After signup, create a project in the Dashboard, then register agents if you need them.
                 </li>
                 <li>
                   <strong className="text-foreground">In the new project</strong> (repo root or Turborepo root) add the Message Bus MCP server: in Cursor → MCP settings set <code className="rounded bg-muted px-1 font-mono text-xs">command</code> = <code className="rounded bg-muted px-1 font-mono text-xs">node</code>, <code className="rounded bg-muted px-1 font-mono text-xs">args</code> = <code className="rounded bg-muted px-1 font-mono text-xs">[&quot;/absolute/path/to/amb/packages/mcp-server/dist/index.js&quot;]</code>, <code className="rounded bg-muted px-1 font-mono text-xs">env.MESSAGE_BUS_URL</code> = <code className="rounded bg-muted px-1 font-mono text-xs">http://localhost:3333</code>.
@@ -129,7 +129,7 @@ export default async function HelpPage() {
                 </li>
               </ol>
               <p className="text-xs text-muted-foreground">
-                If the new project has its own agent list (its own <code className="rounded bg-muted px-1 font-mono text-xs">.cursor/agents/registry.json</code>) and you want them in AMB — register them via <code className="rounded bg-muted px-1 font-mono text-xs">POST /api/agents</code> or copy and run <code className="rounded bg-muted px-1 font-mono text-xs">scripts/seed-agents.ts</code> with your registry.
+                If the new repo has its own agent list (its own <code className="rounded bg-muted px-1 font-mono text-xs">.cursor/agents/registry.json</code>) and you want them in AMB — register them via the Dashboard or <code className="rounded bg-muted px-1 font-mono text-xs">POST /api/agents</code> after you select the correct project.
               </p>
             </div>
 

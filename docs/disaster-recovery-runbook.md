@@ -39,7 +39,7 @@ curl -fsS http://localhost:3334/api/health
 ## Recovery Validation Checklist
 - `/api/health` returns `status: ok` or `degraded` with DB `up`.
 - `GET /api/projects` returns expected projects.
-- Authentication works for `admin@local.test`.
+- Authentication works for a known test user (sign up or restore credentials from secrets).
 - Message send/inbox/ack flow works in one project.
 
 ## Drill Recommendation

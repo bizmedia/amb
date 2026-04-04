@@ -22,8 +22,8 @@ export class ProjectsController {
   constructor(private readonly projects: ProjectsService) {}
 
   @Get()
-  async list() {
-    const data = await this.projects.list();
+  async list(@Req() req: RequestWithAuth) {
+    const data = await this.projects.list(req.auth?.tenantId);
     return { data };
   }
 
@@ -36,12 +36,13 @@ export class ProjectsController {
   }
 
   @Post()
-  async create(@Body() body: unknown) {
+  async create(@Req() req: RequestWithAuth, @Body() body: unknown) {
     const parsed = createProjectSchema.safeParse(body);
     if (!parsed.success) throw parsed.error;
     const data = await this.projects.create(
       parsed.data.name,
       parsed.data.taskPrefix,
+      req.auth?.tenantId,
     );
     return { data };
   }

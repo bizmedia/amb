@@ -13,15 +13,11 @@ type ProjectContextResult =
   | { projectId: string; error: null }
   | { projectId: null; error: Response };
 
+/** First project from API list (ordered by `createdAt desc` on the API side). */
 function pickPreferredProjectId(
   projects: Array<{ id: string; slug?: string; name: string }>
 ): string | null {
-  const preferred =
-    projects.find((project) => project.slug === "default") ??
-    projects.find((project) => project.name.trim().toLowerCase() === "default project") ??
-    projects[0];
-
-  return preferred?.id ?? null;
+  return projects[0]?.id ?? null;
 }
 
 export async function resolveProjectId(

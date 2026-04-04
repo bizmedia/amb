@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 
@@ -9,18 +9,8 @@ import { Button } from "@amb-app/ui/components/button";
 import { Card } from "@amb-app/ui/components/card";
 import { Input } from "@amb-app/ui/components/input";
 import { getLocalizedApiErrorFromCode } from "@/lib/api/error-i18n";
-
-function sanitizeNextPath(nextValue: string | null, locale: string): string {
-  if (!nextValue || !nextValue.startsWith(`/${locale}`)) {
-    return "/";
-  }
-
-  const withoutLocale = nextValue.slice(`/${locale}`.length);
-  if (!withoutLocale || withoutLocale === "/") {
-    return "/";
-  }
-  return withoutLocale;
-}
+import { sanitizeNextPathForRouter } from "@/lib/auth/sanitize-next-path";
+import { useProjectContext } from "@/lib/context/project-context";
 
 export function LoginForm() {
   const isProduction = process.env.NODE_ENV === "production";
@@ -29,23 +19,31 @@ export function LoginForm() {
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { loadProjects } = useProjectContext();
 
   const [email, setEmail] = useState(isProduction ? "" : "admin@local.test");
   const [password, setPassword] = useState(isProduction ? "" : "ChangeMe123!");
-  const [loadingAction, setLoadingAction] = useState<"signin" | "signup" | null>(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const nextPath = useMemo(
-    () => sanitizeNextPath(searchParams.get("next"), locale),
-    [searchParams, locale]
+    () => sanitizeNextPathForRouter(searchParams.get("next"), locale),
+    [searchParams, locale],
   );
 
-  const submitAuth = async (mode: "signin" | "signup") => {
-    setLoadingAction(mode);
+  const nextQuery = searchParams.get("next");
+  const registerHref = useMemo(() => {
+    if (!nextQuery) return "/register";
+    return { pathname: "/register" as const, query: { next: nextQuery } };
+  }, [nextQuery]);
+
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch(mode === "signup" ? "/api/auth/signup" : "/api/auth/login", {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -54,20 +52,14 @@ export function LoginForm() {
       if (!response.ok) {
         throw new Error(getLocalizedApiErrorFromCode(json?.error?.code, tCommon));
       }
+      await loadProjects();
       router.replace(nextPath);
       router.refresh();
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : tCommon("apiErrors.authFailed"));
     } finally {
-      setLoadingAction(null);
+      setLoading(false);
     }
-  };
-
-  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const nativeEvent = event.nativeEvent as SubmitEvent;
-    const submitter = nativeEvent.submitter as HTMLButtonElement | null;
-    await submitAuth(submitter?.value === "signup" ? "signup" : "signin");
   };
 
   return (
@@ -114,24 +106,19 @@ export function LoginForm() {
 
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
-          <Button
-            type="submit"
-            value="signin"
-            className="w-full"
-            disabled={loadingAction !== null}
-          >
-            {loadingAction === "signin" ? t("signingIn") : t("signIn")}
-          </Button>
-          <Button
-            type="submit"
-            value="signup"
-            variant="outline"
-            className="w-full"
-            disabled={loadingAction !== null}
-          >
-            {loadingAction === "signup" ? t("creatingAccount") : t("createAccount")}
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? t("signingIn") : t("signIn")}
           </Button>
         </form>
+
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          <Link
+            href={registerHref}
+            className="font-medium text-primary underline-offset-4 hover:underline"
+          >
+            {t("linkToRegister")}
+          </Link>
+        </p>
       </Card>
     </div>
   );

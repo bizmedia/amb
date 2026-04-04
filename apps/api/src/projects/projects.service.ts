@@ -1,16 +1,12 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { NotFoundError } from "@amb-app/shared";
 import { Prisma } from "@amb-app/db";
-import {
-  DEFAULT_PROJECT_ID,
-  DEFAULT_TENANT_ID,
-  DEFAULT_TENANT_SLUG,
-} from "../common/tenant-project.constants";
+import { DEFAULT_TENANT_ID, DEFAULT_TENANT_SLUG } from "../common/default-tenant.constants";
 
 function toSlug(name: string): string {
   return name
@@ -46,14 +42,37 @@ function toAlphaSuffix(counter: number): string {
 export class ProjectsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async list() {
-    return this.prisma.project.findMany({
-      orderBy: { createdAt: "desc" },
-    });
+  /** Without tenant scope, returns [] (see AMB_UNSCOPED_PROJECT_LIST_FOR_E2E for tests only). */
+  async list(forTenantId?: string) {
+    if (forTenantId) {
+      return this.prisma.project.findMany({
+        where: { tenantId: forTenantId },
+        orderBy: { createdAt: "desc" },
+      });
+    }
+    if (process.env.AMB_UNSCOPED_PROJECT_LIST_FOR_E2E === "true") {
+      return this.prisma.project.findMany({
+        orderBy: { createdAt: "desc" },
+      });
+    }
+    return [];
   }
 
-  async create(name: string, taskPrefix?: string) {
-    const tenant = await this.prisma.tenant.upsert({
+  private async resolveTenantForProjectCreate(forTenantId?: string) {
+    if (forTenantId) {
+      const tenant = await this.prisma.tenant.findUnique({
+        where: { id: forTenantId },
+      });
+      if (!tenant) {
+        throw new NotFoundException({
+          code: "tenant_not_found",
+          message: "Tenant not found",
+        });
+      }
+      return tenant;
+    }
+
+    return this.prisma.tenant.upsert({
       where: { slug: DEFAULT_TENANT_SLUG },
       update: {},
       create: {
@@ -62,6 +81,10 @@ export class ProjectsService {
         slug: DEFAULT_TENANT_SLUG,
       },
     });
+  }
+
+  async create(name: string, taskPrefix?: string, forTenantId?: string) {
+    const tenant = await this.resolveTenantForProjectCreate(forTenantId);
 
     const base = toSlug(name) || "project";
     let candidate = base;
@@ -150,9 +173,6 @@ export class ProjectsService {
   }
 
   async delete(id: string): Promise<void> {
-    if (id === DEFAULT_PROJECT_ID) {
-      throw new BadRequestException("Cannot delete the default project");
-    }
     await this.getById(id);
 
     await this.prisma.$transaction(async (tx) => {

@@ -11,7 +11,8 @@ import { KeyRoundIcon } from "lucide-react";
 
 export default function TokensPage() {
   const t = useTranslations("Tokens");
-  const { selectedProject, loading } = useProjectContext();
+  const tDash = useTranslations("Dashboard");
+  const { selectedProject, loading, projects } = useProjectContext();
 
   if (loading) {
     return (
@@ -22,11 +23,21 @@ export default function TokensPage() {
   }
 
   if (!selectedProject) {
+    const noProjectsYet = projects.length === 0;
     return (
       <div className="flex flex-1 items-center justify-center px-4 py-12">
         <EmptyState
           icon={<KeyRoundIcon className="size-6" />}
-          title={t("selectProject")}
+          title={noProjectsYet ? tDash("emptyStateTitle") : t("selectProject")}
+          description={
+            noProjectsYet ? (
+              <span>
+                {tDash("emptyStateDescription")}
+                <br />
+                {tDash("emptyStateHint")}
+              </span>
+            ) : undefined
+          }
           action={
             <Button asChild variant="outline">
               <Link href="/">{t("toDashboard")}</Link>

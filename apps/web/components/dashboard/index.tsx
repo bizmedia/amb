@@ -82,8 +82,10 @@ export function Dashboard() {
   
   const { inboxCounts, dlqCount } = useSSE()
   const t = useTranslations("Dashboard")
-  const { projects, loading: projectsLoading } = useProjectContext()
+  const { projects, projectId, loading: projectsLoading } = useProjectContext()
   const showNoProjectsEmpty = !projectsLoading && projects.length === 0
+  /** Avoid one frame / effect tick with agents+threads mounted but projectId not yet synced from context. */
+  const projectContextSyncing = !projectsLoading && projects.length > 0 && projectId == null
   const handlersRef = useShellCommandHandlersRef()
 
   const inboxCount = selectedAgentId ? (inboxCounts[selectedAgentId] ?? 0) : 0
@@ -128,6 +130,14 @@ export function Dashboard() {
       <div className="flex min-h-0 flex-1 gap-1.5 overflow-hidden">
         {showNoProjectsEmpty ? (
           <DashboardEmptyState />
+        ) : projectContextSyncing ? (
+          <div
+            className="flex flex-1 flex-col items-center justify-center gap-3 px-4 py-16"
+            aria-busy="true"
+          >
+            <div className="h-9 w-9 animate-pulse rounded-full bg-muted" />
+            <p className="text-sm text-muted-foreground">{t("loadingWorkspace")}</p>
+          </div>
         ) : (
           <>
             <aside

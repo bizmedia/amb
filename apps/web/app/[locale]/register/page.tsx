@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { LoginForm } from "@/components/auth/login-form";
+import { RegisterForm } from "@/components/auth/register-form";
 import { ACCESS_TOKEN_COOKIE_NAME } from "@/lib/auth/constants";
 import { decodeJwtPayload, isJwtExpired } from "@/lib/auth/jwt";
 import { sanitizeNextPathFull } from "@/lib/auth/sanitize-next-path";
@@ -11,7 +11,7 @@ type Props = {
   searchParams: Promise<{ next?: string }>;
 };
 
-export default async function LoginPage({ params, searchParams }: Props) {
+export default async function RegisterPage({ params, searchParams }: Props) {
   const [{ locale }, { next }] = await Promise.all([params, searchParams]);
   const token = (await cookies()).get(ACCESS_TOKEN_COOKIE_NAME)?.value;
   if (token) {
@@ -21,5 +21,5 @@ export default async function LoginPage({ params, searchParams }: Props) {
     }
   }
 
-  return <LoginForm />;
+  return <RegisterForm />;
 }
