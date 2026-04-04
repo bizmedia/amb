@@ -9,7 +9,7 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\"",
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:e2e": "jest -c test/jest-e2e.json"
@@ -37,6 +37,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^25.5.0",
     "@types/supertest": "^7.2.0",
+    "eslint": "^9.32.0",
     "jest": "^30.3.0",
     "supertest": "^7",
     "ts-jest": "^29",

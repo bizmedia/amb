@@ -1,12 +1,13 @@
 # Документация по архитектуре — Agent Message Bus
 
-**Версия:** 1.0  
-**Дата:** 27.01.2026  
+**Версия:** 1.4  
+**Дата:** 04.04.2026  
 **Автор:** Architect Agent  
-**Статус:** Утверждено
+**Статус:** Актуализировано
 
-> Примечание (2026-01-28): документ описывает текущую v1 архитектуру (локальный Next.js монолит).
-> Для продуктового vNext (hosted, multi-tenant, JWT, Nest.js backend, RLS) см.:
+> Примечание (2026-04-04): документ актуализирован под vNext-архитектуру
+> (hosted + local, multi-tenant, JWT, Nest.js backend, PostgreSQL RLS, Kubernetes).
+> Дополнительные детали см.:
 > - `docs/productization-multi-tenant-nestjs.md`
 > - `docs/developer-runbook.md` — пошаговый онбординг: tenant / владелец при регистрации, первый проект, MCP
 > - `docs/adr/ADR-005-nestjs-backend.md`
@@ -74,11 +75,13 @@ Agent Message Bus — локальная шина сообщений для ор
 
 | Характеристика | Значение |
 |----------------|----------|
-| Тип развёртывания | Локальное (local-first) |
+| Тип развёртывания | Local + Hosted (Kubernetes) |
 | Модель доставки | At-least-once с ACK |
 | Протокол | REST API (HTTP/JSON) |
 | Персистентность | PostgreSQL |
-| Масштаб | Single-instance |
+| Модель доступа | JWT для пользователей + project-токены для M2M |
+| Изоляция данных | Multi-tenant (Tenant -> Project) + PostgreSQL RLS |
+| Масштаб | Single-cluster с путём к горизонтальному масштабированию |
 
 ---
 
@@ -88,10 +91,12 @@ Agent Message Bus — локальная шина сообщений для ор
 
 | Принцип | Описание | Обоснование |
 |---------|----------|-------------|
-| **Local-first** | Только локальное развёртывание | Безопасность данных, минимальные зависимости |
+| **Hosted-ready** | Архитектура пригодна для Kubernetes и on-prem/local | Единая модель разработки и production |
 | **Простота** | Минимум движущихся частей | Простота отладки и эксплуатации |
 | **Тредоцентричность** | Все сообщения в контексте треда | Организация и трассировка |
 | **Надёжная доставка** | ACK + Retry + DLQ | Гарантия обработки |
+| **Разделение людей и машин** | User JWT для UI/API, project-токены для интеграций | Минимальные права и прозрачная эксплуатация |
+| **Defense in depth** | Guard + RBAC + RLS | Защита от межпроектных/межтенантных утечек |
 | **Payload без схемы** | JSON payload без жёсткой схемы | Гибкость для разных агентов |
 
 ### 2.2 Архитектурный стиль
@@ -135,11 +140,13 @@ Agent Message Bus — локальная шина сообщений для ор
 
 | Ограничение | Описание |
 |------------|----------|
-| Next.js App Router | Фреймворк для API и UI |
+| Next.js App Router | Dashboard и BFF/UI слой |
+| Nest.js | Основной backend API (`apps/api`) |
 | Prisma + PostgreSQL | ORM и база данных |
 | Threads mandatory | Все сообщения в тредах |
 | Retry worker | Фоновая обработка повторов |
-| No auth | Только локальное использование |
+| JWT auth mandatory | User JWT + Project JWT/токены |
+| RLS mandatory | Изоляция по tenant/project в PostgreSQL |
 
 ---
 
@@ -228,15 +235,18 @@ Agent Message Bus — локальная шина сообщений для ор
 - `DLQViewer` — очередь недоставленных
 - `MentionInput` — отправка сообщений с @mentions
 
-#### 3.2.2 REST API (Next.js App Router)
+#### 3.2.2 REST API (Nest.js)
 
 | Атрибут | Значение |
 |---------|----------|
-| Технология | Next.js 15 App Router |
-| Расположение | `app/api/` |
+| Технология | Nest.js 11 |
+| Расположение | `apps/api/src/` |
 | Назначение | HTTP endpoints для всех операций |
 
 **Маршруты API:**
+- `/api/auth/*` — регистрация, вход, профиль пользователя
+- `/api/projects` — CRUD проектов в tenant scope
+- `/api/admin/projects/:projectId/tokens` — выпуск/отзыв project-токенов
 - `/api/agents` — CRUD для агентов
 - `/api/threads` — CRUD для тредов
 - `/api/messages` — отправка, inbox, ACK
@@ -294,53 +304,47 @@ Agent Message Bus — локальная шина сообщений для ор
 ### 4.1 ER-диаграмма
 
 ```
-┌─────────────────────┐
-│       Agent         │
-├─────────────────────┤
-│ id: UUID (PK)       │
-│ name: String        │
-│ role: String        │
-│ status: String      │
-│ capabilities: JSON? │
-│ createdAt: DateTime │
-│ lastSeen: DateTime? │
-└─────────────────────┘
-
-┌─────────────────────┐
-│       Thread        │
-├─────────────────────┤
-│ id: UUID (PK)       │
-│ title: String       │
-│ status: String      │
-│ createdAt: DateTime │
-└──────────┬──────────┘
-           │
-           │ 1:N
-           │
-┌──────────▼──────────┐
-│      Message        │
-├─────────────────────┤
-│ id: UUID (PK)       │
-│ threadId: UUID (FK) │───────────────┐
-│ fromAgentId: String │               │
-│ toAgentId: String?  │               │
-│ payload: JSON       │               │
-│ status: String      │               │
-│ retries: Int        │               │
-│ parentId: UUID? (FK)│───┐           │
-│ createdAt: DateTime │   │           │
-└─────────────────────┘   │           │
-           ▲              │           │
-           │              │           │
-           └──────────────┘           │
-           (self-relation)            │
-                                      │
-           ┌──────────────────────────┘
-           │
-           ▼
-    ┌─────────────┐
-    │   Thread    │
-    └─────────────┘
+┌─────────────────────┐     1:N     ┌─────────────────────┐
+│       Tenant        │────────────>│       Project       │
+├─────────────────────┤             ├─────────────────────┤
+│ id: UUID (PK)       │             │ id: UUID (PK)       │
+│ name: String        │             │ tenantId: UUID (FK) │
+│ slug: String        │             │ name: String        │
+└──────────┬──────────┘             └──────────┬──────────┘
+           │                                   │
+           │ 1:N                               │ 1:N
+           ▼                                   ▼
+┌─────────────────────┐             ┌─────────────────────┐
+│        User         │             │        Agent        │
+├─────────────────────┤             ├─────────────────────┤
+│ id: UUID (PK)       │             │ id: UUID (PK)       │
+│ tenantId: UUID (FK) │             │ projectId: UUID(FK) │
+│ email: String       │             │ tenantId: UUID (FK) │
+│ passwordHash: String│             │ role/status/...     │
+│ roles: String[]     │             └──────────┬──────────┘
+└─────────────────────┘                        │
+                                               │ 1:N
+┌─────────────────────┐                        ▼
+│    ProjectToken     │             ┌─────────────────────┐
+├─────────────────────┤             │       Thread        │
+│ id: UUID (PK)       │             ├─────────────────────┤
+│ projectId: UUID(FK) │             │ id: UUID (PK)       │
+│ tenantId: UUID (FK) │             │ projectId: UUID(FK) │
+│ tokenHash: String   │             │ tenantId: UUID (FK) │
+│ expiresAt/revokedAt │             └──────────┬──────────┘
+└─────────────────────┘                        │
+                                               │ 1:N
+                                               ▼
+                                     ┌─────────────────────┐
+                                     │       Message       │
+                                     ├─────────────────────┤
+                                     │ id: UUID (PK)       │
+                                     │ threadId: UUID (FK) │
+                                     │ projectId: UUID(FK) │
+                                     │ tenantId: UUID (FK) │
+                                     │ payload/status/...  │
+                                     │ parentId: UUID?     │
+                                     └─────────────────────┘
 ```
 
 ### 4.2 Статусы сущностей
@@ -501,6 +505,7 @@ Agent Message Bus — локальная шина сообщений для ор
 - **Ориентация на ресурсы** — `/api/{resource}`
 - **JSON везде** — тела запросов и ответов
 - **Единый формат ответа** — `{ data, error, meta }`
+- **Обязательный auth-контекст** — Bearer JWT + project scope где требуется
 - **HTTP-коды** — 200, 201, 400, 404, 409, 500
 
 ### 6.2 Формат ответа
@@ -527,6 +532,12 @@ Agent Message Bus — локальная шина сообщений для ор
 
 | Метод | Путь | Описание | Тело запроса |
 |--------|------|-------------|--------------|
+| POST | `/api/auth/signup` | Регистрация пользователя и tenant | `{email, password, tenantName}` |
+| POST | `/api/auth/login` | Вход пользователя | `{email, password}` |
+| GET | `/api/projects` | Список проектов tenant | — |
+| POST | `/api/projects` | Создание проекта | `{name, ...}` |
+| GET | `/api/admin/projects/:projectId/tokens` | Список project-токенов | — |
+| POST | `/api/admin/projects/:projectId/tokens` | Выпуск project-токена | `{name, expiresIn?}` |
 | GET | `/api/agents` | Список агентов | — |
 | POST | `/api/agents` | Регистрация агента | `{name, role, capabilities?}` |
 | GET | `/api/agents/search?q=` | Поиск агентов | — |
@@ -576,7 +587,9 @@ Agent Message Bus — локальная шина сообщений для ор
       "command": "node",
       "args": ["mcp-server/dist/index.js"],
       "env": {
-        "MESSAGE_BUS_URL": "http://localhost:3333"
+        "MESSAGE_BUS_URL": "http://localhost:3334",
+        "MESSAGE_BUS_PROJECT_ID": "<PROJECT_ID>",
+        "MESSAGE_BUS_ACCESS_TOKEN": "<PROJECT_TOKEN_OR_USER_JWT>"
       }
     }
   }
@@ -586,9 +599,13 @@ Agent Message Bus — локальная шина сообщений для ор
 ### 7.2 TypeScript SDK
 
 ```typescript
-import { createClient } from "./lib/sdk";
+import { createClient } from "@amb-app/sdk";
 
-const client = createClient("http://localhost:3333");
+const client = createClient({
+  baseUrl: "http://localhost:3334",
+  projectId: process.env.MESSAGE_BUS_PROJECT_ID,
+  token: process.env.MESSAGE_BUS_ACCESS_TOKEN
+});
 
 // Регистрация
 const agent = await client.registerAgent({
@@ -631,32 +648,21 @@ services:
 ### 8.1 Схема развёртывания
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    LOCAL MACHINE                             │
+┌──────────────────────────────────────────────────────────────┐
+│                    DEPLOYMENT TOPOLOGY                       │
+├──────────────────────────────────────────────────────────────┤
+│ Local dev (Podman Compose / pnpm dev)                       │
+│  - web (Next.js): :3333                                     │
+│  - api (Nest.js):  :3334                                    │
+│  - postgres:       :5432                                    │
+│  - mcp-server (stdio) -> MESSAGE_BUS_URL (api)              │
 │                                                              │
-│  ┌────────────────────────────────────────────────────────┐ │
-│  │                    Docker Compose                       │ │
-│  │                                                         │ │
-│  │  ┌─────────────────┐      ┌─────────────────┐          │ │
-│  │  │   PostgreSQL    │      │    Next.js      │          │ │
-│  │  │    Container    │      │   Container     │          │ │
-│  │  │                 │      │                 │          │ │
-│  │  │    Port: 5432   │<────>│   Port: 3333    │          │ │
-│  │  │                 │      │                 │          │ │
-│  │  └─────────────────┘      └────────┬────────┘          │ │
-│  │                                    │                    │ │
-│  └────────────────────────────────────┼────────────────────┘ │
-│                                       │                      │
-│  ┌────────────────────────────────────┼────────────────────┐ │
-│  │                    Cursor IDE      │                    │ │
-│  │                                    │                    │ │
-│  │  ┌─────────────────┐              │                    │ │
-│  │  │   MCP Server    │──────────────┘                    │ │
-│  │  │    (stdio)      │     HTTP                          │ │
-│  │  └─────────────────┘                                   │ │
-│  │                                                         │ │
-│  └─────────────────────────────────────────────────────────┘ │
-│                                                              │
+│ Hosted (Kubernetes, ADR-009)                                │
+│  - Deployment: amb-web, amb-api                             │
+│  - Service/Ingress + TLS                                    │
+│  - Job/CronJob: db migrate / background workers             │
+│  - Secrets: DATABASE_URL, JWT secrets, registry creds       │
+│  - Namespace isolation + horizontal scaling                 │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -665,17 +671,28 @@ services:
 | Переменная | Описание | По умолчанию |
 |------------|----------|--------------|
 | `DATABASE_URL` | Строка подключения к PostgreSQL | `postgresql://...@localhost:5432/messagebus` |
-| `PORT` | Порт сервера | `3333` |
-| `MESSAGE_BUS_URL` | URL для MCP-сервера | `http://localhost:3333` |
+| `PORT` | Порт API (Nest.js) | `3334` |
+| `MESSAGE_BUS_URL` | URL API для MCP-клиента | `http://localhost:3334` |
+| `MESSAGE_BUS_PROJECT_ID` | Контекст проекта для MCP/SDK | — |
+| `MESSAGE_BUS_ACCESS_TOKEN` / `MESSAGE_BUS_TOKEN` | JWT (user/project) для API | — |
+| `JWT_SECRET` / `AMB_JWT_SECRET` | Секрет подписи JWT | — |
 
 ### 8.3 Последовательность запуска
 
 ```
-1. docker compose up -d postgres     # Запуск PostgreSQL
-2. pnpm db:migrate                   # Применить миграции
-3. pnpm seed:agents                  # Засеять агентов по умолчанию
-4. pnpm dev                          # Запуск Next.js
-5. Cursor загружает MCP-сервер       # транспорт stdio
+Local:
+1. podman compose up -d postgres
+2. pnpm db:migrate
+3. pnpm dev                          # web + api
+4. signup/login в Dashboard
+5. создать проект и токен проекта
+6. Cursor загружает MCP-сервер (stdio)
+
+Kubernetes:
+1. собрать и опубликовать образы web/api
+2. kubectl apply Secret/ConfigMap/Deploy/Service/Ingress
+3. kubectl apply Job для миграций (`deploy:k8s:migrate`)
+4. проверить readiness/liveness и `/api/health`
 ```
 
 ---
@@ -784,20 +801,22 @@ services:
 
 | Аспект | Текущее состояние | Обоснование |
 |--------|-------------------|-------------|
-| Аутентификация | Отсутствует | Только локальное развёртывание |
-| Авторизация | Отсутствует | Сценарий одного пользователя |
-| Шифрование в transit | HTTP (не HTTPS) | localhost |
-| Шифрование at rest | Нет | Локальная разработка |
+| Аутентификация (люди) | User JWT (signup/login) | Доступ к Dashboard и admin API |
+| Аутентификация (машины) | Project-токены/JWT | M2M интеграции в scope одного проекта |
+| Авторизация | RBAC (tenant-admin, project-admin, reader) | Разделение прав по tenant/project |
+| Изоляция данных | Project/Tenant scoping + PostgreSQL RLS | Defense in depth на уровне БД |
+| Шифрование в transit | HTTPS в hosted, HTTP в local dev | Production security + DX локально |
+| Аудит | Токены и чувствительные операции журналируются | Трассировка и расследование инцидентов |
 
 ### 10.2 Рекомендации для production
 
-Если система будет развёрнута не локально:
+Production baseline:
 
-1. **API Keys** — добавить аутентификацию через API ключи
-2. **HTTPS** — TLS для всех соединений
-3. **Rate Limiting** — ограничение запросов
-4. **Input Validation** — валидация всех входных данных (уже есть через Zod)
-5. **Audit Log** — логирование всех операций
+1. **JWT + Project Tokens** — обязательная проверка подписи, срока и revoke-статуса.
+2. **HTTPS/TLS** — TLS для внешнего трафика через Ingress.
+3. **Rate Limiting** — лимиты на auth/token/admin endpoints.
+4. **Input Validation** — строгая валидация payload (Zod/DTO).
+5. **Audit Log** — аудит операций по токенам, ролям, доступу.
 
 ---
 
@@ -808,9 +827,10 @@ services:
 | Компонент | Мониторинг |
 |-----------|------------|
 | Dashboard | Визуальный мониторинг агентов, тредов, DLQ |
-| PostgreSQL | `docker compose logs postgres` |
-| Next.js | Console logs |
-| Retry Worker | Console output |
+| API (Nest.js) | `/api/health`, структурированные логи, latency/error-rate |
+| PostgreSQL | Метрики БД + логи, контроль пула соединений |
+| Web (Next.js) | Логи SSR/клиента, ошибки UI/API-интеграции |
+| Retry Worker | Метрики retry/dlq + cron/job logs |
 
 ### 11.2 Рекомендуемые метрики (Future)
 
@@ -959,3 +979,4 @@ amb-app/
 | 1.1 | 15.03.2026 | Architect Agent | ADR-005..013 в раздел 12; раздел 12.3 — уточнения по storage, RLS, эпам 2–5; структура проекта — монорепо |
 | 1.2 | 15.03.2026 | Architect Agent | Epic 6 в раздел 12.3: операционная готовность (rate limiting, observability, health, deployment, backup) |
 | 1.3 | 16.03.2026 | Architect Agent | Epic 7 в раздел 12.3: i18n (next-intl), конвенции ключей, персистенция языка |
+| 1.4 | 04.04.2026 | Architect Agent | Актуализация под hosted/vNext: Kubernetes deployment, JWT для пользователей и project-токены для M2M, RBAC/RLS как базовая модель безопасности |

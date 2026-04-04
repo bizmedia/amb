@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model Tenant
- * Изолированное рабочее пространство. Сейчас у каждого tenant ровно один пользователь — владелец (см. `User`: @@unique([tenantId])).
+ * 
  */
 export type TenantModel = runtime.Types.Result.DefaultSelection<Prisma.$TenantPayload>
 

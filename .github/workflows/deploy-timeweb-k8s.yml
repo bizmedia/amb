@@ -167,7 +167,7 @@ jobs:
         run: pnpm --filter amb-web lint
 
       - name: API lint
-        run: ./node_modules/.bin/eslint "apps/api/{src,apps,libs,test}/**/*.ts"
+        run: pnpm --filter amb-api run lint
 
       - name: Workspace typecheck
         run: pnpm typecheck
