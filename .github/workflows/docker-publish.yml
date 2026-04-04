@@ -5,6 +5,12 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      skip_docker_images:
+        description: "Не пушить образы в Docker Hub (только npm и т.п.) — если нет DOCKERHUB_*"
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: publish-public-artifacts-${{ github.ref }}
@@ -47,8 +53,15 @@ jobs:
       - name: Check Docker image version
         id: docker-version
         shell: bash
+        env:
+          SKIP_DOCKER_IMAGES: ${{ github.event_name == 'workflow_dispatch' && inputs.skip_docker_images || false }}
         run: |
           set -euo pipefail
+          if [ "$SKIP_DOCKER_IMAGES" = "true" ]; then
+            echo "should_publish=false" >> "$GITHUB_OUTPUT"
+            echo "Docker image publish skipped (workflow_dispatch: skip_docker_images)."
+            exit 0
+          fi
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
           IMAGES=(
             "docker.io/openaisdk/amb-web-ui:$PACKAGE_VERSION"
@@ -87,6 +100,18 @@ jobs:
         run: |
           echo "All public artifact versions already exist."
           echo "Update the version in package.json before publishing a new release."
+
+      - name: Require Docker Hub secrets for image publish
+        if: steps.docker-version.outputs.should_publish == 'true'
+        env:
+          DH_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+          DH_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "$DH_USER" ] || [ -z "$DH_TOKEN" ]; then
+            echo "::error::Нужна публикация образов, но не заданы DOCKERHUB_USERNAME / DOCKERHUB_TOKEN в Secrets репозитория. Либо добавьте секреты, либо запустите workflow вручную с «skip_docker_images»."
+            exit 1
+          fi
 
       - name: Log in to Docker Hub
         if: steps.docker-version.outputs.should_publish == 'true'
