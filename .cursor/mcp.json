@@ -1,24 +1,18 @@
 {
   "mcpServers": {
-
     "next-devtools": {
-        "command": "npx",
-        "args": ["-y", "next-devtools-mcp@latest"]
-      },
+      "command": "npx",
+      "args": [
+        "-y",
+        "next-devtools-mcp@latest"
+      ]
+    },
     "amb-mcp": {
       "command": "pnpm",
-      "args": ["exec", "amb-mcp"],
-      "env": {
-          "MESSAGE_BUS_URL": "https://amb.megaretro.ru",
-          "MESSAGE_BUS_PROJECT_ID": "40b5e64f-1fad-4ea4-851b-ea3d9326a4fb",
-          "MESSAGE_BUS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJwcm9qZWN0IiwidGVuYW50SWQiOiIwZGIwOGY2ZS0zMGIyLTRmMDItYmQxNy00MTcwMTJlZDIxYjYiLCJwcm9qZWN0SWQiOiI0MGI1ZTY0Zi0xZmFkLTRlYTQtODUxYi1lYTNkOTMyNmE0ZmIiLCJ0eXBlIjoicHJvamVjdCIsImp0aSI6IjIxMTc5Zjg1LTJjYmMtNGI3OS1hYjg0LTU4YjdkMTMyZDFmMCIsImlhdCI6MTc3NTM0MTE0MSwiZXhwIjoxNzgzMTE3MTQxfQ.67UFH_8mWdIscT9FaucYMnofg_usrwxjKOGMok76AUs"
-        }
-    },
-    "message-bus": {
-      "command": "node",
-      "args": ["${workspaceFolder}/packages/mcp-server/dist/cli.js"],
-      "cwd": "${workspaceFolder}",
-      "envFile": "${workspaceFolder}/.cursor/mcp.env",
+      "args": [
+        "exec",
+        "amb-mcp"
+      ],
       "env": {
         "MESSAGE_BUS_URL": "https://amb.megaretro.ru",
         "MESSAGE_BUS_PROJECT_ID": "40b5e64f-1fad-4ea4-851b-ea3d9326a4fb",
