@@ -6,12 +6,12 @@
 #   2. build-images — Docker-in-Docker: amb-api, amb-web → Timeweb Registry (main)
 #   3. deploy       — pull-secret, amb-secrets, migrate job, envsubst apply, rollout, smoke
 #
-# Secrets (организация — общие с другими проектами Timeweb):
-#   TWC_REGISTRY_HOST       — хост реестра (*.registry.twcstorage.ru)
-#   TWC_REGISTRY_USERNAME   — логин docker login
-#   TWC_REGISTRY_PASSWORD   — пароль/токен
-#   TWC_KUBECONFIG          — raw kubeconfig кластера (без base64)
-#   dockerconfigjson        — ~/.docker/config.json с Docker Hub (обход rate limit на образы шагов)
+# Organization secrets (имена как в Drone UI):
+#   TWC_REGISTRY_HOST, TWC_REGISTRY_USERNAME, TWC_REGISTRY_PASSWORD — Timeweb Container Registry
+#   TWC_KUBECONFIG — raw kubeconfig (без base64)
+#   dockerhub_username, dockerhub_password — Docker Hub (в этом репо push образов только в TWC;
+#     для pull образов шагов при rate limit добавьте org secret dockerconfigjson = содержимое
+#     ~/.docker/config.json после docker login, и раскомментируйте image_pull_secrets в каждом pipeline)
 #
 # Secrets (репозиторий AMB):
 #   twc_registry_namespace  — путь в реестре (например megaretro), как в saas-billing
@@ -27,8 +27,6 @@
 #
 # Repository settings → Trusted = ON (Docker-in-Docker privileged).
 #
-# После перехода на Drone отключите или сузьте триггеры GitHub Actions
-# (.github/workflows/deploy-timeweb-k8s.yml), чтобы не было двойного деплоя.
 # =============================================================================
 
 # ---------------------------------------------------------------------------
@@ -37,9 +35,6 @@
 kind: pipeline
 type: docker
 name: ci
-
-image_pull_secrets:
-  - dockerconfigjson
 
 clone:
   image: alpine/git
@@ -106,9 +101,6 @@ steps:
 kind: pipeline
 type: docker
 name: build-images
-
-image_pull_secrets:
-  - dockerconfigjson
 
 clone:
   image: alpine/git
@@ -187,9 +179,6 @@ steps:
 kind: pipeline
 type: docker
 name: deploy
-
-image_pull_secrets:
-  - dockerconfigjson
 
 clone:
   image: alpine/git

@@ -1,3 +1,5 @@
+[![Build Status](https://drone.megaretro.ru/api/badges/MegaRetroHQ/amb/status.svg)](https://drone.megaretro.ru/MegaRetroHQ/amb)
+
 # Agent Message Bus (AMB)
 
 AMB is a shared message bus for AI agents working in Cursor, Codex, Claude Code, or custom workers. It gives them one shared workflow layer: threads, inbox, ACK, retry, and DLQ.
