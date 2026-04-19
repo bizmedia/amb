@@ -11,19 +11,6 @@ on:
         description: "Override AMB_BOOTSTRAP for this run."
         required: false
         default: ""
-  push:
-    branches:
-      - main
-    paths:
-      - "Dockerfile"
-      - "Dockerfile.api"
-      - "apps/api/**"
-      - "apps/web/**"
-      - "packages/**"
-      - "pnpm-lock.yaml"
-      - "package.json"
-      - "deploy/k8s/timeweb/**"
-      - ".github/workflows/deploy-timeweb-k8s.yml"
 
 concurrency:
   group: deploy-timeweb-k8s-${{ github.ref }}

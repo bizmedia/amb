@@ -1,7 +1,7 @@
 {
   "name": "amb-app",
   "packageManager": "pnpm@10.19.0",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "private": true,
   "license": "MIT",
   "repository": {
@@ -24,6 +24,7 @@
   "scripts": {
     "postinstall": "sh scripts/chmod-node-bin.sh",
     "scripts:help": "node scripts/print-scripts-help.mjs",
+    "bump:version": "node scripts/bump-version.mjs",
     "version:bump": "node scripts/bump-version.mjs",
     "dev": "turbo run dev --filter=amb-web --filter=amb-api",
     "dev:api": "pnpm --filter amb-api run dev",
@@ -62,7 +63,7 @@
     "deploy:k8s:api": "kubectl apply -f deploy/k8s/api-deployment.yaml -f deploy/k8s/api-service.yaml"
   },
   "devDependencies": {
-    "@openaisdk/amb-mcp": "^1.3.2",
+    "@openaisdk/amb-mcp": "^1.3.3",
     "@repo/eslint-config": "workspace:*",
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.16",

@@ -1,24 +1,7 @@
 name: API CI
 
 on:
-  pull_request:
-    paths:
-      - "apps/api/**"
-      - "packages/db/**"
-      - "packages/shared/**"
-      - "pnpm-lock.yaml"
-      - "package.json"
-      - ".github/workflows/api-ci.yml"
-  push:
-    branches:
-      - main
-    paths:
-      - "apps/api/**"
-      - "packages/db/**"
-      - "packages/shared/**"
-      - "pnpm-lock.yaml"
-      - "package.json"
-      - ".github/workflows/api-ci.yml"
+  workflow_dispatch:
 
 jobs:
   api-checks:

@@ -1,6 +1,6 @@
 {
   "name": "@amb-app/ui",
-  "version": "1.2.5",
+  "version": "1.3.3",
   "private": true,
   "author": "Anatoliy Tukov <openaisdk@gmail.com>",
   "sideEffects": false,

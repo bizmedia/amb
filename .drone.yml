@@ -1,0 +1,344 @@
+# =============================================================================
+# Drone CI — AMB (Agent Message Bus)
+# =============================================================================
+# По образцу ../mega-retro и ../saas-billing:
+#   1. ci           — install, lint (web + api), typecheck, test, build
+#   2. build-images — Docker-in-Docker: amb-api, amb-web → Timeweb Registry (main)
+#   3. deploy       — pull-secret, amb-secrets, migrate job, envsubst apply, rollout, smoke
+#
+# Secrets (организация — общие с другими проектами Timeweb):
+#   TWC_REGISTRY_HOST       — хост реестра (*.registry.twcstorage.ru)
+#   TWC_REGISTRY_USERNAME   — логин docker login
+#   TWC_REGISTRY_PASSWORD   — пароль/токен
+#   TWC_KUBECONFIG          — raw kubeconfig кластера (без base64)
+#   dockerconfigjson        — ~/.docker/config.json с Docker Hub (обход rate limit на образы шагов)
+#
+# Secrets (репозиторий AMB):
+#   twc_registry_namespace  — путь в реестре (например megaretro), как в saas-billing
+#   amb_k8s_namespace       — Kubernetes namespace (часто megaretro)
+#   AMB_DATABASE_URL        — Postgres URL для API и миграций
+#   AMB_JWT_SECRET          — секрет JWT для API
+#   amb_web_host            — хост Ingress web (например amb.megaretro.ru)
+#   amb_api_host            — хост Ingress API (например api.amb.megaretro.ru)
+#
+# Не секреты (при необходимости поменяйте в шаге apply-manifests в этом файле):
+#   AMB_IMAGE_PULL_SECRET, AMB_CLUSTER_ISSUER, AMB_BOOTSTRAP,
+#   AMB_WEB_TLS_SECRET, AMB_API_TLS_SECRET — как в .github/workflows/deploy-timeweb-k8s.yml (vars).
+#
+# Repository settings → Trusted = ON (Docker-in-Docker privileged).
+#
+# После перехода на Drone отключите или сузьте триггеры GitHub Actions
+# (.github/workflows/deploy-timeweb-k8s.yml), чтобы не было двойного деплоя.
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# Pipeline 1: CI
+# ---------------------------------------------------------------------------
+kind: pipeline
+type: docker
+name: ci
+
+image_pull_secrets:
+  - dockerconfigjson
+
+clone:
+  image: alpine/git
+  depth: 1
+
+trigger:
+  event:
+    - push
+    - pull_request
+
+steps:
+  - name: install
+    image: node:20-alpine
+    commands:
+      - corepack enable
+      - corepack prepare pnpm@10.19.0 --activate
+      - pnpm install --frozen-lockfile
+
+  - name: lint-web
+    image: node:20-alpine
+    depends_on: [install]
+    commands:
+      - corepack enable
+      - corepack prepare pnpm@10.19.0 --activate
+      - pnpm lint
+
+  - name: lint-api
+    image: node:20-alpine
+    depends_on: [install]
+    commands:
+      - corepack enable
+      - corepack prepare pnpm@10.19.0 --activate
+      - pnpm lint:api
+
+  - name: typecheck
+    image: node:20-alpine
+    depends_on: [install]
+    commands:
+      - corepack enable
+      - corepack prepare pnpm@10.19.0 --activate
+      - pnpm typecheck
+
+  - name: test
+    image: node:20-alpine
+    depends_on: [install]
+    commands:
+      - corepack enable
+      - corepack prepare pnpm@10.19.0 --activate
+      - pnpm test
+
+  - name: build
+    image: node:20-alpine
+    depends_on: [lint-web, lint-api, typecheck, test]
+    commands:
+      - corepack enable
+      - corepack prepare pnpm@10.19.0 --activate
+      - pnpm build
+
+
+# ---------------------------------------------------------------------------
+# Pipeline 2: Build & push Docker images (main)
+# ---------------------------------------------------------------------------
+---
+kind: pipeline
+type: docker
+name: build-images
+
+image_pull_secrets:
+  - dockerconfigjson
+
+clone:
+  image: alpine/git
+  depth: 1
+
+trigger:
+  branch:
+    - main
+    - develop
+  event:
+    - push
+
+depends_on:
+  - ci
+
+volumes:
+  - name: docker-certs
+    temp: {}
+
+services:
+  - name: docker
+    image: docker:27-dind
+    privileged: true
+    volumes:
+      - name: docker-certs
+        path: /certs
+
+steps:
+  - name: build-push-all
+    image: docker:27
+    volumes:
+      - name: docker-certs
+        path: /certs
+    environment:
+      DOCKER_HOST: tcp://docker:2376
+      DOCKER_TLS_VERIFY: "1"
+      DOCKER_CERT_PATH: /certs/client
+      REGISTRY_HOST:
+        from_secret: TWC_REGISTRY_HOST
+      REGISTRY_USERNAME:
+        from_secret: TWC_REGISTRY_USERNAME
+      REGISTRY_PASSWORD:
+        from_secret: TWC_REGISTRY_PASSWORD
+      REGISTRY_NAMESPACE:
+        from_secret: twc_registry_namespace
+    commands:
+      - until docker info >/dev/null 2>&1; do echo "Waiting for Docker daemon..."; sleep 2; done
+      - docker login -u "$REGISTRY_USERNAME" -p "$REGISTRY_PASSWORD" "$REGISTRY_HOST"
+      - apk add --no-cache jq
+      - export APP_VERSION=$(jq -r .version package.json)
+      - export SHORT_SHA=$(echo "$DRONE_COMMIT_SHA" | cut -c1-7)
+      - export IMAGE_TAG="$APP_VERSION-$SHORT_SHA"
+      - echo "IMAGE_TAG=$IMAGE_TAG"
+      - export PREFIX="$REGISTRY_HOST/$REGISTRY_NAMESPACE"
+      - echo "=== Building amb-api ==="
+      - >-
+        docker build --platform linux/amd64
+        -f Dockerfile.api
+        -t "$PREFIX/amb-api:$IMAGE_TAG"
+        .
+      - docker push "$PREFIX/amb-api:$IMAGE_TAG"
+      - echo "=== Building amb-web ==="
+      - >-
+        docker build --platform linux/amd64
+        -f Dockerfile
+        -t "$PREFIX/amb-web:$IMAGE_TAG"
+        .
+      - docker push "$PREFIX/amb-web:$IMAGE_TAG"
+      - echo "All AMB images pushed"
+
+
+# ---------------------------------------------------------------------------
+# Pipeline 3: Deploy to Timeweb Kubernetes (main)
+# ---------------------------------------------------------------------------
+---
+kind: pipeline
+type: docker
+name: deploy
+
+image_pull_secrets:
+  - dockerconfigjson
+
+clone:
+  image: alpine/git
+  depth: 1
+
+trigger:
+  branch:
+    - main
+    - develop
+  event:
+    - push
+
+depends_on:
+  - build-images
+
+steps:
+  - name: setup-and-migrate
+    image: alpine/k8s:1.30.6
+    environment:
+      TWC_KUBECONFIG:
+        from_secret: TWC_KUBECONFIG
+      REGISTRY_HOST:
+        from_secret: TWC_REGISTRY_HOST
+      REGISTRY_NAMESPACE:
+        from_secret: twc_registry_namespace
+      REGISTRY_USERNAME:
+        from_secret: TWC_REGISTRY_USERNAME
+      REGISTRY_PASSWORD:
+        from_secret: TWC_REGISTRY_PASSWORD
+      AMB_NAMESPACE:
+        from_secret: amb_k8s_namespace
+      DATABASE_URL:
+        from_secret: AMB_DATABASE_URL
+      JWT_SECRET:
+        from_secret: AMB_JWT_SECRET
+    commands:
+      - apk add --no-cache gettext jq
+      - mkdir -p ~/.kube
+      - echo "$TWC_KUBECONFIG" > ~/.kube/config
+      - chmod 600 ~/.kube/config
+      - export APP_VERSION=$(jq -r .version package.json)
+      - export SHORT_SHA=$(echo "$DRONE_COMMIT_SHA" | cut -c1-7)
+      - export IMAGE_TAG="$APP_VERSION-$SHORT_SHA"
+      - export PREFIX="$REGISTRY_HOST/$REGISTRY_NAMESPACE"
+      - export AMB_API_IMAGE="$PREFIX/amb-api:$IMAGE_TAG"
+      - export AMB_IMAGE_PULL_SECRET=timeweb-registry-secret
+      - echo "Migrate image = $AMB_API_IMAGE"
+      - kubectl get namespace "$AMB_NAMESPACE" >/dev/null 2>&1 || kubectl create namespace "$AMB_NAMESPACE"
+      - >-
+        kubectl create secret docker-registry "$AMB_IMAGE_PULL_SECRET"
+        -n "$AMB_NAMESPACE"
+        --docker-server="$REGISTRY_HOST"
+        --docker-username="$REGISTRY_USERNAME"
+        --docker-password="$REGISTRY_PASSWORD"
+        --dry-run=client -o yaml | kubectl apply -f -
+      - >-
+        kubectl create secret generic amb-secrets
+        -n "$AMB_NAMESPACE"
+        --from-literal=DATABASE_URL="$DATABASE_URL"
+        --from-literal=JWT_SECRET="$JWT_SECRET"
+        --dry-run=client -o yaml | kubectl apply -f -
+      - kubectl delete job amb-api-migrate -n "$AMB_NAMESPACE" --ignore-not-found
+      - sleep 2
+      - envsubst < deploy/k8s/timeweb/migrate-job.yaml | kubectl apply -n "$AMB_NAMESPACE" -f -
+      - kubectl wait -n "$AMB_NAMESPACE" --for=condition=complete --timeout=600s job/amb-api-migrate
+      - kubectl logs -n "$AMB_NAMESPACE" job/amb-api-migrate --tail=200 || true
+
+  - name: apply-manifests
+    image: alpine/k8s:1.30.6
+    depends_on: [setup-and-migrate]
+    environment:
+      TWC_KUBECONFIG:
+        from_secret: TWC_KUBECONFIG
+      REGISTRY_HOST:
+        from_secret: TWC_REGISTRY_HOST
+      REGISTRY_NAMESPACE:
+        from_secret: twc_registry_namespace
+      AMB_NAMESPACE:
+        from_secret: amb_k8s_namespace
+      AMB_WEB_HOST:
+        from_secret: amb_web_host
+      AMB_API_HOST:
+        from_secret: amb_api_host
+      AMB_IMAGE_PULL_SECRET: timeweb-registry-secret
+      AMB_CLUSTER_ISSUER: letsencrypt-prod
+      AMB_BOOTSTRAP: "true"
+      AMB_WEB_TLS_SECRET: amb-megaretro-ru-tls
+      AMB_API_TLS_SECRET: api-amb-megaretro-ru-tls
+    commands:
+      - apk add --no-cache gettext jq bash
+      - mkdir -p ~/.kube
+      - echo "$TWC_KUBECONFIG" > ~/.kube/config
+      - chmod 600 ~/.kube/config
+      - export APP_VERSION=$(jq -r .version package.json)
+      - export SHORT_SHA=$(echo "$DRONE_COMMIT_SHA" | cut -c1-7)
+      - export IMAGE_TAG="$APP_VERSION-$SHORT_SHA"
+      - export PREFIX="$REGISTRY_HOST/$REGISTRY_NAMESPACE"
+      - export AMB_API_IMAGE="$PREFIX/amb-api:$IMAGE_TAG"
+      - export AMB_WEB_IMAGE="$PREFIX/amb-web:$IMAGE_TAG"
+      - |
+        for v in AMB_NAMESPACE AMB_API_IMAGE AMB_WEB_IMAGE AMB_WEB_HOST AMB_API_HOST AMB_IMAGE_PULL_SECRET; do
+          eval "val=\$$v"
+          if [ -z "$val" ]; then echo "ERROR: $v is empty" >&2; exit 1; fi
+        done
+      - envsubst < deploy/k8s/timeweb/apply.yaml > /tmp/amb-rendered.yaml
+      - |
+        if grep -nE 'secretName:[[:space:]]*(null|""|'"''"'|$)' /tmp/amb-rendered.yaml; then
+          echo "ERROR: rendered manifest has empty/null secretName in Ingress" >&2
+          exit 1
+        fi
+      - kubectl apply -n "$AMB_NAMESPACE" -f /tmp/amb-rendered.yaml
+
+  - name: rollout-status
+    image: alpine/k8s:1.30.6
+    depends_on: [apply-manifests]
+    environment:
+      TWC_KUBECONFIG:
+        from_secret: TWC_KUBECONFIG
+      AMB_NAMESPACE:
+        from_secret: amb_k8s_namespace
+    commands:
+      - mkdir -p ~/.kube
+      - echo "$TWC_KUBECONFIG" > ~/.kube/config
+      - chmod 600 ~/.kube/config
+      - kubectl rollout status -n "$AMB_NAMESPACE" deployment/amb-api --timeout=600s
+      - kubectl rollout status -n "$AMB_NAMESPACE" deployment/amb-web --timeout=600s
+
+  - name: smoke-test
+    image: alpine/k8s:1.30.6
+    depends_on: [rollout-status]
+    environment:
+      TWC_KUBECONFIG:
+        from_secret: TWC_KUBECONFIG
+      AMB_NAMESPACE:
+        from_secret: amb_k8s_namespace
+    commands:
+      - mkdir -p ~/.kube
+      - echo "$TWC_KUBECONFIG" > ~/.kube/config
+      - chmod 600 ~/.kube/config
+      - kubectl get pods -n "$AMB_NAMESPACE" -l app=amb-api
+      - kubectl get pods -n "$AMB_NAMESPACE" -l app=amb-web
+      - >-
+        kubectl run "amb-smoke-drone-$DRONE_BUILD_NUMBER"
+        -n "$AMB_NAMESPACE" --rm -i --restart=Never
+        --image=curlimages/curl:8.11.1
+        -- -fsS "http://amb-api/api/health"
+      - >-
+        kubectl run "amb-smoke-web-drone-$DRONE_BUILD_NUMBER"
+        -n "$AMB_NAMESPACE" --rm -i --restart=Never
+        --image=curlimages/curl:8.11.1
+        -- -IfsS "http://amb-web/"
+      - echo "Smoke tests passed"
