@@ -1,0 +1,39 @@
+name: amb-shared-host
+
+services:
+  api:
+    image: docker.io/openaisdk/amb-api:latest
+    pull_policy: always
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      AMB_BOOTSTRAP: ${AMB_BOOTSTRAP:-true}
+      AMB_SWAGGER_ENABLED: ${AMB_SWAGGER_ENABLED:-false}
+      PORT: 3334
+    ports:
+      - "127.0.0.1:${AMB_API_UPSTREAM_PORT:-4201}:3334"
+    healthcheck:
+      test:
+        ["CMD-SHELL", "wget -qO- http://localhost:3334/api/health >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  web:
+    image: docker.io/openaisdk/amb-web-ui:latest
+    pull_policy: always
+    restart: unless-stopped
+    environment:
+      API_URL: http://api:3334
+      PORT: 3333
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${AMB_WEB_UPSTREAM_PORT:-3201}:3333"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3333 >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 12

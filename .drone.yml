@@ -4,11 +4,12 @@
 # По образцу ../mega-retro и ../saas-billing:
 #   1. ci           — install, lint (web + api), typecheck, test, build
 #   2. build-images — Docker-in-Docker: amb-api, amb-web → Timeweb Registry (main)
-#   3. deploy       — pull-secret, amb-secrets, migrate job, envsubst apply, rollout, smoke
+#   3. deploy       — bare-metal deploy по SSH (sync scripts + env + migrate + compose up)
 #
 # Organization secrets (имена как в Drone UI):
 #   TWC_REGISTRY_HOST, TWC_REGISTRY_USERNAME, TWC_REGISTRY_PASSWORD — Timeweb Container Registry
-#   TWC_KUBECONFIG — raw kubeconfig (без base64)
+#   BARE_METAL_SSH_PRIVATE_KEY — private key для deploy@host
+#   BARE_METAL_HOST — SSH хост (IP/FQDN) выделенного сервера
 #   dockerhub_username, dockerhub_password — учётка Docker Hub (для логина вручную при сборке dockerconfigjson)
 #   dockerconfigjson — ОБЯЗАТЕЛЬНО для CI: полное содержимое ~/.docker/config.json после
 #     `docker login -u "<dockerhub_username>" -p "<dockerhub_password>"` (без этого Hub даёт
@@ -16,15 +17,8 @@
 #
 # Secrets (репозиторий AMB):
 #   twc_registry_namespace  — путь в реестре (например megaretro), как в saas-billing
-#   amb_k8s_namespace       — Kubernetes namespace (часто megaretro)
 #   AMB_DATABASE_URL        — Postgres URL для API и миграций
 #   AMB_JWT_SECRET          — секрет JWT для API
-#   amb_web_host            — хост Ingress web (например amb.megaretro.ru)
-#   amb_api_host            — хост Ingress API (например api.amb.megaretro.ru)
-#
-# Не секреты (при необходимости поменяйте в шаге apply-manifests в этом файле):
-#   AMB_IMAGE_PULL_SECRET, AMB_CLUSTER_ISSUER, AMB_BOOTSTRAP,
-#   AMB_WEB_TLS_SECRET, AMB_API_TLS_SECRET — как в .github/workflows/deploy-timeweb-k8s.yml (vars).
 #
 # Repository settings → Trusted = ON (Docker-in-Docker privileged).
 # Образы node:20.19-alpine — Prisma 7 требует Node 20.19+ (см. engines в корневом package.json).
@@ -215,7 +209,7 @@ steps:
 
 
 # ---------------------------------------------------------------------------
-# Pipeline 3: Deploy to Timeweb Kubernetes (main)
+# Pipeline 3: Deploy — bare-metal SSH (main/develop)
 # ---------------------------------------------------------------------------
 ---
 kind: pipeline
@@ -240,139 +234,69 @@ depends_on:
   - build-images
 
 steps:
-  - name: setup-and-migrate
-    image: alpine/k8s:1.30.6
+  - name: bare-metal-ssh
+    image: alpine:3.20
     environment:
-      TWC_KUBECONFIG:
-        from_secret: TWC_KUBECONFIG
-      REGISTRY_HOST:
+      TWC_REGISTRY_HOST:
         from_secret: TWC_REGISTRY_HOST
       REGISTRY_NAMESPACE:
         from_secret: twc_registry_namespace
-      REGISTRY_USERNAME:
-        from_secret: TWC_REGISTRY_USERNAME
-      REGISTRY_PASSWORD:
-        from_secret: TWC_REGISTRY_PASSWORD
-      AMB_NAMESPACE:
-        from_secret: amb_k8s_namespace
-      DATABASE_URL:
+      BARE_METAL_SSH_PRIVATE_KEY:
+        from_secret: BARE_METAL_SSH_PRIVATE_KEY
+      BARE_METAL_HOST:
+        from_secret: BARE_METAL_HOST
+      AMB_DATABASE_URL:
         from_secret: AMB_DATABASE_URL
-      JWT_SECRET:
+      AMB_JWT_SECRET:
         from_secret: AMB_JWT_SECRET
     commands:
-      - apk add --no-cache gettext jq
-      - mkdir -p ~/.kube
-      - echo "$TWC_KUBECONFIG" > ~/.kube/config
-      - chmod 600 ~/.kube/config
-      - export APP_VERSION=$(jq -r .version package.json)
-      - export SHORT_SHA=$(echo "$DRONE_COMMIT_SHA" | cut -c1-7)
-      - export IMAGE_TAG="$APP_VERSION-$SHORT_SHA"
-      - export PREFIX="$REGISTRY_HOST/$REGISTRY_NAMESPACE"
-      - export AMB_API_IMAGE="$PREFIX/amb-api:$IMAGE_TAG"
-      - export AMB_IMAGE_PULL_SECRET=timeweb-registry-secret
-      - echo "Migrate image = $AMB_API_IMAGE"
-      - kubectl get namespace "$AMB_NAMESPACE" >/dev/null 2>&1 || kubectl create namespace "$AMB_NAMESPACE"
-      - >-
-        kubectl create secret docker-registry "$AMB_IMAGE_PULL_SECRET"
-        -n "$AMB_NAMESPACE"
-        --docker-server="$REGISTRY_HOST"
-        --docker-username="$REGISTRY_USERNAME"
-        --docker-password="$REGISTRY_PASSWORD"
-        --dry-run=client -o yaml | kubectl apply -f -
-      - >-
-        kubectl create secret generic amb-secrets
-        -n "$AMB_NAMESPACE"
-        --from-literal=DATABASE_URL="$DATABASE_URL"
-        --from-literal=JWT_SECRET="$JWT_SECRET"
-        --dry-run=client -o yaml | kubectl apply -f -
-      - kubectl delete job amb-api-migrate -n "$AMB_NAMESPACE" --ignore-not-found
-      - sleep 2
-      - envsubst < deploy/k8s/timeweb/migrate-job.yaml | kubectl apply -n "$AMB_NAMESPACE" -f -
-      - kubectl wait -n "$AMB_NAMESPACE" --for=condition=complete --timeout=600s job/amb-api-migrate
-      - kubectl logs -n "$AMB_NAMESPACE" job/amb-api-migrate --tail=200 || true
+      - |
+        set -e
+        apk add --no-cache openssh-client bash jq
+        BHOST="$BARE_METAL_HOST"
+        BUSER=deploy
 
-  - name: apply-manifests
-    image: alpine/k8s:1.30.6
-    depends_on: [setup-and-migrate]
-    environment:
-      TWC_KUBECONFIG:
-        from_secret: TWC_KUBECONFIG
-      REGISTRY_HOST:
-        from_secret: TWC_REGISTRY_HOST
-      REGISTRY_NAMESPACE:
-        from_secret: twc_registry_namespace
-      AMB_NAMESPACE:
-        from_secret: amb_k8s_namespace
-      AMB_WEB_HOST:
-        from_secret: amb_web_host
-      AMB_API_HOST:
-        from_secret: amb_api_host
-      AMB_IMAGE_PULL_SECRET: timeweb-registry-secret
-      AMB_CLUSTER_ISSUER: letsencrypt-prod
-      AMB_BOOTSTRAP: "true"
-      AMB_WEB_TLS_SECRET: amb-megaretro-ru-tls
-      AMB_API_TLS_SECRET: api-amb-megaretro-ru-tls
-    commands:
-      - apk add --no-cache gettext jq bash
-      - mkdir -p ~/.kube
-      - echo "$TWC_KUBECONFIG" > ~/.kube/config
-      - chmod 600 ~/.kube/config
-      - export APP_VERSION=$(jq -r .version package.json)
-      - export SHORT_SHA=$(echo "$DRONE_COMMIT_SHA" | cut -c1-7)
-      - export IMAGE_TAG="$APP_VERSION-$SHORT_SHA"
-      - export PREFIX="$REGISTRY_HOST/$REGISTRY_NAMESPACE"
-      - export AMB_API_IMAGE="$PREFIX/amb-api:$IMAGE_TAG"
-      - export AMB_WEB_IMAGE="$PREFIX/amb-web:$IMAGE_TAG"
-      - |
-        for v in AMB_NAMESPACE AMB_API_IMAGE AMB_WEB_IMAGE AMB_WEB_HOST AMB_API_HOST AMB_IMAGE_PULL_SECRET; do
-          eval "val=\$$v"
-          if [ -z "$val" ]; then echo "ERROR: $v is empty" >&2; exit 1; fi
-        done
-      - envsubst < deploy/k8s/timeweb/apply.yaml > /tmp/amb-rendered.yaml
-      - |
-        if grep -nE 'secretName:[[:space:]]*(null|""|'"''"'|$)' /tmp/amb-rendered.yaml; then
-          echo "ERROR: rendered manifest has empty/null secretName in Ingress" >&2
+        umask 077
+        printf '%s' "$BARE_METAL_SSH_PRIVATE_KEY" | tr -d '\r' > /tmp/sshkey
+        test -s /tmp/sshkey
+        chmod 600 /tmp/sshkey
+        if ! ssh-keygen -y -f /tmp/sshkey >/dev/null 2>&1; then
+          printf '%s' "$BARE_METAL_SSH_PRIVATE_KEY" | tr -d '\r' | base64 -d > /tmp/sshkey
+          chmod 600 /tmp/sshkey
+        fi
+        if ! ssh-keygen -y -f /tmp/sshkey >/dev/null 2>&1; then
+          echo "BARE_METAL_SSH_PRIVATE_KEY is invalid. Use full PEM or one-line base64." >&2
           exit 1
         fi
-      - kubectl apply -n "$AMB_NAMESPACE" -f /tmp/amb-rendered.yaml
 
-  - name: rollout-status
-    image: alpine/k8s:1.30.6
-    depends_on: [apply-manifests]
-    environment:
-      TWC_KUBECONFIG:
-        from_secret: TWC_KUBECONFIG
-      AMB_NAMESPACE:
-        from_secret: amb_k8s_namespace
-    commands:
-      - mkdir -p ~/.kube
-      - echo "$TWC_KUBECONFIG" > ~/.kube/config
-      - chmod 600 ~/.kube/config
-      - kubectl rollout status -n "$AMB_NAMESPACE" deployment/amb-api --timeout=600s
-      - kubectl rollout status -n "$AMB_NAMESPACE" deployment/amb-web --timeout=600s
+        APP_VERSION=$(jq -r .version package.json)
+        SHORT_SHA=$(echo "$DRONE_COMMIT_SHA" | cut -c1-7)
+        IMAGE_TAG="$APP_VERSION-$SHORT_SHA"
+        PREFIX="$TWC_REGISTRY_HOST/$REGISTRY_NAMESPACE"
+        AMB_API_IMAGE="$PREFIX/amb-api:$IMAGE_TAG"
+        AMB_WEB_IMAGE="$PREFIX/amb-web:$IMAGE_TAG"
 
-  - name: smoke-test
-    image: alpine/k8s:1.30.6
-    depends_on: [rollout-status]
-    environment:
-      TWC_KUBECONFIG:
-        from_secret: TWC_KUBECONFIG
-      AMB_NAMESPACE:
-        from_secret: amb_k8s_namespace
-    commands:
-      - mkdir -p ~/.kube
-      - echo "$TWC_KUBECONFIG" > ~/.kube/config
-      - chmod 600 ~/.kube/config
-      - kubectl get pods -n "$AMB_NAMESPACE" -l app=amb-api
-      - kubectl get pods -n "$AMB_NAMESPACE" -l app=amb-web
-      - >-
-        kubectl run "amb-smoke-drone-$DRONE_BUILD_NUMBER"
-        -n "$AMB_NAMESPACE" --rm -i --restart=Never
-        --image=curlimages/curl:8.11.1
-        -- -fsS "http://amb-api/api/health"
-      - >-
-        kubectl run "amb-smoke-web-drone-$DRONE_BUILD_NUMBER"
-        -n "$AMB_NAMESPACE" --rm -i --restart=Never
-        --image=curlimages/curl:8.11.1
-        -- -IfsS "http://amb-web/"
-      - echo "Smoke tests passed"
+        echo "Deploy to $BUSER@$BHOST tag=$IMAGE_TAG"
+        tar -C ops/bare-metal -czf - . | ssh -oBatchMode=yes -oStrictHostKeyChecking=accept-new -i /tmp/sshkey \
+          "$BUSER@$BHOST" \
+          "set -e; mkdir -p /opt/amb-app; if [ ! -w /opt/amb-app ]; then echo '/opt/amb-app must be owned by deploy:deploy' >&2; exit 1; fi; tar -xzf - -C /opt/amb-app; chmod +x /opt/amb-app/bin/*.sh"
+
+        {
+          printf '%s\n' "NODE_ENV=production"
+          printf '%s\n' "PORT=3334"
+          printf '%s\n' "AMB_BOOTSTRAP=true"
+          printf '%s\n' "AMB_SWAGGER_ENABLED=false"
+          printf 'DATABASE_URL=%s\n' "$AMB_DATABASE_URL"
+          printf 'JWT_SECRET=%s\n' "$AMB_JWT_SECRET"
+        } > /tmp/amb-app.env
+        chmod 600 /tmp/amb-app.env
+
+        scp -oBatchMode=yes -oStrictHostKeyChecking=accept-new -i /tmp/sshkey /tmp/amb-app.env "$BUSER@$BHOST:/tmp/amb-app.env"
+        ssh -oBatchMode=yes -oStrictHostKeyChecking=accept-new -i /tmp/sshkey \
+          "$BUSER@$BHOST" \
+          "set -e; install -m 600 /tmp/amb-app.env /opt/amb-app/.env; rm -f /tmp/amb-app.env"
+        rm -f /tmp/amb-app.env
+
+        ssh -oBatchMode=yes -oStrictHostKeyChecking=accept-new -i /tmp/sshkey \
+          "$BUSER@$BHOST" \
+          "set -e; export AMB_API_IMAGE='$AMB_API_IMAGE'; export AMB_WEB_IMAGE='$AMB_WEB_IMAGE'; export AMB_SKIP_MIGRATION=0; /opt/amb-app/bin/remote-pull-and-up.sh"

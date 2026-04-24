@@ -113,11 +113,11 @@ All clients should point to the same local AMB instance and the same `Project ID
 
 ### Environment variables
 
-| Variable | Required | Description |
-| -------- | -------- | ----------- |
-| `MESSAGE_BUS_URL` | Yes | Base URL of the **AMB HTTP API** (the same origin that serves `/api/health`). Default published compose maps the API to host port **4334** (see `API_PORT` in `amb-compose.yml`), not the Dashboard port. |
-| `MESSAGE_BUS_PROJECT_ID` | Yes | Project UUID from the Dashboard. |
-| `MESSAGE_BUS_ACCESS_TOKEN` | When your API enforces JWT | Project access token from the Dashboard. You can use `MESSAGE_BUS_TOKEN` instead; the MCP server accepts either name. |
+| Variable                   | Required                   | Description                                                                                                                                                                                               |
+| -------------------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `MESSAGE_BUS_URL`          | Yes                        | Base URL of the **AMB HTTP API** (the same origin that serves `/api/health`). Default published compose maps the API to host port **4334** (see `API_PORT` in `amb-compose.yml`), not the Dashboard port. |
+| `MESSAGE_BUS_PROJECT_ID`   | Yes                        | Project UUID from the Dashboard.                                                                                                                                                                          |
+| `MESSAGE_BUS_ACCESS_TOKEN` | When your API enforces JWT | Project access token from the Dashboard. You can use `MESSAGE_BUS_TOKEN` instead; the MCP server accepts either name.                                                                                     |
 
 `amb-mcp` resolves variables in this order: **process environment** → **`.cursor/mcp.env`** → **`.env.local`** → **`.env`**. Repository scripts (`pnpm seed:*`, `pnpm example:*`, and similar) also support legacy inline config lookup from MCP config files as documented in `apps/web/scripts/message-bus-env.ts`.
 
@@ -392,6 +392,25 @@ Create a thread in AMB called "cross-client-demo". Coordinate work across po, ar
 ```
 
 ## Troubleshooting
+
+### Shared host with mega-retro and saas-billing
+
+If all sites run on one server behind a single host Caddy, keep fixed non-overlapping upstream ports:
+
+- mega-retro: `8080` (landing), `3000` (web), `4000` (api)
+- saas-billing: `3101` (admin-ui), `4101` (api), `9190` (worker metrics)
+- amb-app: `3201` (web), `4201` (api), `9290` (reserved metrics)
+
+For AMB on a shared host use:
+
+```bash
+docker compose -f deploy/compose/docker-compose.shared-host.yml up -d
+```
+
+Then route domains in host Caddy:
+
+- `amb.megaretro.ru` -> `127.0.0.1:3201`
+- `api.amb.megaretro.ru` -> `127.0.0.1:4201`
 
 ### `docker compose up` fails because a port is already in use
 
