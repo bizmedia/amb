@@ -83,6 +83,7 @@ npm install -D @openaisdk/amb-mcp
     "message-bus": {
       "command": "pnpm",
       "args": ["exec", "amb-mcp"],
+      "envFile": ".cursor/mcp.env",
       "env": {
         "AMB_MCP_BOOTSTRAP_LOG": "1"
       }
